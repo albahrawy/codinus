@@ -1,0 +1,35 @@
+<div class="button-style-container">
+    <mat-form-field subscriptSizing="dynamic">
+        <mat-label>Button Style:</mat-label>
+        <mat-select (selectionChange)="onBtnSelectChange($event)">
+            <mat-option value="button">Normal</mat-option>
+            <mat-option value="flat">Flat</mat-option>
+            <mat-option value="raised">Raised</mat-option>
+            <mat-option value="stroked">Stroked</mat-option>
+            <mat-option value="">None</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <button [mat-button]="_buttonStyle">Test Button Style</button>
+</div>
+
+<cs-button-container [buttons]="buttons" (buttonClicked)="containerButtonClicked($event)"></cs-button-container>
+
+<div>
+    <cs-speed-button [buttons]="speedButtons" class="small-mini-fab" [spin]="45" [mode]="buttonMode" [mini]="isMini"
+        [direction]="direction" [animationMode]="animationMode"></cs-speed-button>
+</div>
+
+
+
+
+<BR>
+<mat-icon [csIcon]="iconValue" [iconType]="iconType">home</mat-icon>
+
+<button mat-stroked-button (click)=" isMini=!isMini">Toggle Mini</button>
+<button mat-stroked-button (click)="buttonMode='static'">Static</button>
+<button mat-stroked-button (click)="buttonMode='hover'">Hover Enabled</button>
+<button mat-stroked-button (click)="buttonMode='click'">Click Enabled</button>
+<button mat-stroked-button (click)="toggleAnimation()">Toggle AnimationMode</button>
+<button mat-stroked-button (click)="toggleDirection()">Toggle Direction {{direction}}</button>
+<button mat-stroked-button (click)="toggleIcons()">Toggle Icons</button>

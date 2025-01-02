@@ -1,0 +1,22 @@
+<div class="cs-dialog-title" mat-dialog-title cdkDrag cdkDragBoundary=".cdk-overlay-container"
+    cdkDragRootElement=".cdk-overlay-pane">
+    <span cdkDragHandle class="cs-dialog-title-span">{{(options.caption|csTranslate)()}}</span>
+    <cs-button-container [buttons]="options.titleButtons" [disabled]="busy()" (buttonClicked)="buttonClicked($event)"
+        class="cs-dialog-title-buttons small-mini-fab"></cs-button-container>
+</div>
+<mat-dialog-content class="cs-dialog-content-area" [style.overflow]="options.overflow">
+    @if(message){
+    <div class="cs-dialog-message" [innerHTML]="message|safeHtml">{{message}}</div>
+    }@else if(message$){
+    <div class="cs-dialog-html-message" [innerHTML]="message$|async|safeHtml">{{message}}</div>
+    }@else{
+    <ng-template [cdkPortalOutlet]="contentPortal" (attached)="onComponentAttached($event)"></ng-template>
+    }
+</mat-dialog-content>
+
+@if (hasActionBar) {
+<mat-dialog-actions align="end" class="cs-dialog-actions">
+    <cs-button-container [buttons]="options.actionBar?.buttons" [disabled]="busy()" (buttonClicked)="buttonClicked($event)"
+        class="cs-dialog-bar-buttons"></cs-button-container>
+</mat-dialog-actions>
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@ngx-codinus/monaco-editor",
+  "version": "5.0.0",
+  "peerDependencies": {
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular/forms": "~19.0.5",
+    "@angular/material": "^19.0.4",
+    "@codinus/types": "5.0.0",
+    "@ngx-codinus/cdk": "5.0.0",
+    "rxjs": "~7.8.1"
+  },
+  "sideEffects": false
+}

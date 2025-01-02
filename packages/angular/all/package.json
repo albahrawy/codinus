@@ -1,0 +1,14 @@
+{
+  "name": "@codinus/angular",
+  "version": "5.0.0",
+  "peerDependencies": {
+    "@codinus/dom": "5.0.0",
+    "@codinus/js-extensions": "5.0.0",
+    "@codinus/types": "5.0.0",
+    "@codinus/ts-parser": "5.0.0",
+    "@ngx-codinus/cdk": "5.0.0",
+    "@ngx-codinus/core": "5.0.0",
+    "@ngx-codinus/material": "5.0.0"
+  },
+  "sideEffects": false
+}

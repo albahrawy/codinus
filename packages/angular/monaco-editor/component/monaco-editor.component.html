@@ -1,0 +1,14 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<nav mat-tab-nav-bar mat-stretch-tabs="false" [tabPanel]="tabPanel">
+    @for (page of pages(); track page) {
+    <a mat-tab-link (click)="onPageChanged(page)" [active]="activePage.set(page)"> {{page.label|csTranslate}}</a>
+    }
+</nav>
+<mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
+@if(activePage(); as page){
+<div class="editor-area" monacoEditor (controlTouched)="_onTouched()" (valueChanged)="_onValueChanged()"
+    [actions]="page.actions" [extraLibs]="page.extraLibs" [language]="page.language"
+    [modelName]="page.modelName" [readOnly]="isDisabled() || page.readOnly"
+    [(ngModel)]="value()[page.key]"></div>
+}

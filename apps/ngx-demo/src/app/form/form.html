@@ -1,0 +1,139 @@
+<cs-form class="example-form" (valueInitialized)="valueInitialized($event)" (valueChanged)="printValues($event)"
+    (initialized)="onCreated($event)" [readOnly]="false">
+
+    <mat-form-field appearance="fill">
+        <cs-form-section [csFormControlName]="'sectionName1'">
+            <mat-form-field appearance="fill">
+                <mat-label class="mat-form-field-main-label">Localize Input</mat-label>
+                <cs-localizable-input [csFormControlName]="controlName" (ngModelChange)="valueChanged($event)"
+                    [required]="['ar']" layout-flex="row wrap" flex-gap="5px,1px,5px,10px" flex-limit
+                    layout-flex-align="start" columns="2,2" appearance="fill" prefix="name"></cs-localizable-input>
+            </mat-form-field>
+
+            <input type="password" [required]="true" revealOn="click" revealButton="always" matInput
+                buttonColor="primary" csFormControlName="password1" />
+            <input matInput [required]="_required" csFormControlName="C1" [validators]="customValidate"
+                [defaultValue]="_defaultValue">
+
+            <cs-form-section [csFormControlName]="sectionName2">
+                <input type="password" [required]="true" revealOn="click" revealButton="always" matInput
+                    buttonColor="primary" csFormControlName="password2" />
+                <input matInput [required]="_required" csFormControlName="C2" [validators]="customValidate"
+                    [defaultValue]="_defaultValue">
+
+            </cs-form-section>
+        </cs-form-section>
+    </mat-form-field>
+
+    <!-- <input matInput [required]="_required" [csFormControlName]="controlName" [validators]="customValidate"
+        [defaultValue]="_defaultValue">
+
+    <div (csfileDrop)="onDrop($event)" style="width:100px;height:200px;border:1px solid"></div> -->
+    <!-- <input type="file" novaUpload csFormControlName="filetest" multiple="true" accept=".png"> -->
+    <cs-form-area borderAppearance="fill" style="width: 100%;" flex-columns="1" displayType="card"
+        [layout-flex]="'row wrap'" flex-gap="5px" cardWhensingle="true">
+        <cs-form-area-panel label="Test Panel" icon="home" [layout-flex]="'row wrap'" [flex-gap]="panelGap"
+            [hidden]="false" layout-flex-align="start">
+            <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100">
+                <input type="password" [required]="true" revealOn="click" revealButton="always" matInput
+                    buttonColor="primary" csFormControlName="password2" />
+                <input matInput [required]="_required" csFormControlName="C2" [validators]="customValidate"
+                    [defaultValue]="_defaultValue">
+
+            </cs-form-section>
+            <cs-form-section [csFormControlName]="sectionName1" layout-flex-element flex-basis="50,100">
+                <!-- <mat-form-field appearance="fill">
+                    <mat-label class="mat-form-field-main-label">Localize Input</mat-label>
+                    <cs-localizable-input [csFormControlName]="controlName" (ngModelChange)="valueChanged($event)"
+                        [required]="['ar']" layout-flex="row wrap" flex-limit layout-flex-align="start" flex-columns="2"
+                        flex-gap="1px,1px,1px,10px" appearance="none" prefix="name"></cs-localizable-input>
+                </mat-form-field> -->
+            </cs-form-section>
+        </cs-form-area-panel>
+        <cs-form-area-panel label="Test Panel2" [accordionExpanded]="true">
+            <mat-form-field style="width:200px" appearance="fill">
+                <mat-label class="mat-form-field-main-label">Localize Input</mat-label>
+                <cs-localizable-input [csFormControlName]="controlNameX" (ngModelChange)="valueChanged($event)"
+                    [required]="['ar']" layout-flex="row wrap" flex-gap="5px,1px,5px,5px" flex-limit
+                    layout-flex-align="start" flex-gap-md="10px" [flex-columns]="2" appearance="none"
+                    prefix="name2"></cs-localizable-input>
+            </mat-form-field>
+        </cs-form-area-panel>
+        <cs-form-area-panel label="Test Panel3">
+
+        </cs-form-area-panel>
+        <!-- <cs-form-area-panel label="Test Table">
+            <mat-form-field style="width:700px;height: 600px;">
+                <mat-label>Test Table</mat-label>
+                <cs-table-form-control csFormControlName="grid" [commitOnDestroy]="config.commitOnDestroy"
+                    [editWithF2]="config.editWithF2" [editWithEnter]="config.editWithEnter"
+                    [rowHeight]="config.rowHeight" [attachFilter]="config.attachFilter"
+                    [reorderColumns]="config.reorderColumns" [sortable]="config.sortable"
+                    [showHeader]="config.showHeader" [showFilter]="config.showFilter" [showFooter]="config.showFooter"
+                    [stickyHeader]="config.stickyHeader" [stickyFilter]="config.stickyFilter"
+                    [stickyFooter]="config.stickyFooter" [noDataText]="config.noDataText"
+                    [responsive]="config.responsive" [selectColumn]="config.selectColumn"
+                    keyboardNavigation="cell-round" (created)="onGridCreated($event)" [iconType]="config.iconType"
+                    [iconColumn]="config.iconColumn" [showIndex]="config.showIndex" [iconMember]="config.iconMember"
+                    [columns]="config.columns" [selectable]="config.selectable"></cs-table-form-control>
+            </mat-form-field>
+        </cs-form-area-panel> -->
+    </cs-form-area>
+
+
+
+
+    <BR>
+
+
+    <!-- <mat-form-field style="width:200px" appearance="fill">
+        <mat-label class="mat-form-field-main-label">Sub Group</mat-label>
+        <cs-form-section csFormControlName="myGroup2">
+            <mat-form-field>
+                <mat-label>Test1</mat-label>
+                <input type="password" revealOn="click" revealButton="always" matInput buttonColor="primary"
+                    csFormControlName="password" />
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Test2</mat-label>
+                <input type="password" revealOn="click" revealButton="always" matInput buttonColor="primary"
+                    csFormControlName="password2" />
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Test3</mat-label>
+                <input type="password" revealOn="click" revealButton="always" matInput buttonColor="primary"
+                    csFormControlName="password3" />
+            </mat-form-field>
+        </cs-form-section>
+    </mat-form-field> -->
+
+</cs-form>
+
+<BR>{{_groupValue()|json}}
+
+<!-- <BR>{{formGroup.value|json}} -->
+
+<BR>{{formGroup.valid}}
+<button (click)="changeControlName()">Change Control Name (localize)</button>
+<button (click)="changeControlName2()">Change Control Name 2</button>
+
+
+
+
+<button (click)="_defaultValue='adf'">Change Default Value</button>
+<button (click)="_required=!_required">Change Required</button>
+<button (click)="panelGap = '15px'">Change Panel Gap To 15px</button>
+<button (click)="formGroup.reset()">Reset</button>
+<button (click)="changeSectionName(1)">Toggle Main Section FormControl (Section)</button>
+<button (click)="changeSectionName(2)">Toggle Sub Section FormControl</button>
+<button (click)="changeSectionName(3)">Toggle Both Sections FormControl</button>
+<BR>
+<!-- <button (click)="addRecord()">Add Record</button>
+<button (click)="removeRowByIndex()">Remove Record</button>
+<button (click)="_tableApi?.removeSelected(true)">Remove Selected</button>
+<button (click)="toggleTableSelection()">Toggle Multiple</button> -->
+
+<!-- <BR>{{formGroup?.get(controlName)?.errors|json}} -->
+<BR>{{ sectionName1 ? (formGroup.get(sectionName1)?.errors|json) :'' }}
+<BR>{{ sectionName1 ? (formGroup.get(sectionName1)?.errors|json) :'' }}
+<BR>{{ controlName ? (formGroup.get(controlName)?.errors|json) :'' }}

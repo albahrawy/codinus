@@ -1,0 +1,98 @@
+<h2>Material-Input-Extensiosn</h2>
+<div class="form-div" [formGroup]="formGroup">
+
+    <div layout-flex="row wrap" flex-gap="5px" flex-limit layout-flex-align="start" flex-gap-md="10px"
+        flex-gap-xs="1px">
+        <mat-form-field [subscriptSizing]="'dynamic'" [color]="color" layout-flex-element flex-basis="33.333"
+            flex-basis-xs="100" flex-basis-md="50">
+            <mat-label>Codinus Numeric</mat-label>
+            <input [readonly]="readOnly" #input buttonColor="primary" [showButtons]="showButtons" inputType="numeric"
+                mode="decimal" matInput [step]="1" [max]="200000" [decimalDigits]="3" [currency]="currency"
+                [thousandSeparator]="true" [locale]="locale" [allowClear]="allowClear" [verticalButton]="verticalButton"
+                formControlName="number" />
+        </mat-form-field>
+        <mat-form-field [subscriptSizing]="'dynamic'" [color]="color" layout-flex-element flex-basis="33.333"
+            flex-basis-xs="100" flex-basis-md="50">
+            <mat-label>Password</mat-label>
+            <input [readonly]="readOnly" type="password" revealOn="click" revealButton="value" matInput
+                buttonColor="primary" formControlName="password" />
+        </mat-form-field>
+        <mat-form-field [subscriptSizing]="'dynamic'" [color]="color" layout-flex-element flex-basis="33.333"
+            flex-basis-xs="100" flex-basis-md="50">
+            <mat-label>Masked Number</mat-label>
+            <input [readonly]="readOnly" matInput [mask]="numberMask" clearOnInvalid="false" useUnmaskValue="true"
+                formControlName="maskedNumber" matInput buttonColor="primary" [allowClear]="allowClear" />
+        </mat-form-field>
+        <mat-form-field [subscriptSizing]="'dynamic'" [color]="color" layout-flex-element flex-basis="33.333"
+            flex-basis-xs="100" flex-basis-md="50">
+            <mat-label>Masked Text</mat-label>
+            <input [readonly]="readOnly" matInput [mask]="textMask" clearOnInvalid="false" [allowClear]="allowClear"
+                useUnmaskValue="true" formControlName="maskedText" matInput buttonColor="primary" />
+        </mat-form-field>
+        <mat-form-field [subscriptSizing]="'dynamic'" [color]="color" layout-flex-element flex-basis="33.333"
+            flex-basis-xs="100" flex-basis-md="50">
+            <mat-label>Codinus Date</mat-label>
+            <input [readonly]="readOnly" inputType="date" [min]="minDate" [dateFormat]="dateformat"
+                formControlName="date" matInput buttonColor="primary" />
+        </mat-form-field>
+        <mat-form-field [subscriptSizing]="'dynamic'" layout-flex-element flex-basis="33.333" flex-basis-xs="100">
+            <mat-label>Date range</mat-label>
+            <cs-date-range-input startPlaceholder="Start date" [readonly]="readOnly" formControlName="dateRange"
+                endPlaceholder="End date" [dateFormat]="dateformat" [required]="true">
+            </cs-date-range-input>
+            @if (formGroup.get('dateRange')?.errors) {
+            <mat-error>{{formGroup.get('dateRange')?.errors|json}}</mat-error>
+            }
+        </mat-form-field>
+    </div>
+    <div layout-flex="row wrap" flex-gap="5px" flex-limit layout-flex-align="start" flex-gap-md="10px"
+        flex-gap-xs="1px">
+
+        <h4 layout-flex-element flex-basis="100">Without MatFormField</h4>
+        <input [readonly]="readOnly" #input buttonColor="primary" [showButtons]="showButtons" [allowClear]="allowClear"
+            inputType="numeric" mode="decimal" matInput [step]="1" [max]="200000" [decimalDigits]="3"
+            [currency]="currency" [thousandSeparator]="true" [locale]="locale" [verticalButton]="verticalButton"
+            formControlName="number" />
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100" flex-basis-md="50">
+            <input [readonly]="readOnly" #input buttonColor="primary" [verticalButton]="verticalButton"
+                [showButtons]="showButtons" inputType="numeric" mode="decimal" matInput [step]="1" [max]="200000"
+                [decimalDigits]="3" [currency]="currency" [thousandSeparator]="true" [locale]="locale"
+                [allowClear]="allowClear" formControlName="number1" />
+        </div>
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100" flex-basis-md="50">
+            <input [readonly]="readOnly" formControlName="password1" type="password" revealButton="always" matInput
+                buttonColor="primary" />
+        </div>
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100" flex-basis-md="50">
+            <input [readonly]="readOnly" matInput [mask]="numberMask" clearOnInvalid="false" useUnmaskValue="true"
+                formControlName="maskedNumber1" matInput buttonColor="primary" [allowClear]="allowClear" />
+        </div>
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100" flex-basis-md="50">
+            <input [readonly]="readOnly" matInput [mask]="textMask" clearOnInvalid="false" useUnmaskValue="true"
+                formControlName="maskedText1" matInput buttonColor="primary" />
+        </div>
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100" flex-basis-md="50">
+
+            <input [readonly]="readOnly" inputType="date" [min]="minDate" [dateFormat]="dateformat"
+                formControlName="date1" matInput buttonColor="primary" />
+        </div>
+        <div class="no-mat-form-field" layout-flex-element flex-basis="33.333" flex-basis-xs="100">
+            <cs-date-range-input startPlaceholder="Start date" formControlName="dateRange1" endPlaceholder="End date"
+                [dateFormat]="dateformat" [required]="true">
+            </cs-date-range-input>
+        </div>
+
+    </div>
+</div>
+<div class="button-area">
+    <button mat-button="stroked" color="primary" (click)="numberMask='9-9-99-77'">Change Number Mask</button>
+    <button mat-button="stroked" color="primary" (click)="allowClear=!allowClear">Toggle AllowClear</button>
+    <button mat-button="stroked" color="primary" (click)="showButtons=!showButtons">Toggle Numberic Buttons</button>
+    <button mat-button="stroked" color="primary" (click)="verticalButton=!verticalButton">Toggle Numberic Buttons
+        Direction</button>
+    <button mat-button="stroked" color="primary" (click)="toggleReadOnly()">Toggle ReadOnly</button>
+    <button mat-button="stroked" color="primary" (click)="toggleDisabled()">Toggle Disbale</button>
+    <button mat-button="stroked" color="primary" (click)="toggleFormat()">Toggle Date Format</button>
+    <button mat-button="stroked" color="primary" (click)="formGroup.reset()">Reset</button>
+</div>
+{{formGroup.value|json}}

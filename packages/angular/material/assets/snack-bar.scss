@@ -1,0 +1,19 @@
+.cdk-overlay-container {
+    &.cdk-overlay-container-relative {
+        //height: unset;
+        position: absolute;
+
+        // .cdk-global-overlay-wrapper {
+        //     //  height: unset;
+        // }
+    }
+}
+
+.cs-overlay-relative-position {
+    position: relative;
+}
+
+// .cs-overlay-container-sticky {
+//     position: sticky;
+//     top: 0;
+// }

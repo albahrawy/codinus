@@ -1,0 +1,213 @@
+@mixin cs-transition($transition, $duration: "") {
+    -webkit-transition: $transition;
+    transition: $transition;
+
+    @if($duration !="") {
+        -webkit-transition-duration: $duration;
+        transition-duration: $duration;
+    }
+}
+
+@mixin cs-transform($transform) {
+
+    -webkit-transform: $transform;
+    transform: $transform;
+}
+
+@mixin cs-speed-button-wrapper($box-orient, $flex-direction, $box-direction) {
+    -webkit-box-orient: $box-orient;
+    -webkit-box-direction: $box-direction;
+    -webkit-flex-direction: $flex-direction;
+    flex-direction: $flex-direction;
+}
+
+.cs-speed-button {
+    width: fit-content;
+    display: flex;
+    position: absolute;
+
+    &.--position-right {
+        right: 10px;
+    }
+
+    &.--position-left {
+        left: 10px;
+    }
+
+    &.--position-up {
+        top: 10px;
+    }
+
+    &.--position-down {
+        bottom: 10px;
+    }
+
+    .cs-speed-button-trigger {
+        pointer-events: auto;
+        z-index: 24;
+
+        .mini-trigger-button{
+            width: 30px;
+            height: 30px;
+            padding: 5px;
+    
+            .mat-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 20px;
+            }
+        }
+
+        &.--spin-mode {
+
+            .trigger-icon {
+                @include cs-transition(all 0.6s cubic-bezier(0.4, 0, 0.2, 1));
+            }
+        }
+    }
+
+    &.--opened {
+        .cs-speed-button-trigger {
+            &.--spin-mode {
+
+                .trigger-icon {
+                    @include cs-transform(var(--speed-button-spin-deg));
+                }
+            }
+        }
+    }
+
+    &.--static-buttons {
+
+        &.--position-right,
+        &.--position-left {
+            .cs-speed-button-trigger {
+                max-width: 0;
+                opacity: 0;
+            }
+        }
+
+        &.--position-up,
+        &.--position-down {
+            .cs-speed-button-trigger {
+                max-height: 0;
+                opacity: 0;
+            }
+        }
+
+    }
+}
+
+.cs-speed-button-wrapper {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.cdk-overlay-pane {
+
+    &.--animation-fling {
+        .cs-speed-button-wrapper {
+            & .speed-button {
+                opacity: 0;
+                @include cs-transition(all 0.3s cubic-bezier(0.35, 0, 0.35, 0.2));
+                --cs-fling-translation: calc((30 * var(--speed-button-index)) + 35);
+            }
+
+            &.--opened {
+                & .speed-button {
+                    opacity: 1;
+                    transform: translate(0);
+                }
+            }
+        }
+    }
+
+    &.--animation-scale {
+        .cs-speed-button-wrapper {
+            & .speed-button {
+                @include cs-transform(scale(0));
+                opacity: 0;
+                transition-timing-function: cubic-bezier(0.55, 0, 0.55, 0.2);
+                transition-property: all;
+                transition-duration: 0.14286s;
+                transition-delay: calc(.003s + (0.065s * (var(--speed-button-length) - (var(--speed-button-index) + 1))));
+            }
+
+            &.--opened {
+                & .speed-button {
+                    @include cs-transform(scale(1));
+                    opacity: 1;
+                    transition-delay: calc(.003s + (0.065s * var(--speed-button-index)));
+                }
+            }
+        }
+    }
+
+    &.--direction-down {
+        .cs-speed-button-wrapper {
+            padding-top: 5px;
+            width: 100%;
+            @include cs-speed-button-wrapper(vertical, column, normal);
+        }
+
+        &.--animation-fling {
+            .cs-speed-button-wrapper:not(.--opened) {
+                & .speed-button {
+                    transform: translateY(calc(-1px * var(--cs-fling-translation)));
+                }
+            }
+        }
+    }
+
+    &.--direction-up {
+        .cs-speed-button-wrapper {
+            padding-bottom: 5px;
+            width: 100%;
+            @include cs-speed-button-wrapper(vertical, column-reverse, reverse);
+        }
+
+        &.--animation-fling {
+            .cs-speed-button-wrapper:not(.--opened) {
+                & .speed-button {
+                    transform: translateY(calc(1px * var(--cs-fling-translation)));
+                }
+            }
+        }
+    }
+
+    &.--direction-left {
+        .cs-speed-button-wrapper {
+            padding-right: 5px;
+            height: 100%;
+            @include cs-speed-button-wrapper(horizontal, row-reverse, reverse);
+        }
+
+        &.--animation-fling {
+            .cs-speed-button-wrapper:not(.--opened) {
+                & .speed-button {
+                    transform: translateX(calc(1px * var(--cs-fling-translation)));
+                }
+            }
+        }
+    }
+
+    &.--direction-right {
+        .cs-speed-button-wrapper {
+            padding-left: 5px;
+            height: 100%;
+            @include cs-speed-button-wrapper(horizontal, row, normal);
+        }
+
+        &.--animation-fling {
+            .cs-speed-button-wrapper:not(.--opened) {
+                & .speed-button {
+                    transform: translateX(calc(-1px * var(--cs-fling-translation)));
+                }
+            }
+        }
+    }
+}

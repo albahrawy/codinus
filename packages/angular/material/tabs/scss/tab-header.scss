@@ -1,0 +1,60 @@
+@use '@angular/cdk';
+@use '@angular/material/tabs/tabs-common';
+@use '@angular/material/core/tokens/token-utils';
+@use '@angular/material/core/tokens/m2/mat/tab-header' as tokens-mat-tab-header;
+@include tabs-common.paginated-tab-header;
+
+@mixin paginated-vertical-tab-header-container($inverted-header-selector: null) {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  z-index: 1;
+
+  @include token-utils.use-tokens(tokens-mat-tab-header.$prefix,
+    tokens-mat-tab-header.get-token-slots()) {
+    border-right-style: solid;
+    @include token-utils.create-token-slot(border-right-width, divider-height);
+    @include token-utils.create-token-slot(border-right-color, divider-color);
+
+    @if ($inverted-header-selector) {
+      #{$inverted-header-selector} & {
+        border-right: none;
+        border-left-style: solid;
+        @include token-utils.create-token-slot(border-left-width, divider-height);
+        @include token-utils.create-token-slot(border-left-color, divider-color);
+      }
+    }
+  }
+}
+
+.mat-mdc-tab-label-container {
+  &:not(.--vertical) {
+    @include tabs-common.paginated-tab-header-container('.mat-mdc-tab-group-inverted-header');
+  }
+
+  &.--vertical {
+    @include paginated-vertical-tab-header-container('.mat-mdc-tab-group-inverted-header');
+  }
+}
+
+.mat-mdc-tab-labels {
+  @include tabs-common.paginated-tab-header-item-wrapper('.mat-mdc-tab-header');
+}
+
+.mat-mdc-tab {
+
+  // For the tab element, default inset/offset values are necessary to ensure that
+  // the focus indicator is sufficiently contrastive and renders appropriately.
+  &::before {
+    margin: 5px;
+  }
+
+  @include cdk.high-contrast {
+
+    // When a tab is disabled in high contrast mode, set the text color to the disabled
+    // color, which is (unintuitively) named "GrayText".
+    &[aria-disabled='true'] {
+      color: GrayText;
+    }
+  }
+}

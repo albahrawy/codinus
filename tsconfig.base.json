@@ -1,0 +1,74 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "esnext",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@codinus/angular": ["packages/angular/all/index.ts"],
+      "@codinus/dom": ["packages/common/dom/index.ts"],
+      "@codinus/js-extensions": ["packages/common/js-extensions/index.ts"],
+      "@codinus/ts-parser": ["packages/common/ts-parser/index.ts"],
+      "@codinus/types": ["packages/common/types/index.ts"],
+      "@ngx-codinus/cdk": ["packages/angular/cdk/index.ts"],
+      "@ngx-codinus/cdk/authorization": [
+        "packages/angular/cdk/authorization/index.ts"
+      ],
+      "@ngx-codinus/cdk/data": ["packages/angular/cdk/data/index.ts"],
+      "@ngx-codinus/cdk/http": ["packages/angular/cdk/http/index.ts"],
+      "@ngx-codinus/cdk/localization": [
+        "packages/angular/cdk/localization/index.ts"
+      ],
+      "@ngx-codinus/cdk/logger": ["packages/angular/cdk/logger/index.ts"],
+      "@ngx-codinus/cdk/observable-error-handler": [
+        "packages/angular/cdk/observable-error-handler/index.ts"
+      ],
+      "@ngx-codinus/cdk/observer": ["packages/angular/cdk/observer/index.ts"],
+      "@ngx-codinus/cdk/overlays": ["packages/angular/cdk/overlays/index.ts"],
+      "@ngx-codinus/cdk/storage": ["packages/angular/cdk/storage/index.ts"],
+      "@ngx-codinus/core": ["packages/angular/core/index.ts"],
+      "@ngx-codinus/core/data": ["packages/angular/core/data/index.ts"],
+      "@ngx-codinus/core/events": ["packages/angular/core/events/index.ts"],
+      "@ngx-codinus/core/format": ["packages/angular/core/format/index.ts"],
+      "@ngx-codinus/core/forms": ["packages/angular/core/forms/index.ts"],
+      "@ngx-codinus/core/layout": ["packages/angular/core/layout/index.ts"],
+      "@ngx-codinus/core/outlet": ["packages/angular/core/outlet/index.ts"],
+      "@ngx-codinus/core/shared": ["packages/angular/core/shared/index.ts"],
+      "@ngx-codinus/material": ["packages/angular/material/index.ts"],
+      "@ngx-codinus/material/buttons": [
+        "packages/angular/material/buttons/index.ts"
+      ],
+      "@ngx-codinus/material/context-menu": [
+        "packages/angular/material/context-menu/index.ts"
+      ],
+      "@ngx-codinus/material/date-adapter": [
+        "packages/angular/material/date-adapter/index.ts"
+      ],
+      "@ngx-codinus/material/forms": [
+        "packages/angular/material/forms/index.ts"
+      ],
+      "@ngx-codinus/material/inputs": [
+        "packages/angular/material/inputs/index.ts"
+      ],
+      "@ngx-codinus/material/overlays": [
+        "packages/angular/material/overlays/index.ts"
+      ],
+      "@ngx-codinus/material/selection-list": [
+        "packages/angular/material/selection-list/index.ts"
+      ],
+      "@ngx-codinus/material/tabs": ["packages/angular/material/tabs/index.ts"],
+      "@ngx-codinus/monaco-editor": ["packages/angular/monaco-editor/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

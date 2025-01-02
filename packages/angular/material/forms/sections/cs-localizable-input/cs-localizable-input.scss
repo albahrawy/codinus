@@ -1,0 +1,25 @@
+:host {
+    outline: none;
+
+    .cs-localizable-input-wrapper {
+        display: flex;
+        gap: 3px;
+
+        --mat-form-field-container-height: 42px;
+        --mat-form-field-container-vertical-padding: 10px;
+        --mat-form-field-filled-with-label-container-padding-top: 14px;
+        --mat-form-field-filled-with-label-container-padding-bottom: 0px;
+
+        &.cs-localizable-input-without-mat-field {
+            .cs-localizable-input-language-label {
+                --mat-form-field-container-text-size: 0.8rem;
+                font-size: var(--mat-form-field-container-text-size);
+                color: var(--mdc-filled-text-field-focus-label-text-color);
+
+                &::after {
+                    content: ":";
+                }
+            }
+        }
+    }
+}

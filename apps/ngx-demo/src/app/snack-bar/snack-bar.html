@@ -1,0 +1,36 @@
+<mat-form-field>
+  <mat-label>Horizontal position</mat-label>
+  <mat-select [(value)]="horizontalPosition">
+    <mat-option value="start">Start</mat-option>
+    <mat-option value="center">Center</mat-option>
+    <mat-option value="end">End</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field>
+  <mat-label>Vertical position</mat-label>
+  <mat-select [(value)]="verticalPosition">
+    <mat-option value="top">Top</mat-option>
+    <mat-option value="bottom">Bottom</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field>
+  <mat-label>Element</mat-label>
+  <mat-select [(value)]="elementId">
+    <mat-option value="">Default</mat-option>
+    <mat-option value="1">Element 1</mat-option>
+    <mat-option value="2">Element 2</mat-option>
+    <mat-option value="3">Element 3</mat-option>
+    <mat-option value="4">Element 4</mat-option>
+  </mat-select>
+</mat-form-field>
+
+<button mat-stroked-button (click)="openSnackBar()" aria-label="Show an example snack-bar">
+  Pool party!
+</button>
+
+<mat-grid-list cols="2" rowHeight="2:1">
+  <mat-grid-tile elementId="1">1</mat-grid-tile>
+  <mat-grid-tile elementId="2">2</mat-grid-tile>
+  <mat-grid-tile elementId="3">3</mat-grid-tile>
+  <mat-grid-tile elementId="4">4</mat-grid-tile>
+</mat-grid-list>

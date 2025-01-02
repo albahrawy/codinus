@@ -1,0 +1,169 @@
+//TODO: think about button sizes
+.cs-input-button {
+    &.cs-input-read-only {
+        .cs-input-button-inline {
+            color: var(--mdc-icon-button-readonly-icon-color, var(--mdc-icon-button-disabled-icon-color));
+            pointer-events: none;
+            cursor: default;
+        }
+    }
+
+    .cs-input-button-inline {
+        --cs-inline-button-size: calc(var(--mdc-icon-button-state-layer-size, 48px)/1.8);
+        padding: 0 !important;
+        min-width: 0 !important;
+        height: var(--cs-inline-button-size) !important;
+        width: var(--cs-inline-button-size) !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        .cs-input-button-icon {
+            --cs-inline-button-icon-size: calc(var(--cs-inline-button-size, 48px)/1.2);
+            margin: 0 !important;
+            font-size: var(--cs-inline-button-icon-size) !important;
+            height: var(--cs-inline-button-icon-size) !important;
+            width: var(--cs-inline-button-icon-size) !important;
+            padding: 0 !important;
+        }
+
+        .mat-mdc-button-touch-target {
+            --cs-inline-button-size: calc(var(--mdc-icon-button-state-layer-size, 48px)/1.8);
+            height: var(--cs-inline-button-size) !important;
+            width: var(--cs-inline-button-size) !important;
+        }
+    }
+}
+
+.cs-input-button.cs-num-input-buttons {
+    display: inline-flex;
+    flex-direction: column;
+    align-content: space-between;
+    padding-right: 1px;
+
+    .cs-input-button-inline {
+        .cs-input-button-icon {
+            --cs-number-button-icon-size: calc(var(--cs-number-button-size, 48px));
+        }
+    }
+
+    &.vertical-buttons {
+        flex-direction: row;
+    }
+}
+
+.mat-mdc-form-field,
+.mat-mdc-form-field.mat-mdc-form-field-has-icon-suffix {
+    .mat-mdc-text-field-wrapper.--has-suffix-button {
+        padding-right: 4px;
+
+        [dir='rtl'] & {
+            padding-right: 16px;
+            padding-left: 4px;
+        }
+
+        .mat-mdc-form-field-icon-suffix:has(.cs-input-button) {
+            display: inline-flex;
+            align-items: center;
+        }
+    }
+}
+
+.cs-input-clear-button {
+    opacity: .5;
+    order: 10;
+    --mdc-icon-button-icon-color: #ba1a1a;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.cs-datepicker-control {
+    display: flex;
+}
+
+.cs-date-range-picker-no-mat-field,
+.cs-date-picker-no-mat-field,
+.cs-input-with-button-no-mat-field {
+    display: inline-flex;
+    flex: 1 1 auto;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.cs-date-picker-no-mat-field,
+.cs-input-with-button-no-mat-field {
+    input {
+        flex: 1 1 auto;
+        box-sizing: border-box;
+        padding: 5px 2px;
+        border: .5px solid lightgray;
+        min-width: 0;
+        outline: none;
+    }
+}
+
+.cs-date-picker-no-mat-field,
+.cs-date-range-picker-no-mat-field {
+    .mat-datepicker-toggle {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.cs-date-range-picker-no-mat-field {
+    justify-content: center;
+
+    cs-date-range-input {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 6px;
+        box-sizing: border-box;
+        border: .5px solid lightgray;
+
+        &.--focused {
+            outline: auto;
+        }
+    }
+}
+
+.cs-date-range-picker-no-mat-field,
+//.mat-datepicker-toggle,
+.cs-date-picker-no-mat-field {
+    .mdc-icon-button {
+        --cs-inline-button-size: calc(var(--mdc-icon-button-state-layer-size, 48px)/1.6);
+        padding: 0 !important;
+        min-width: 0 !important;
+        height: var(--cs-inline-button-size) !important;
+        width: var(--cs-inline-button-size) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .mat-datepicker-toggle-default-icon {
+            --cs-inline-button-icon-size: calc(var(--cs-inline-button-size, 48px)/1.2);
+            margin: 0 !important;
+            font-size: var(--cs-inline-button-icon-size) !important;
+            height: var(--cs-inline-button-icon-size) !important;
+            width: var(--cs-inline-button-icon-size) !important;
+            padding: 0 !important;
+        }
+
+        .mat-mdc-button-touch-target {
+            --cs-inline-button-size: calc(var(--mdc-icon-button-state-layer-size, 48px)/1.8);
+            height: var(--cs-inline-button-size) !important;
+            width: var(--cs-inline-button-size) !important;
+        }
+    }
+}
+
+.cs-datePicker-toggle-read-only {
+    .mat-mdc-icon-button[disabled] {
+        color: var(--mdc-icon-button-readonly-icon-color, var(--mdc-icon-button-disabled-icon-color));
+        pointer-events: none;
+        cursor: default;
+    }
+}

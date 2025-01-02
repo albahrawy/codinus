@@ -1,0 +1,41 @@
+.cs-form-area {
+    display: flex;
+
+    // overflow: hidden;
+    .cs-form-area-tab-group {
+        width: 100%;
+
+        >.mat-mdc-tab-body-wrapper {
+            padding: 5px;
+        }
+    }
+
+    .cs-form-area-panel-card {
+        >.mat-mdc-card-header {
+            padding-bottom: 8px;
+            padding-top: 8px;
+
+            .mat-mdc-card-title {
+                display: flex;
+                align-items: center;
+                font-size: inherit;
+                line-height: inherit;
+            }
+        }
+    }
+
+    .cs-form-area-card,
+    .cs-form-area-accordion,
+    .cs-form-area-panel-default,
+    .cs-form-area-panel-content {
+        width: 100%;
+    }
+
+    .cs-form-area-hidden-panel {
+        display: none;
+    }
+
+    .cs-form-element-invisible {
+        display: none !important;
+    }
+}

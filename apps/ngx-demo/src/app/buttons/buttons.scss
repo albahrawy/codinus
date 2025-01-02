@@ -1,0 +1,67 @@
+.button-style-container{
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+p {
+    font-family: Lato;
+  }
+  
+  .speed-dial-container {
+    position: absolute;
+    //right: 15px;
+  }
+  
+  .speed-dial-container.top {
+    top: 15px;
+  }
+  
+  .speed-dial-container.bottom {
+    bottom: 15px;
+  }
+
+  .speed-dial-container.right {
+    right: 15px;
+  }
+  
+  .speed-dial-container.left {
+    left: 15px;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  
+  .overlay.open {
+    opacity: 1;
+  }
+  
+  .overlay ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .overlay li {
+    display: inline-block;
+    padding: 10px;
+    margin: 10px;
+    background-color: white;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .overlay li.enter {
+    transform: scale(0);
+  }
+  
+  .overlay li.enter-active {
+    transform: scale(1);
+  }

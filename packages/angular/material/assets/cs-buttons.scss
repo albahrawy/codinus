@@ -1,0 +1,13 @@
+.small-mini-fab {
+    .mat-mdc-mini-fab {
+        --mdc-fab-small-container-shape: 50%;
+        width: 30px;
+        height: 30px;
+
+        .mat-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+export interface HTMLScriptElementScope {
+    scriptElement: HTMLScriptElement;
+    remove: () => void;
+}
+
+export function addScriptSectionToDocument(id: string, code: string): HTMLScriptElementScope | null {
+    if (!document?.head)
+        return null;
+    if (id && document.getElementById(id)) {
+        return null;
+    }
+    let scriptElement: HTMLScriptElement | null = document.createElement('script');
+    scriptElement.id = id;
+    scriptElement.innerText = code;
+    document.head.appendChild(scriptElement);
+    return {
+        scriptElement, remove: () => {
+            if (scriptElement != null) {
+                document.head.removeChild(scriptElement);
+                scriptElement = null;
+            }
+        }
+    };
+}
+
+export function removeScriptSectionFromDocument(id: string): void {
+    if (!id || !document.head)
+        return;
+    const scriptElement = document.getElementById(id);
+    if (scriptElement)
+        document.head.removeChild(scriptElement);
+}
+
+export function getGlobalWindowMember<T>(key: string): T | null {
+    const windowObj = window as Record<string, any>;
+    if (windowObj[key])
+        return windowObj[key] as T;
+    return null;
+}
+
+export function removeGlobalWindowMember(key: string): void {
+    const windowObj = window as Record<string, any>;
+    if (windowObj[key])
+        delete windowObj[key];
+}

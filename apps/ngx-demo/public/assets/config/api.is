@@ -1,0 +1,54 @@
+{
+    "base": "gateway/api",
+    "urls": {
+        "users": {
+            "root": "user",
+            "endPoints": {
+                "auth": "auth"
+            }
+        },
+        "db": {
+            "root": "https://localhost:7048",
+            "endPoints": {
+                "get-table": "table",
+                "get-set": "ds",
+                "get-row": "row",
+                "get-value": "value",
+                "get-json": "json",
+                "execute": "nonquery"
+            }
+        },
+        "lookup": {
+            "root": "https://localhost:7048/lookup",
+            "endPoints": {
+                "data": "",
+                "definition": "definition"
+            }
+        },
+        "db-store": {
+            "root": "https://localhost:7048/Stores",
+            "endPoints": {
+                "list-contexts": "db-contexts/details",
+                "list-queries": ""
+            }
+        },
+        "pages": {
+            "root": "https://localhost:7150",
+            "endPoints": {
+                "getPage": "pages"
+            }
+        },
+        "file": {
+            "root": "http://localhost:5000",
+            "endPoints": {
+                "get": "files"
+            }
+        },
+        "report": {
+            "root": "https://localhost:7262",
+            "endPoints": {
+                "design": "reportDesinger"
+            }
+        }
+    }
+}

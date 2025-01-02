@@ -1,0 +1,10 @@
+{
+  "name": "@codinus/js-extensions",
+  "version": "5.0.0",
+  "dependencies": {
+    "@codinus/types": "5.0.0"
+  },
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "typings": "./index.d.ts"
+}

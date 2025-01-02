@@ -1,0 +1,28 @@
+<div role="none" class="cs-speed-button-trigger" [class.--spin-mode]="spin()" (click)="_toggle($event)"
+    (mouseenter)="_toggle($event,true)" (mouseleave)="handleLeaveTrigger($event,true)" #toggleTrigger>
+    @if(mini()){
+    <button mat-icon-button class="mini-trigger-button">
+        <mat-icon class="trigger-icon" [fontIcon]="triggerIcon()" />
+    </button>
+    }@else {
+    <button mat-fab>
+        <mat-icon class="trigger-icon" [fontIcon]="triggerIcon()" />
+    </button>
+    }
+</div>
+
+<div class="portal-wrapper">
+    <ng-template cdk-portal>
+        <div class="cs-speed-button-wrapper" #wrapper (mouseleave)="handleLeaveTrigger($event,false)"
+            [style.--speed-button-length]="_buttonArray().length" [class.--opened]="_panelOpened()"
+            [class.small-mini-fab]="mini()">
+            @for (btn of _buttonArray(); track btn;let idx = $index) {
+            <button #renderedBtn mat-mini-fab [style.--speed-button-index]="idx" class="speed-button"
+                [class]="btn.args.cssClass" [disabled]="btn.args.disabled||disabled()" [hidden]="btn.args.hidden"
+                [matTooltip]="btn.args.tooltip" (click)="btnClicked(btn)">
+                <mat-icon [fontIcon]="btn.args.icon" />
+            </button>
+            }
+        </div>
+    </ng-template>
+</div>

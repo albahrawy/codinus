@@ -1,0 +1,13 @@
+<mat-radio-group [(ngModel)]="position">
+    <mat-radio-button value="above">Above</mat-radio-button>
+    <mat-radio-button value="below">Below</mat-radio-button>
+    <mat-radio-button value="right">Right</mat-radio-button>
+    <mat-radio-button value="left">Left</mat-radio-button>
+</mat-radio-group>
+<div class="tab-area">
+    <cs-tab-group [headerPosition]="position">
+        @for (tab of lotsOfTabs; track tab) {
+        <mat-tab [label]="tab">Content</mat-tab>
+        }
+    </cs-tab-group>
+</div>

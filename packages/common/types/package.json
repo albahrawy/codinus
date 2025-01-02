@@ -1,0 +1,8 @@
+{
+  "name": "@codinus/types",
+  "version": "5.0.0",
+  "dependencies": {},
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "typings": "./index.d.ts"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@ngx-codinus/core",
+  "version": "5.0.0",
+  "peerDependencies": {
+    "@angular/core": "^19.0.5",
+    "@codinus/js-extensions": "5.0.0",
+    "@codinus/types": "5.0.0",
+    "@angular/cdk": "^19.0.4",
+    "rxjs": "~7.8.1",
+    "@codinus/dom": "5.0.0"
+  },
+  "sideEffects": false
+}

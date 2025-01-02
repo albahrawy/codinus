@@ -1,0 +1,25 @@
+@for (btn of _buttonArray(); track btn) {
+@if(btn.args.isFab){
+<button mat-mini-fab [class]="btn.args.cssClass" [disabled]="btn.args.disabled||_disabled()" [class]="btn.args.cssClass"
+    [addOnProgress]="btn.args.progress.type" [cssClass]="btn.args.progress.cssClass" [hidden]="btn.args.hidden"
+    [progressMode]="btn.args.progress.mode" [progressValue]="btn.args.progress.value" [style.order]="btn.args.order"
+    [progressPosition]="btn.args.progress.position" [progressVisible]="btn.args.progress.visible"
+    [matTooltip]="btn.args.tooltip" (click)="btnClicked(btn)">
+    <mat-icon [fontIcon]="btn.args.icon??''" />
+</button>
+}@else {
+<button [mat-button]="btn.args.type" [class]="btn.args.cssClass" [disabled]="btn.args.disabled||disabled"
+    [class]="btn.args.cssClass" [addOnProgress]="btn.args.progress.type" [cssClass]="btn.args.progress.cssClass"
+    [hidden]="btn.args.hidden" [progressMode]="btn.args.progress.mode" [progressValue]="btn.args.progress.value"
+    [style.order]="btn.args.order" [progressPosition]="btn.args.progress.position" [matTooltip]="btn.args.tooltip"
+    [progressVisible]="btn.args.progress.visible" (click)="btnClicked(btn)">
+
+    @if(btn.args.icon){
+    <mat-icon [fontIcon]="btn.args.icon" />
+    }
+    @if(btn.args.text){
+    <span> {{(btn.args.text|csTranslate)()}}</span>
+    }
+</button>
+}
+}

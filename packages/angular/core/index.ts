@@ -1,0 +1,1 @@
+export const CODINUS_ANGULAR_CORE = '@ngx-codinus/core';

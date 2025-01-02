@@ -1,0 +1,7 @@
+{
+    "path": "assets/ts-lib",
+    "files": [
+        "http",
+        "localizer"
+    ]
+}

@@ -1,0 +1,61 @@
+<mat-nav-list role="list" class="list-area">
+    <!-- <button mat-stroked-button (click)="changeLang()">{{reqtLang.name}}</button> -->
+    <a mat-list-item role="listitem" routerLink="/function-test" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Function Test</a>
+    <div matSubheader class="group-header">Component Extensions</div>
+    <a mat-list-item role="listitem" routerLink="/buttons" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Buttons</a>
+    <a mat-list-item role="listitem" routerLink="/inputs-extensions" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Inputs</a>
+    <a mat-list-item role="listitem" routerLink="/tabs" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Tabs</a>
+    <a mat-list-item role="listitem" routerLink="/select-example" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Select</a>
+    <a mat-list-item role="listitem" routerLink="/progress-overlay" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Progress Overlay</a>
+        <a mat-list-item role="listitem" routerLink="/snack-bar" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Relative Snack-Bar</a>
+    <a mat-list-item role="listitem" routerLink="/list-seelction" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Virtual Selection List</a>
+    <mat-divider></mat-divider>
+    <div matSubheader class="group-header">Cdk Table Extension</div>
+    <a mat-list-item role="listitem" routerLink="/cdk-table-virtual-scroll" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Cdk Table</a>
+    <a mat-list-item role="listitem" routerLink="/mat-table-virtual-scroll" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Mat Table</a>
+    <a mat-list-item role="listitem" routerLink="/nova-table" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Nova Table</a>
+    <mat-divider></mat-divider>
+    <div matSubheader class="group-header">More</div>
+    <a mat-list-item role="listitem" routerLink="/flex-layout" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Flex Layout</a>
+    <a mat-list-item role="listitem" routerLink="/progress-overlay" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Progress Overlay</a>
+    <a mat-list-item role="listitem" routerLink="/dialog" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Dialogs</a>
+    <a mat-list-item role="splitter" routerLink="/splitter" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Splitter</a>
+    <!-- <a mat-list-item role="dynamic-component" routerLink="/dynamic-component" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Dynamic Component</a> -->
+    <a mat-list-item role="form" routerLink="/forms" routerLinkActive="active" ariaCurrentWhenActive="page">Codinus
+        Form</a>
+    <a mat-list-item role="form" routerLink="/runtime-form" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Runtime Form</a>
+    <a mat-list-item role="form" routerLink="/data-page" routerLinkActive="active" ariaCurrentWhenActive="page">Data
+        Page</a>
+    <a mat-list-item role="form" routerLink="/runtime-data-page/test1" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Runtime Data Page</a>
+    <a mat-list-item role="form" routerLink="/form-array" routerLinkActive="active" ariaCurrentWhenActive="page">Form
+        Array View</a>
+
+    <mat-divider></mat-divider>
+    <div matSubheader class="group-header">Others</div>
+    <a mat-list-item role="listitem" routerLink="/admin-page-example" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Admin Page Setup</a>
+    <a mat-list-item role="listitem" routerLink="/fast-report-view" routerLinkActive="active"
+        ariaCurrentWhenActive="page">View</a>
+</mat-nav-list>
+<div class="separator-area"></div>
+<div class="view-area">
+    <router-outlet></router-outlet>
+</div>

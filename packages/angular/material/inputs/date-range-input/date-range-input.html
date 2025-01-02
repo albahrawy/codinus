@@ -1,0 +1,19 @@
+<div class="mat-date-range-input-container" cdkMonitorSubtreeFocus (cdkFocusChange)="_focusChanged($event)">
+  <div class="mat-date-range-input-wrapper">
+    <input matStartDate [placeholder]="startPlaceholder()" [readonly]="readonly()" [required]="startReq()"
+      [formControl]="startCtrl" [dateFormat]="dateFormat()">
+    <span class="mat-date-range-input-mirror" aria-hidden="true">{{_getInputMirrorValue('start')}}</span>
+  </div>
+
+  <span class="mat-date-range-input-separator"
+    [class.mat-date-range-input-separator-hidden]="_shouldHideSeparator()">{{separator}}</span>
+
+  <div class="mat-date-range-input-wrapper mat-date-range-input-end-wrapper">
+    <input matEndDate [placeholder]="endPlaceholder()" [readonly]="readonly()" [required]="endReq()"
+      [formControl]="endCtrl" [dateFormat]="dateFormat()">
+    <span class="mat-date-range-input-mirror" aria-hidden="true">{{_getInputMirrorValue('end')}}</span>
+  </div>
+  <mat-datepicker-toggle [for]="picker" [class.datePicker-toggle-read-only]="readonly()"
+    [disabled]="disabled||readonly()"></mat-datepicker-toggle>
+</div>
+<mat-date-range-picker [startView]="startView()" [dateClass]="dateClass()!" #picker></mat-date-range-picker>

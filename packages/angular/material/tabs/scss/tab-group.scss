@@ -1,0 +1,116 @@
+@use '@angular/material/core/style/private';
+@use '@angular/material/core/style/variables';
+@use '@angular/material/tabs/tabs-common';
+@use '@angular/material/core/tokens/token-utils';
+@use '@angular/material/core/tokens/m2/mdc/tab-indicator' as tokens-mdc-tab-indicator;
+@include tabs-common.structural-styles;
+
+.mat-mdc-tab {
+    @include tabs-common.tab;
+
+    // Note that we only want to target direct descendant tabs.
+    .mat-mdc-tab-group.mat-mdc-tab-group-stretch-tabs>.mat-mdc-tab-header & {
+        flex-grow: 1;
+    }
+}
+
+.mat-mdc-tab-group {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
+    @include tabs-common.paginated-tab-header-with-background('.mat-mdc-tab-header', '.mat-mdc-tab');
+
+    &.mat-mdc-tab-group-vertical {
+        flex-direction: row;
+        max-height: 100%;
+
+        >.mat-mdc-tab-body-wrapper {
+            flex: 1 1 auto;
+            padding: 5px 12px 5px 12px;
+        }
+
+        >.mat-mdc-tab-header {
+
+            flex-direction: column;
+
+            .mat-mdc-tab-header-pagination-before {
+                padding-top: 4px;
+                padding-left: 0px;
+                padding-right: 0px;
+
+                .mat-mdc-tab-header-pagination-chevron {
+                    transform: rotate(-45deg);
+                }
+            }
+
+            // The pagination control that is displayed on the right side of the tab header.
+            // .mat-mdc-tab-header-rtl .mat-mdc-tab-header-pagination-before,
+            .mat-mdc-tab-header-pagination-after {
+                padding-bottom: 4px;
+                padding-right: 0px;
+                padding-left: 0px;
+
+                .mat-mdc-tab-header-pagination-chevron {
+                    transform: rotate(135deg);
+                }
+            }
+
+            .mdc-tab-indicator {
+                flex-direction: column;
+            }
+
+            .mdc-tab-indicator__content--underline {
+                height: 100%;
+                width: unset;
+                border-top-style: none;
+                border-left-style: solid;
+
+                @include token-utils.use-tokens(tokens-mdc-tab-indicator.$prefix,
+                    tokens-mdc-tab-indicator.get-token-slots()) {
+                    @include token-utils.create-token-slot(border-color, active-indicator-color);
+                    @include token-utils.create-token-slot(border-left-width, active-indicator-height);
+                    @include token-utils.create-token-slot(border-radius, active-indicator-shape);
+                }
+            }
+
+            .mdc-tab-indicator__content {
+                transform-origin: top;
+            }
+
+            .mat-mdc-tab-header-pagination {
+                min-height: 32px;
+            }
+
+            .mat-mdc-tab-label-container {
+                .mat-mdc-tab-list {
+                    .mat-mdc-tab-labels {
+                        flex-direction: column;
+                    }
+                }
+            }
+        }
+    }
+
+    // Fixes pagination issues inside flex containers (see #23157).
+
+    &.mat-mdc-tab-group-inverted-header {
+        flex-direction: column-reverse;
+
+        &.mat-mdc-tab-group-vertical {
+            flex-direction: row-reverse;
+        }
+
+        .mdc-tab-indicator__content--underline {
+            align-self: flex-start;
+        }
+    }
+}
+
+// The bottom section of the view; contains the tab bodies
+.mat-mdc-tab-body-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    transition: height tabs-common.$mat-tab-animation-duration variables.$ease-in-out-curve-function;
+    @include private.private-animation-noop();
+}

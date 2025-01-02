@@ -1,0 +1,102 @@
+<!-- Card -->
+@let areaType = _choosedDisplayType()||'none';
+
+@defer(when areaType === 'card') {
+@if(areaType === 'card') {
+<div class="cs-form-area-card" [layout-flex]="flexLayout()" [layout-flex-align]="flexAlign()" [flex-gap]="flexgap()">
+    @for(panel of _panels(); track $index){
+    @if(!panel.hidden()){
+    <mat-card class="cs-form-area-panel-card" [appearance]="cardAppearance()" layout-flex-element [flex-basis]="flexBasis()"
+        [class.cs-form-element-invisible]="panel.invisible()">
+        @if(panel.label(); as label){
+        <mat-card-header [class]="panel.labelClass()">
+            <mat-card-title>
+                @if(panel.icon(); as icon){
+                <mat-icon [fontIcon]="icon" />
+                }
+                <span>{{label}}</span>
+            </mat-card-title>
+        </mat-card-header>
+        }
+        <mat-card-content>
+            <ng-container [ngTemplateOutlet]="contentTemplate"
+                [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
+        </mat-card-content>
+    </mat-card>
+    }
+    }
+</div>
+}
+}
+<!-- Tab -->
+@defer(when areaType === 'tab') {
+@if(areaType === 'tab') {
+<cs-tab-group [dynamicHeight]="false" class="cs-form-area-tab-group" [animationDuration]="tabsAnimationDuration()"
+    [dynamicHeight]="tabsDynamicHeight()" [headerPosition]="tabsPosition()" [preserveContent]="tabsPreserveContent()"
+    [mat-stretch-tabs]="tabsStretch()">
+    @for(panel of _panels();track $index){
+    @if(!panel.hidden()){
+    <mat-tab [labelClass]="panel.tabLabelClasses()" [bodyClass]="panel.tabBodyClasses()">
+        <ng-template mat-tab-label>
+            @if(panel.icon(); as icon){
+            <mat-icon [fontIcon]="icon" />
+            }
+            <span>{{panel.label()}}</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <ng-container [ngTemplateOutlet]="contentTemplate"
+                [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
+        </ng-template>
+    </mat-tab>
+    }
+    }
+</cs-tab-group>
+}
+}
+<!-- Accordion -->
+@defer(when areaType === 'accordion') {
+@if(areaType === 'accordion') {
+<mat-accordion [multi]="false" class="cs-form-area-accordion" [displayMode]="accordionDisplayMode()"
+    [hideToggle]="accordionHideToggle()" [multi]="accordionMulti()" [togglePosition]="accordionTogglePosition()">
+    @for(panel of _panels();track $index){
+    @if(!panel.hidden()){
+    <mat-expansion-panel [expanded]="panel.accordionExpanded()" [class.cs-form-element-invisible]="panel.invisible()">
+        <mat-expansion-panel-header>
+            <mat-panel-title [class]="panel.labelClass()">
+                @if(_hasAccordionIcon()){
+                <mat-icon [fontIcon]="panel.icon()!" />
+                }
+                <span>{{panel.label()}}</span>
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <ng-container [ngTemplateOutlet]="contentTemplate"
+            [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
+    </mat-expansion-panel>
+    }
+    }
+</mat-accordion>
+}
+}
+<!-- Accordion -->
+@defer(when areaType === 'none') {
+@if(areaType === 'none') {
+<div [layout-flex]="flexLayout()" [layout-flex-align]="flexAlign()" [flex-gap]="flexgap()">
+    @for(panel of _panels();track $index){
+    @if(!panel.hidden()){
+    <div class="cs-form-area-panel-default" layout-flex-element [flex-basis]="flexBasis()"
+        [class.cs-form-element-invisible]="panel.invisible()">
+        <ng-container [ngTemplateOutlet]="contentTemplate"
+            [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
+    </div>
+    }
+    }
+</div>
+}
+}
+
+<ng-template #contentTemplate let-panel>
+    <div class="cs-form-area-panel-content" [layout-flex]="panel.flexLayout()" [layout-flex-align]="panel.flexAlign()"
+        [flex-gap]="panel.flexgap()">
+        <ng-container [ngTemplateOutlet]="panel.template()"></ng-container>
+    </div>
+</ng-template>
