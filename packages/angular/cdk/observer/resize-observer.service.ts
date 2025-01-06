@@ -39,15 +39,12 @@ export class CSElementResizeObserverService implements ICSElementResizeObserver 
 
     widthResizeObservable(elem: Element): Observable<number> {
         return this.resizeObservable(elem).pipe(
-            map(entry => entry.borderBoxSize[0].inlineSize),
-            filter(Boolean)
-        );
+            map(entry => entry.borderBoxSize[0].inlineSize));
     }
 
     heightResizeObservable(elem: Element): Observable<number> {
         return this.resizeObservable(elem).pipe(
             map(entry => entry.borderBoxSize[0].blockSize),
-            filter(Boolean)
         );
     }
 }

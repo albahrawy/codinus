@@ -111,18 +111,38 @@ export function populateArray<T>(...items: [value: T, condition?: boolean][]): T
  *
  * @template TItem - The type of array elements.
  * @template TKey - The type of Map keys.
+ * @template TValue - The type of Map value.
  * @param {Array<TItem>} array - The input array.
  * @param {IFunc<TItem, TKey>} keyGetter - The function to extract keys from array elements.
  * @param {IFunc<TItem, TValue>} valueGetter - The function to extract Value from array elements.
  * @returns {Map<TKey, TValue>} - The Map with keys and array elements.
  */
-export function arrayToMap<TItem, TKey = string, TValue = TItem>(array: Array<TItem>,
+export function arrayToMap<TItem, TKey = string, TValue = TItem>(array: Array<TItem> | ReadonlyArray<TItem>,
     keyGetter: IFunc<TItem, TKey>, valueGetter?: IFunc<TItem, TValue>): Map<TKey, TValue> {
     const map = new Map<TKey, TValue>();
     if (!valueGetter)
         valueGetter = t => t as unknown as TValue;
     array.forEach(item => map.set(keyGetter(item), valueGetter(item)));
     return map;
+}
+
+/**
+ * Converts an array to a Map using the specified key getter function.
+ *
+ * @template TItem - The type of return array elements.
+ * @template TValue - The type of Map keys. 
+ * @template TKey - The type of Map keys.
+ * @param {Map<TKey, TValue>} map - The Map to populate array from.
+ * @param {(key: TKey, value: TValue) => TItem} getter - The function to extract item from map entries.
+ * @returns {Array<TItem>} - The array from map.
+ */
+export function arrayFromMap<TItem, TValue, TKey = string>(map: Map<TKey, TValue>,
+    getter?: (key: TKey, value: TValue) => TItem): Array<TItem> {
+    if (!getter)
+        getter = (k, v) => v as unknown as TItem;
+    const resArray: TItem[] = [];
+    map.forEach((v, k) => resArray.push(getter(k, v)));
+    return resArray;
 }
 
 /**

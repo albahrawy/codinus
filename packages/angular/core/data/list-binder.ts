@@ -1,20 +1,18 @@
 import { isFunction, isString, getValue } from "@codinus/js-extensions";
 import { IFunc, ObjectGetter } from "@codinus/types";
-import { ICSSupportListBinder } from "./types";
+import { ICSListBinder, ICSSupportListBinder } from "./types";
 import { computed } from "@angular/core";
 
-const DefaultIconFn = () => '';
-const DefaultDisableFn = () => false;
 const DefaultMemberFn = <T, V>(record: T) => record as unknown as V;
 
-export class CSListBinder<TRow, TValue> {
+export class CSListBinder<TRow, TValue> implements ICSListBinder<TRow, TValue> {
 
     constructor(private owner: ICSSupportListBinder<TRow, TValue>) { }
 
     displayMember = computed(() => normalizeGetterMember(this.owner.displayMember(), DefaultMemberFn<TRow, string>));
     valueMember = computed(() => normalizeGetterMember(this.owner.valueMember(), DefaultMemberFn<TRow, TValue>));
-    iconMember = computed(() => normalizeGetterMember(this.owner.iconMember?.(), DefaultIconFn));
-    disableMember = computed(() => normalizeGetterMember(this.owner.disableMember?.(), DefaultDisableFn));
+    iconMember = computed(() => normalizeGetterMember(this.owner.iconMember?.(), null));
+    disableMember = computed(() => normalizeGetterMember(this.owner.disableMember?.(), null));
 
     getSelectedItems(data?: readonly TRow[] | null, selected?: TValue[] | null): TRow[] | null {
         if (!selected?.length || !data?.length)
@@ -54,22 +52,28 @@ export class CSListBinder<TRow, TValue> {
         return titles;
     }
 
-    getActiveValues(data?: readonly TRow[]): TValue[] | null {
+    getActive(data?: readonly TRow[]): ({ data?: readonly TRow[], values: TValue[] }) | null {
         if (!data?.length)
             return null;
         const _cDisableFn = this.disableMember();
         const _cValueFn = this.valueMember();
-        const active: TValue[] = [];
+        if (!_cDisableFn)
+            return { data, values: data.map(r => _cValueFn(r)) }
+
+        const values: TValue[] = [];
+        const activeData: TRow[] = [];
         data.forEach(r => {
-            if (!_cDisableFn(r))
-                active.push(_cValueFn(r));
+            if (!_cDisableFn(r)) {
+                values.push(_cValueFn(r));
+                activeData.push(r);
+            }
         });
-        return active;
+        return { data: activeData, values };
     }
 }
 
-function normalizeGetterMember<TElement, TValue>(value: ObjectGetter<TElement, TValue>, defaultFn: IFunc<TElement, TValue>)
-    : IFunc<TElement, TValue> {
+export function normalizeGetterMember<TElement, TValue, TDefault>(value: ObjectGetter<TElement, TValue>, defaultFn: TDefault)
+    : IFunc<TElement, TValue> | TDefault {
     return isFunction(value)
         ? value
         : isString(value)

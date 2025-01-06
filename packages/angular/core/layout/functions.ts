@@ -1,4 +1,15 @@
 import { toNumber } from "@codinus/js-extensions";
+import { Nullable } from "@codinus/types";
+
+interface IFlexMediaColumnInitials<T> {
+    default: T,
+    xs: T,
+    sm: T,
+    md: T,
+    lg: T,
+    xl: T,
+    sl: T
+};
 
 const FlEX_MEDIA_INITIALS = {
     'default': 'initial',
@@ -10,7 +21,26 @@ const FlEX_MEDIA_INITIALS = {
     'sl': 'initial'
 };
 
-export function createFlexPropertyFromColumns(value: string | null | number | undefined) {
+const FlEX_MEDIA_COLUMN_INITIALS = {
+    'default': 0,
+    'xs': 0,
+    'sm': 0,
+    'md': 0,
+    'lg': 0,
+    'xl': 0,
+    'sl': 0
+};
+
+export function createMediaColumnProperty(value: Nullable<string | number | number[]>) {
+    const inputs = typeof value === 'number'
+        ? [value]
+        : typeof value === 'string'
+            ? value.split(',').map(v => toNumber(v, 0))
+            : value;
+    return createFlexMediaInfoCore(inputs ?? [], v => v ?? 0, FlEX_MEDIA_COLUMN_INITIALS);
+}
+
+export function createFlexPropertyFromColumns(value: Nullable<string | number>) {
     if (typeof value === 'number')
         value = `${value}`;
     return (value?.split(',') ?? [])
@@ -23,28 +53,31 @@ export function createFlexPropertyFromColumns(value: string | null | number | un
         }).join(',');
 }
 
-export function createFlexMediaInfo(value: string | null | undefined, getter: (v: string | undefined) => string) {
-    const flexInputs = value?.split(',') ?? [];
-    const flex = { ...FlEX_MEDIA_INITIALS };
-    const length = flexInputs.length;
-    if (length == 0)
-        return flex;
+export function createFlexMediaInfo(value: Nullable<string>, getter: (v: Nullable<string>) => string) {
+    return createFlexMediaInfoCore(value?.split(',') ?? [], getter, FlEX_MEDIA_INITIALS);
+}
 
-    flex.default = getter(flexInputs[0]);
+function createFlexMediaInfoCore<T>(inputs: Array<T>, getter: (v: Nullable<T>) => T, initials: IFlexMediaColumnInitials<T>) {
+    const result = { ...initials };
+    const length = inputs.length;
+    if (length == 0)
+        return result;
+
+    result.default = getter(inputs[0]);
 
     if (length == 2 || length == 3)
-        flex.sm = getter(flexInputs[1]);
+        result.sm = getter(inputs[1]);
 
     if (length == 3)
-        flex.lg = getter(flexInputs[2]);
+        result.lg = getter(inputs[2]);
 
     if (length > 3) {
-        flex.xs = getter(flexInputs[1]);
-        flex.sm = getter(flexInputs[2]);
-        flex.md = getter(flexInputs[3]);
-        flex.lg = getter(flexInputs.at(4));
-        flex.xl = getter(flexInputs.at(5));
-        flex.sl = getter(flexInputs.at(6));
+        result.xs = getter(inputs[1]);
+        result.sm = getter(inputs[2]);
+        result.md = getter(inputs[3]);
+        result.lg = getter(inputs.at(4));
+        result.xl = getter(inputs.at(5));
+        result.sl = getter(inputs.at(6));
     }
-    return flex;
+    return result;
 }

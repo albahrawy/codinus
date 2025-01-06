@@ -37,7 +37,7 @@ class CSContextMenuTracker {
                         @if(item?.icon){
                             <mat-icon [class]="item.cssClass" [fontIcon]="item.icon" />
                         }
-                        <span>{{item.caption|csTranslate}}</span>
+                        <span>{{(item.caption|csTranslate)()}}</span>
                     </button>
                 }
             }
@@ -97,7 +97,7 @@ export class CSContextMenuDirective implements OnDestroy {
     private _environmentInjector = inject(EnvironmentInjector);
     private _viewContainerRef = inject(ViewContainerRef);
     private _parent = inject(CODINUS_CONTEXT_MENU_PARENT, { optional: true, self: true });
-    _eventManager = createEventManager(this._renderer);
+    _eventManager = createEventManager();
 
     readonly contextMenuOpen = input<IAction<ConextMenuOpenArgs> | null>(null);
     readonly contextMenuItems = input<IContextMenuItem[] | null>(null);
@@ -160,6 +160,8 @@ export class CSContextMenuDirective implements OnDestroy {
 
     private _onOpenContextMenu(eventArgs: ConextMenuOpeningArgs): boolean | void {
         if (!this._menuComponent?.instance)
+            return;
+        if (this._parent?.disabled)
             return;
         eventArgs.event?.preventDefault();
         eventArgs.event?.stopPropagation();

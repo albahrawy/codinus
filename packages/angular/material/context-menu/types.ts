@@ -20,6 +20,7 @@ export declare interface IContextMenuClickArgs {
 }
 
 export interface ICSContextMenuParent {
+    readonly disabled: boolean;
     readonly conextMenuOpening: Observable<ConextMenuOpeningArgs> | OutputEmitterRef<ConextMenuOpeningArgs>;
 }
 

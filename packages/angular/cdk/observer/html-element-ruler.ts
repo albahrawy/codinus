@@ -9,9 +9,9 @@ export class HtmlElementRuler {
     private _elementRef = inject(ElementRef);
     private _resizeObserverService = inject(CODINUS_ELEMENT_RESIZE_OBSERVER, { optional: true }) ??
         inject(CSElementResizeObserverService);
-    ;
+
     private readonly _resizeObserver = this._resizeObserverService
-        .widthResizeObservable(this._elementRef.nativeElement)
+        .resizeObservable(this._elementRef.nativeElement)
         .pipe(takeUntilDestroyed());
 
     change() {

@@ -5,6 +5,7 @@ import { ThemePalette } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
+import { CODINUS_CDK_FLEX_DIRECTIVES } from '@ngx-codinus/core/layout';
 import { CSButtonStyle } from '@ngx-codinus/material/buttons';
 import { CODINUS_MATERIAL_INPUTS } from '@ngx-codinus/material/inputs';
 import { ICSDateRange } from 'packages/angular/material/inputs/base/types';
@@ -12,7 +13,7 @@ import { ICSDateRange } from 'packages/angular/material/inputs/base/types';
     selector: 'app-material-input-extensions',
     templateUrl: 'material-input-extensions.html',
     styleUrl: './material-input-extensions.scss',
-    imports: [CODINUS_MATERIAL_INPUTS, MatFormFieldModule, ReactiveFormsModule, MatInputModule,
+    imports: [CODINUS_MATERIAL_INPUTS, CODINUS_CDK_FLEX_DIRECTIVES, MatFormFieldModule, ReactiveFormsModule, MatInputModule,
         JsonPipe, MatTabsModule]
 })
 

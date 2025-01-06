@@ -1,7 +1,7 @@
 import { isNumber, isNumberString, isString } from "@codinus/js-extensions";
-import { IRecord } from "@codinus/types";
 
-export const sizeBreakpoints: IRecord<number> = { xs: 375, sm: 810, md: 1024, lg: 1440, xl: 2560, sl: 5000 };
+export type MediaBreakPoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'sl';
+export const sizeBreakpoints: Record<MediaBreakPoint, number> = { xs: 375, sm: 810, md: 1024, lg: 1440, xl: 2560, sl: 5000 };
 
 export function addStyleSectionToDocument(id: string, cssContent: string): HTMLStyleElementScope | undefined {
     if (!document?.head)
@@ -62,13 +62,13 @@ export function findElementAttributeByPrefix(attributes?: NamedNodeMap, ...prefi
     return result;
 }
 
-export function getCssSizeBreakpoint(width?: number) {
+export function getCssSizeBreakpoint(width?: number): MediaBreakPoint | null {
     if (!width || width === screen.availWidth)
         return null;
 
     for (const breakpoint in sizeBreakpoints) {
-        if (width <= sizeBreakpoints[breakpoint])
-            return breakpoint;
+        if (width <= sizeBreakpoints[breakpoint as MediaBreakPoint])
+            return breakpoint as MediaBreakPoint;
     }
     return null;
 }

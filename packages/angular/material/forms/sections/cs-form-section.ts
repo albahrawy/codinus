@@ -51,7 +51,7 @@ export class CSFormSection<TValue extends IGenericRecord = IGenericRecord> exten
     private _csFormNameDirectives = new Set<CSAbstractFormControlName>([]);
 
     readonly _elementRef = inject(ElementRef, { self: true });
-    readonly _mfc = inject(CSMatFormFieldControl, { self: true }).setComponent(this);
+    protected readonly _mfc = inject(CSMatFormFieldControl, { self: true }).setComponent(this);
     get hasNgControl() { return !!this._mfc.ngControl?.name; }
 
     override get value(): TValue | null {

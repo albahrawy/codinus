@@ -9,6 +9,7 @@
 
 // Add additional slots for the MDC list tokens, needed in Angular Material.
 @include token-utils.use-tokens(tokens-mdc-list.$prefix, tokens-mdc-list.get-token-slots()) {
+
   // MDC allows focus and hover colors to take precedence over disabled color. We add the disabled
   // color here with higher specificity so that the disabled color takes precedence.
   // TODO(mmalerba): Dicuss with MDC whether to change this in their code.
@@ -23,10 +24,12 @@
     @include token-utils.create-token-slot(background-color, list-item-hover-state-layer-color);
     @include token-utils.create-token-slot(opacity, list-item-hover-state-layer-opacity);
   }
+
   .mdc-list-item.mdc-list-item--disabled::before {
     @include token-utils.create-token-slot(background-color, list-item-disabled-state-layer-color);
     @include token-utils.create-token-slot(opacity, list-item-disabled-state-layer-opacity);
   }
+
   .mdc-list-item:focus::before {
     @include token-utils.create-token-slot(background-color, list-item-focus-state-layer-color);
     @include token-utils.create-token-slot(opacity, list-item-focus-state-layer-opacity);
@@ -36,6 +39,9 @@
   // TODO(mmalerba): We should probably stop doing this and allow the checkbox/radio to decide
   //  what their disabled state looks like. This is done for now to avoid screenshot diffs.
   .mdc-list-item--disabled {
+    user-select: none;
+    pointer-events: none;
+
     .mdc-radio,
     .mdc-checkbox {
       @include token-utils.create-token-slot(opacity, list-item-disabled-label-text-opacity);
@@ -100,7 +106,7 @@ a.mdc-list-item--activated {
     bottom: 0;
   }
 
-  .mat-mdc-list-item-avatar ~ .mat-divider-inset {
+  .mat-mdc-list-item-avatar~.mat-divider-inset {
     margin-left: 72px;
 
     [dir='rtl'] & {
@@ -116,20 +122,21 @@ a.mdc-list-item--activated {
   content: '';
   opacity: 0;
   pointer-events: none;
+  border-radius: inherit;
 }
 
 // The MDC-based list items already use the `::before` pseudo element for the standard
 // focus/selected/hover state. Hence, we need to have a separate list-item spanning
 // element that can be used for strong focus indicators.
 .mat-mdc-list-item {
-  > .mat-mdc-focus-indicator {
+  >.mat-focus-indicator {
     @include layout-common.fill();
     pointer-events: none;
   }
 
   // For list items, render the focus indicator when the parent
   // listem item is focused.
-  &:focus > .mat-mdc-focus-indicator::before {
+  &:focus>.mat-focus-indicator::before {
     content: '';
   }
 }
@@ -176,61 +183,66 @@ mat-action-list button {
 
   .mat-mdc-nav-list .mat-mdc-list-item {
     @include token-utils.create-token-slot(border-radius, active-indicator-shape);
-    @include token-utils.create-token-slot(
-      --mat-mdc-focus-indicator-border-radius,
-      active-indicator-shape
-    );
+    @include token-utils.create-token-slot(--mat-focus-indicator-border-radius,
+      active-indicator-shape);
 
     &.mdc-list-item--activated {
       @include token-utils.create-token-slot(background-color, active-indicator-color);
     }
   }
 }
-.nova-selection-list {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    box-sizing: border-box;
-    overflow-y: hidden !important;
-    padding: 0;
 
-    .list-virtual-scroll-wrapper {
-        flex: 1 1 auto;
+.cs-selection-list-panel {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: hidden !important;
+  padding: 0;
 
-        // .cdk-virtual-scroll-content-wrapper {
-        //     display: grid;
-        //     grid-template-columns: auto auto 1fr auto; /* Set up three columns with the middle one taking up remaining space */
-        //     gap: 10px; /* Adjust as needed */
-        // }
+  &.cs-selection-list-panel-disabled {
+    user-select: none;
+    pointer-events: none;
+
+    .cs-list-virtual-scroll-wrapper {
+      user-select: none;
+      pointer-events: none;
+
+      // .cdk-virtual-scroll-content-wrapper {
+      //     display: grid;
+      //     grid-template-columns: auto auto 1fr auto; /* Set up three columns with the middle one taking up remaining space */
+      //     gap: 10px; /* Adjust as needed */
+      // }
     }
+  }
 
-    .selected-options-section {
-        max-height: 33%;
-        display: flex;
+  .cs-list-virtual-scroll-wrapper {
+    flex: 1 1 auto;
+
+    // .cdk-virtual-scroll-content-wrapper {
+    //     display: grid;
+    //     grid-template-columns: auto auto 1fr auto; /* Set up three columns with the middle one taking up remaining space */
+    //     gap: 10px; /* Adjust as needed */
+    // }
+  }
+
+  .search-input {
+    width: 100%;
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+      height: 0px;
     }
+  }
 
-    .list-divider {
-        margin-top: 5px;
-        margin-bottom: 5px;
+  .cs-list-option {
+    --mdc-list-list-item-leading-avatar-size: calc(var(--cs-virtual-list-item-height, 48px)*.8);
+    max-height: unset; //var(--cs-virtual-list-item-height, 48px) !important;
+    height: var(--cs-virtual-list-item-height, 48px) !important;
+
+    .mat-mdc-list-item-avatar.mdc-list-item__end {
+      width: var(--mdc-list-list-item-leading-avatar-size);
+      height: var(--mdc-list-list-item-leading-avatar-size);
     }
-
-    .search-input {
-        width: 100%;
-
-        .mat-mdc-form-field-subscript-wrapper {
-            display: none;
-            height: 0px;
-        }
-    }
-
-    .nova-list-option {
-        --mdc-list-list-item-leading-avatar-size: calc(var(--nova-virtual-list-item-height, 48px)*.8);
-        max-height: unset; //var(--nova-virtual-list-item-height, 48px) !important;
-        height: var(--nova-virtual-list-item-height, 48px) !important;
-
-        .mat-mdc-list-item-avatar.mdc-list-item__end {
-            width: var(--mdc-list-list-item-leading-avatar-size);
-            height: var(--mdc-list-list-item-leading-avatar-size);
-        }
-    }
+  }
 }

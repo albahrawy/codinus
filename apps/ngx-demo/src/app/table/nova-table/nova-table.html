@@ -1,0 +1,72 @@
+<nova-table class="nova-table-example" [editable]="config.editable" [commitOnDestroy]="config.commitOnDestroy"
+    [editWithF2]="config.editWithF2" [editWithEnter]="config.editWithEnter" [rowHeight]="config.rowHeight"
+    [attachFilter]="config.attachFilter" [reorderColumns]="config.reorderColumns" [sortable]="config.sortable"
+    [showHeader]="config.showHeader" [showFilter]="config.showFilter" [showFooter]="config.showFooter"
+    [stickyHeader]="config.stickyHeader" [stickyFilter]="config.stickyFilter" [stickyFooter]="config.stickyFooter"
+    [noDataText]="config.noDataText" [responsive]="config.responsive" [dataSource]="dataSource"
+    [selectColumn]="config.selectColumn" [selectable]="config.selectable" [columns]="config.columns"
+    (edited)="onEdited($event)" [iconMember]="config.iconMember" [iconColumn]="config.iconColumn"
+    [showIndex]="config.showIndex" [disabled]="disabled" [iconType]="config.iconType" keyboardNavigation="row"
+    (created)="onTableCreated($event)"></nova-table>
+<div class="button-area">
+    <button mat-button [matMenuTriggerFor]="data">Data</button>
+    <mat-menu #data="matMenu">
+        <button mat-menu-item (lazyClick)="dataSource.data=[]">Clear</button>
+        <button mat-menu-item (lazyClick)="dataSource.data=createData(100)">100</button>
+        <button mat-menu-item (lazyClick)="dataSource.data=createData(1000)">1000</button>
+        <button mat-menu-item (lazyClick)="dataSource.data=createData(500_000)">500_000</button>
+        <button mat-menu-item (lazyClick)="changeDataSource()">New Data Source 50_000</button>
+        <button mat-menu-item (lazyClick)="updateData()">update 3rd record</button>
+        <button mat-menu-item (lazyClick)="insertData()">insert new Empty record</button>
+        <button mat-menu-item (lazyClick)="insertData(false)">insert new record With Data</button>
+        <button mat-menu-item (lazyClick)="removeRowByIndex()">remove 4th record</button>
+        <button mat-menu-item (lazyClick)="removeRow()">remove 5th record - by Data</button>
+    </mat-menu>
+    <button mat-button [matMenuTriggerFor]="prop">Properties</button>
+    <mat-menu #prop="matMenu">
+        @for (item of toggleProperties; track $index) {
+        <button mat-menu-item (lazyClick)="_tableApi![item.key]=!_tableApi![item.key]">
+            @if(_tableApi && _tableApi![item.key]){
+            <mat-icon>done</mat-icon>
+            }@else {
+            <mat-icon></mat-icon>
+            }
+            <span>{{item.text}}</span>
+        </button>
+        }
+        <button mat-menu-item (lazyClick)="symbolColumn.hidden = !symbolColumn.hidden">
+            @if(symbolColumn.hidden){
+            <mat-icon></mat-icon>
+            }@else {
+            <mat-icon>done</mat-icon>
+            }
+            <span>Show Symbol Column</span>
+        </button>
+        <!-- <button mat-button="stroked" color="primary" (click)="toggleSymbol()">Toggle Symbol</button>
+        <button mat-button="stroked" color="primary" (click)="toggleSelectColumn()">Toggle Select Column</button>
+        <button mat-button="stroked" color="primary" (click)="toggleIconColumn()">Toggle Icon Column</button>
+        <button mat-button="stroked" color="primary" (click)="toggleSelectable()">Toggle Selectable</button>
+        <button mat-button="stroked" color="primary" (click)="toggleIconType()">Toggle Icon Type</button>
+        <button mat-button="stroked" color="primary" (click)="disabled=!disabled">Toggle disabled</button>
+        <button mat-button="stroked" color="primary" (click)="config.showIndex=!config.showIndex">Toggle Row No</button> -->
+    </mat-menu>
+    <button mat-button [matMenuTriggerFor]="extraColumns">Others</button>
+    <mat-menu #extraColumns="matMenu">
+        <button mat-menu-item (lazyClick)="toggleSelectColumn()">
+            <span>Select Column:</span>
+            <span style="color: red;margin-left:5px;margin-right:5px;">{{config.selectColumn}}</span>
+        </button>
+        <button mat-menu-item (lazyClick)="toggleSelectable()">
+            <span>Select Mode:</span>
+            <span style="color: red;margin-left:5px;margin-right:5px;">{{config.selectable}}</span>
+        </button>
+
+    </mat-menu>
+
+    <button mat-button (lazyClick)="select3rdRow()">Select 3rd Row</button>
+
+    <button mat-button disabled>Row Height</button>
+    <mat-slider [max]="200" [min]="20" [step]="5" discrete>
+        <input matSliderThumb (valueChange)="config.rowHeight=$event">
+    </mat-slider>
+</div>

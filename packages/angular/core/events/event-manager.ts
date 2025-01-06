@@ -1,4 +1,4 @@
-import { Renderer2 } from "@angular/core";
+import { inject, Renderer2 } from "@angular/core";
 
 type CallbackType = () => void;
 
@@ -44,8 +44,11 @@ export class CSEventManager {
         this._registery.forEach(r => r());
         this._registery.clear();
     }
+    has(key: string) {
+        return this._registery.has(key);
+    }
 }
 
-export function createEventManager(renderer: Renderer2) {
-    return new CSEventManager(renderer);
+export function createEventManager() {
+    return new CSEventManager(inject(Renderer2));
 }

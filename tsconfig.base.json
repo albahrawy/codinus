@@ -66,6 +66,7 @@
       "@ngx-codinus/material/selection-list": [
         "packages/angular/material/selection-list/index.ts"
       ],
+      "@ngx-codinus/material/table": ["packages/angular/material/table/index.ts"],
       "@ngx-codinus/material/tabs": ["packages/angular/material/tabs/index.ts"],
       "@ngx-codinus/monaco-editor": ["packages/angular/monaco-editor/index.ts"]
     }

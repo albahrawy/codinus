@@ -1,6 +1,9 @@
-import { Component, Directive, effect, ElementRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, booleanAttribute, Component, computed, Directive, effect, ElementRef, inject, Injector, input, OnInit, output, runInInjectionContext, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { signalFunctionOf, signalPropertyOf } from '@ngx-codinus/core/shared';
+import { CdkDrag, DragDropModule } from '@angular/cdk/drag-drop';
+import { Subject } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 class InternalEvent extends InputEvent { }
 
@@ -29,34 +32,71 @@ export class TestEvent2Directive {
 }
 
 @Directive({
-  selector: 'input:[appTestEvents]',
+  selector: '[appTestEvents]',
   host: {
-    // '(input)': 'simulateEvent()',
-    '(input)': 'performInput($event)',
-    '(focus)': 'simulateEvent($event)',
+    //  '[class.cdk-drag-dragging]': '_drag._dragRef.isDragging()',
   }
 })
-export class TestEventDirective extends TestEvent2Directive {
-  override _elementRef = inject(ElementRef);
+export class TestEventDirective implements AfterViewInit {
+  _elementRef = inject(ElementRef);
+  injector = inject(Injector);
+  _drag?: CdkDrag;
+
   /**
    *
    */
   constructor() {
-    super();
+    // effect(() => {
+    //   console.log('effect');
+    //   this.dataSourceChanged.emit(this.currentDataSource());
+    //   runInInjectionContext(this.injector, () => {
+    //     this._drag = new CdkDrag();
+    //     this._drag.disabled = true;
+
+    //   });
+    // });
+
+    // effect(() => {
+    //   if (this._drag)
+    //     this._drag.disabled = this.isDraggable();
+    // });
+
+    effect(() => console.log('triggered', this.myK()));
+    setInterval(() => this.x.next(), 100);
+    this.x.subscribe(f => console.log('triger_sub', f));
   }
+  ngAfterViewInit(): void {
+    console.log('ngAfterViewInit')
+  }
+  x = new Subject<void>();
+  myK = toSignal(this.x);
+  isDraggable = input(false, { transform: booleanAttribute });
+
+  dataSourceChanged = output<string | undefined>();
+
+  dataSource = input<string>();
+  vsDataSource = input<string>();
+
+  private currentDataSource = computed(() => this.vsDataSource() ?? this.dataSource());
 }
 
 @Component({
   selector: 'app-nx-welcome',
-  imports: [CommonModule, TestEventDirective],
+  imports: [CommonModule, TestEventDirective, DragDropModule],
   template: `
-<B>Normal<B><BR/>
+<!-- <B>Normal<B><BR/>
   Name : {{nName()}}<BR/>
   Age : {{nAge()}}
   <BR/>
   <B>Signal<B><BR/>
   Name : {{sName()}}<BR/>
-  Age : {{sAge()}}
+  Age : {{sAge()}} -->
+
+  {{mytest()}}
+  <BR>
+  {{mytest2()}}
+  <BR>
+  {{xyz()}}
 
   <br/>
   <button (click)="nObj.name = 'Mohamed'">Set Normal Name </button>
@@ -65,14 +105,31 @@ export class TestEventDirective extends TestEvent2Directive {
   <button (click)="nObj2.age = 8">Set Signal Age </button>
   <button (click)="setEvents()">Set Events </button>
   <button (click)="setEventsFnName()">Set Events Fn Name</button>
+  <input #tInput dataSource="ahmed" (dataSourceChanged)="logString($event)" appTestEvents/>
 
-<input #tInput (input)="logFromC($event)" appTestEvents/>
+  <!-- <div style="height: 200px; background-color:red;" cdkDropList>
+  <div style="height: 20px; width:50px; background-color:yellow;" appTestEvents isDraggable="true">
+  </div>
+  <div style="height: 20px; width:50px; background-color:green;" appTestEvents isDraggable="true">
+  </div>
+  <div style="height: 20px; width:50px; background-color:white;" appTestEvents isDraggable="false">
+  </div>
+
+<div> -->
 
    `,
   styles: [],
   encapsulation: ViewEncapsulation.None,
 })
 export class FnTestComponent implements OnInit {
+
+  logString(v?: string) {
+    console.log('My-Events', v);
+  }
+
+  mytest = input(false);
+  mytest2 = signal(2);
+  xyz = computed(() => this.mytest2());
   setEvents() {
     this.fnSignal.set(new MyEvents());
   }
@@ -104,6 +161,7 @@ export class FnTestComponent implements OnInit {
 
   _e = effect(() => this.fn()?.());
 }
+
 
 
 class ConfigTest {

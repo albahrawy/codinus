@@ -21,5 +21,5 @@ import { createFlexMediaInfo } from "./functions";
 export class LayoutFlexElementDirective {
     protected basis = computed(() => createFlexMediaInfo(this.flexBasis(), v => getProperCssValue(v)));
     flexBasis = input<Nullable<string>>(null, { alias: 'flex-basis' });
-    order = input(null, { transform: (v: Nullable<string | number>) => v == null ? null : toNumber(v) });
+    order = input(null, { alias: 'flex-order', transform: (v: Nullable<string | number>) => v == null ? null : toNumber(v) });
 }

@@ -3,7 +3,6 @@ import { EMPTY, isObservable, Observable, of } from "rxjs";
 import { CSDataSource } from "./types";
 
 export function convertToObservable<T>(value: CSDataSource<T>, collectionViewer?: CollectionViewer | null): Observable<readonly T[]> {
-
     if (typeof value === 'function')
         value = value();
 

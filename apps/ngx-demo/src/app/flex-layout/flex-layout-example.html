@@ -1,0 +1,23 @@
+<h2>Flex Layout</h2>
+<div class="form-div" csContextMenu [contextMenuItems]="_contextMenuItems">
+    <div [layout-flex]="'row wrap'" #t [flex-gap]="flexGap" layout-flex-align="start">
+        @for (item of config; track $index)
+        {
+        <div class="flex-box-example" layout-flex-element [flex-basis]="item.base" [flex-order]="item.order">
+            <span>Flex Layout Box {{item.index}}</span>
+            <div class="item-button-area">
+                <button mat-button="stroked" csContextMenu [contextMenuItems]="_contextMenuItems2" color="primary"
+                    (click)="shufflePlace(item)">Shuffle Place</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='50'">50%</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='33.33'">33.33%</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='auto'">Auto</button>
+            </div>
+        </div>
+        }
+    </div>
+
+</div>
+<div class="button-area">
+    <button mat-button="stroked" color="warn" (click)="removeGaps()">Remove Gaps</button>
+    <button mat-button="stroked" color="warn" (click)="addGaps()">Add Gaps</button>
+</div>

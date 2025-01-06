@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { computed, effect, isSignal, signal, Signal, untracked } from "@angular/core";
+import { computed, effect, InputSignal, isSignal, signal, Signal, untracked } from "@angular/core";
+import { SIGNAL } from "@angular/core/primitives/signals";
 import { getFunction, toFirstUpperCase } from "@codinus/js-extensions";
 import { IFunc, Nullable, ObjectGetter } from "@codinus/types";
 
@@ -112,6 +113,16 @@ export function signalConditionFromFunctionOrConfig<O extends Config>(
         const fromFunc = (typeof fn !== 'function') ? false : fn(trigger?.());
         return fromFunc === true || _fromConfig() === true;
     });
+}
+
+export function forceInputSet<T>(input: unknown | null, value: T) {
+    if (!input)
+        return;
+    const node = (input as InputSignal<T>)?.[SIGNAL];
+    if (node.applyValueToInputSignal == null)
+        throw new Error("input is not a valid InsputSignal");
+
+    node.applyValueToInputSignal(node, value);
 }
 
 function signalFromFunctionOrConfigCore<O extends Config, R>(

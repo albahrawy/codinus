@@ -14,6 +14,10 @@ export const appRoutes: Route[] = [
             .then(mod => mod.MaterialInputExtensionComponent)
     },
     {
+        path: 'cs-mat-table', loadComponent: () => import('./table/mat-table.component')
+            .then(mod => mod.TestMatTableComponent)
+    },
+    {
         path: 'forms', loadComponent: () => import('./form/form')
             .then(mod => mod.CSTestFormComponent)
     },
@@ -24,6 +28,10 @@ export const appRoutes: Route[] = [
     {
         path: 'snack-bar', loadComponent: () => import('./snack-bar/snack-bar')
             .then(mod => mod.SnackBarExampleComponent)
+    },
+    {
+        path: 'selection-list', loadComponent: () => import('./mat-list-seelction-virtual/mat-list-seelction-virtual')
+            .then(mod => mod.CSSelectionListVirtualComponent)
     },
     {
         path: 'function-test', loadComponent: () => import('./test.component')

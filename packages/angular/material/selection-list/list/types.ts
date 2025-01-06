@@ -1,23 +1,37 @@
-import { InjectionToken } from "@angular/core";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { InjectionToken, TemplateRef } from "@angular/core";
+import { MatListOptionTogglePosition } from "@angular/material/list";
+import { ICSListBinder } from "@ngx-codinus/core/data";
 import { ConextMenuOpeningArgs } from "@ngx-codinus/material/context-menu";
 
 export type ListTogglePosition = 'after' | 'before' | 'none' | '' | undefined;
 export type ListIconType = 'icon' | 'avatar' | 'none' | '' | undefined;
-export type ListCategorizedMode = 'none' | 'sticky' | 'split' | undefined;
+//export type ListCategorizedMode = 'none' | 'sticky' | 'split' | undefined;
 export type ListFilterPredicate<T> = (data: T, filter: string) => boolean;
 
 export const CODINUS_SELECTION_LIST = new InjectionToken<ICSSelectionList<unknown, unknown>>('cs_selection_list');
 //export const CODINUS_SELECTION_LIST = new InjectionToken<ICSSelectionList<unknown, unknown>>('cs_selection_list');
 
 export interface ICSListOption<TRow, TValue> {
-    b: string;
+    data: () => TRow;
+    value: () => TValue;
+    selected(): boolean;
+    // _markForCheck(): void;
 }
 
-export interface ICSSelectionList<TRow, TValue> {//extends MatList {
+export interface ICSSelectionList<TRow, TValue> {
+    _binder: ICSListBinder<TRow, TValue>;
+    _optionIconPosition: () => MatListOptionTogglePosition;
+    _optionTogglePosition: () => MatListOptionTogglePosition;
+    _optionToggleType: () => 'radio' | 'check' | null;
+    _optionIconType: () => 'icon' | 'avatar' | null;
+    _iconTemplate: () => TemplateRef<any> | undefined;
+    _indexTemplate: () => TemplateRef<any> | undefined;
+    _titleTemplate: () => TemplateRef<any> | undefined;
     multiple: () => boolean;
-    readOnly: () => boolean;
+    enabled(): boolean;
     selectOnlyByCheckBox: () => boolean;
-    isSelected(value?: TValue | null): boolean;
+    isSelected(value: TValue): boolean;
     _isOptionCurrent(option: ICSListOption<TRow, TValue>): boolean;
     _notifyTouched(): void;
     _optionSelectChange(option: ICSListOption<TRow, TValue>, selected: boolean): void;
@@ -26,7 +40,7 @@ export interface ICSSelectionList<TRow, TValue> {//extends MatList {
 }
 
 interface CSVirtualSelectionListChangeBase<TRow, TValue = unknown> {
-    // list: CSSelectionListPanel<TRow, TValue>;
+    list: ICSSelectionList<TRow, TValue>;
     type: 'select' | 'deselect';
     value: TValue | TValue[] | null;
 }

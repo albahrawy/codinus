@@ -1,9 +1,9 @@
 import { arrayAvg, arraySort, arraySum, getValue } from "@codinus/js-extensions";
 import { IGenericRecord, IRecord } from "@codinus/types";
-import { Aggregation, ICSDataAggregator } from "./types";
+import { CSAggregation, ICSDataAggregator } from "./types";
 
 export class CSDataAggregator<T> implements ICSDataAggregator<T> {
-    private _aggregationCache: IRecord<Record<Aggregation, unknown>> = {};
+    private _aggregationCache: IRecord<Record<CSAggregation, unknown>> = {};
     disableCache = false;
     private _data: T[] = [];
 
@@ -12,7 +12,7 @@ export class CSDataAggregator<T> implements ICSDataAggregator<T> {
         this.refresh();
     }
 
-    aggregate(key: string, type: Aggregation): unknown {
+    aggregate(key: string, type: CSAggregation): unknown {
         if (this.disableCache)
             return this.aggregateCore(d => (d as IGenericRecord)[key], type);
         else
@@ -26,12 +26,12 @@ export class CSDataAggregator<T> implements ICSDataAggregator<T> {
             delete this._aggregationCache[key];
     }
 
-    private aggregateFromCache(key: string, type: Aggregation): unknown {
+    private aggregateFromCache(key: string, type: CSAggregation): unknown {
         let entry;
         if (Object.hasOwn(this._aggregationCache, key))
             entry = this._aggregationCache[key];
         else
-            this._aggregationCache[key] = entry = {} as Record<Aggregation, unknown>;
+            this._aggregationCache[key] = entry = {} as Record<CSAggregation, unknown>;
 
         if (Object.hasOwn(entry, type))
             return entry[type];
@@ -41,7 +41,7 @@ export class CSDataAggregator<T> implements ICSDataAggregator<T> {
         return value;
     }
 
-    protected aggregateCore(transform: (item: T) => unknown, type: Aggregation) {
+    protected aggregateCore(transform: (item: T) => unknown, type: CSAggregation) {
         const data = this._data;
         if (!Array.isArray(data))
             return null;

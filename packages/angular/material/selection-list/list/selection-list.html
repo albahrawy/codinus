@@ -1,55 +1,35 @@
-@if (showSearch) {
-<mat-form-field #searchContainer class="search-input" color="primary">
+@if (showSearch()) {
+<mat-form-field #searchContainer class="search-input" color="primary" [ariaDisabled]="!enabled()">
   <mat-icon matSuffix>search</mat-icon>
-  <input matInput (input)="_onFilterInput($event)" #searchInput autocomplete="off" tabindex="0" />
+  <input matInput (input)="_onFilterInput($event)" #searchInput autocomplete="off" [disabled]="!enabled()" tabindex="0" />
 </mat-form-field>
 }
-@switch (categorized) {
-@case ('split') {
-<div class="selected-options-section" [style.height.px]="_selectedHeight()">
-  <ng-container *ngTemplateOutlet="virtualList; context: {$implicit:_data().selected, _increment:0,_id:'selected'}">
-  </ng-container>
-</div>
-@if (_data().selected.length) {
-<mat-divider class="list-divider"></mat-divider>
-}
-<ng-container
-  *ngTemplateOutlet="virtualList; context: {$implicit:_data().noneSelected, _increment:_data().selected.length,_id:'none-selected'}">
-</ng-container>
-} @default {
-<ng-container *ngTemplateOutlet="virtualList; context: {$implicit:_data().filtered, _increment:0,_id:'current-data'}">
-</ng-container>
-} }
 
-<ng-template #virtualList let-data let-increment="_increment" let-id="_id">
-  <cdk-virtual-scroll-viewport cdkDropList (cdkDropListDropped)="drop($event,data)"
-    [cdkDropListDisabled]="!enableDrag()" [id]="id" [itemSize]="_optionHeight()" class="list-virtual-scroll-wrapper">
-    <nova-list-option cdkDrag
-      *cdkVirtualFor="let item of data; let i=index; let odd = odd; let even = even; trackBy:_identify"
-      class="nova-list-option" [class.nova-list-option-odd]="odd" [class.nova-list-option-even]="even" [color]="color"
-      [index]="i+increment+1" [data]="item" [value]="_bindingConfig.valueMemberFn|evaluate:item"
-      [disabled]="_bindingConfig.disableMemberFn|evaluate:item" [iconTemplate]="iconTemplate"
-      [titleTemplate]="titleTemplate" [indexTemplate]="indexTemplate" [toggleType]="_optToggleType"
-      [iconType]="_optIconType" [togglePosition]="_optTogglePosition" [iconPosition]="_optIconPosition">
-    </nova-list-option>
-  </cdk-virtual-scroll-viewport>
+<cdk-virtual-scroll-viewport cdkDropList (cdkDropListDropped)="drop($event,_data())"
+  [cdkDropListDisabled]="!enableDrag()" [itemSize]="_optionHeight()" class="cs-list-virtual-scroll-wrapper">
+  <cs-list-option cdkDrag
+    *cdkVirtualFor="let item of _data(); let i=index; let odd = odd; let even = even; trackBy:_trackBy"
+    class="cs-list-option" [class.cs-list-option-odd]="odd" [class.cs-list-option-even]="even" [index]="i+1"
+    [data]="item">
+  </cs-list-option>
+</cdk-virtual-scroll-viewport>
+
+<ng-template name="icon" let-icon>
+  <mat-icon class="mat-mdc-list-item-icon list-option-icon"
+    [class.mdc-list-item__start]="_optionIconPosition()==='before'"
+    [class.mdc-list-item__end]="_optionIconPosition() ==='after'">
+    {{icon}}</mat-icon>
 </ng-template>
 
-<ng-template #iconTemp let-item let-timeStamp="_timeStamp">
-  <mat-icon class="mat-mdc-list-item-icon list-option-icon" [class.mdc-list-item__start]="_optIconPosition==='before'"
-    [class.mdc-list-item__end]="_optIconPosition ==='after'" [color]="iconColor">
-    {{_bindingConfig.iconMemberFn|evaluate:item:timeStamp}}</mat-icon>
+<ng-template name="avatar" let-icon>
+  <img class="mat-mdc-list-item-avatar" [class.mdc-list-item__start]="_optionIconPosition()==='before'"
+    [class.mdc-list-item__end]="_optionIconPosition()==='after'" [src]="icon" alt="">
 </ng-template>
 
-<ng-template #avatarTemp let-item let-timeStamp="_timeStamp">
-  <img class="mat-mdc-list-item-avatar" [class.mdc-list-item__start]="_optIconPosition==='before'"
-    [class.mdc-list-item__end]="_optIconPosition==='after'" [src]="_bindingConfig.iconMemberFn|evaluate:item:timeStamp">
+<ng-template name="index" let-index>
+  <span class="list-option-index mdc-list-item__primary-text">{{index}}</span>
 </ng-template>
 
-<ng-template #indexTemp let-value>
-  <span class="list-option-index mdc-list-item__primary-text">{{value}}</span>
-</ng-template>
-
-<ng-template #titleTemp let-item let-timeStamp="_timeStamp">
-  <div matListItemTitle>{{_bindingConfig.displayMemberFn|evaluate:item:timeStamp}}</div>
+<ng-template name="title" let-title>
+  <div matListItemTitle>{{title}}</div>
 </ng-template>

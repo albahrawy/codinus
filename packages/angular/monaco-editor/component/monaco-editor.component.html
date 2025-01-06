@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <nav mat-tab-nav-bar mat-stretch-tabs="false" [tabPanel]="tabPanel">
     @for (page of pages(); track page) {
-    <a mat-tab-link (click)="onPageChanged(page)" [active]="activePage.set(page)"> {{page.label|csTranslate}}</a>
+    <a mat-tab-link (click)="onPageChanged(page)" [active]="activePage.set(page)"> {{(page.label|csTranslate)()}}</a>
     }
 </nav>
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>

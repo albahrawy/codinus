@@ -3,12 +3,12 @@ import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
 import { arraySort, getValue } from "@codinus/js-extensions";
 import {
-    Aggregation, CSDataAggregator, ICSSupportAggregation, ISupportDataChangedNotifier
+    CSAggregation, CSDataAggregator, ICSSupportAggregation, ICSSupportDataChangedNotifier
 } from "@ngx-codinus/core/data";
-import { Observable, ReplaySubject, Subscription, distinctUntilChanged, isObservable, tap } from "rxjs";
+import { EMPTY, Observable, ReplaySubject, Subscription, distinctUntilChanged, isObservable, tap } from "rxjs";
 
 export class CSTableDataSource<T, P extends MatPaginator = MatPaginator>
-    extends MatTableDataSource<T, P> implements ICSSupportAggregation, ISupportDataChangedNotifier {
+    extends MatTableDataSource<T, P> implements ICSSupportAggregation, ICSSupportDataChangedNotifier {
 
     private _observableDataSubscription: Subscription | null = null;
     private _dataChanged = new ReplaySubject<T[]>(1);
@@ -56,7 +56,7 @@ export class CSTableDataSource<T, P extends MatPaginator = MatPaginator>
         this._data.next(super.data);
     }
 
-    aggregate(key: string, type: Aggregation): unknown {
+    aggregate(key: string, type: CSAggregation): unknown {
         return this.dataAggregator?.aggregate(key, type);
     }
 

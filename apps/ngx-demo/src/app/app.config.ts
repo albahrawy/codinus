@@ -5,6 +5,7 @@ import { provideCodinusLocalizer } from '@ngx-codinus/cdk/localization';
 import { provideCodinusDateProvider } from '@ngx-codinus/material/date-adapter';
 import { appRoutes } from './app.routes';
 import { provideCodinusHttpService } from '@ngx-codinus/cdk/http';
+import { provideValueFormatter } from '@ngx-codinus/core/format';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideCodinusDateProvider(),
     provideCodinusHttpService(),
-    provideCodinusLocalizer()
+    provideCodinusLocalizer(),
+    provideValueFormatter(),
   ],
 };
