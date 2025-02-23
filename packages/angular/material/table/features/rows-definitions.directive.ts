@@ -5,7 +5,7 @@ import { booleanTrueAttribute } from "@ngx-codinus/core/shared";
 @Directive({
     selector: `cdk-table, mat-table`,
 })
-export class CSTableDisplayedColumns {
+export class CSTableDisplayedColumns_Expermental {
     private _contentHeaderRowDefs = contentChildren(CdkHeaderRowDef);
     private _contentFooterRowDefs = contentChildren(CdkFooterRowDef);
     private _contentRowDefs = contentChildren(CdkRowDef);

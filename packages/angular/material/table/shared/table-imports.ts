@@ -3,7 +3,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatTableModule } from "@angular/material/table";
 import { CSTableApiIRegistrar, CSTableMetaRowsVisiblity } from "../api";
 import { CODINUS_TABLE_CELLS } from "../cells";
-import { CODINUS_TABLE_COLUMNS, CSTableColumnResize } from "../columns";
+import { CODINUS_TABLE_COLUMNS } from "../columns";
 import { CSTableDirective } from "../cs-table";
 import { CODINUS_TABLE_DATA_DIRECTIVES } from "../data";
 import { CODINUS_TABLE_EDITORS } from "../editors";
@@ -18,7 +18,7 @@ const TABLE_IMPORTS = [
     ...CODINUS_TABLE_RESPONSIVE, ...CODINUS_TABLE_SELECTION_NAVIGATION, ...CODINUS_TABLE_CELLS,
     ...CODINUS_TABLE_COLUMNS, ...CODINUS_TABLE_DATA_DIRECTIVES,
     ...CODINUS_TABLE_VIRTUAL_SCROLL, ...CODINUS_TABLE_EDITORS, ...CODINUS_TABLE_FILTERS,
-    CSTableColumnResize, CSTableMetaRowsVisiblity, CSTableApiIRegistrar, CSTableDirective, CSTableFormInput
+    CSTableMetaRowsVisiblity, CSTableApiIRegistrar, CSTableDirective, CSTableFormInput
 ];
 
 @NgModule({

@@ -6,7 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TableButtonsComponent } from './table-buttons/table-buttons';
 import {
   CSAggregationFn, CSTableApiIRegistrar, CSTableMetaRowsVisiblity, CSTableSelectionChange,
-  CSTableDisplayedColumns, CodinusTableModule
+  CodinusTableModule
 } from '@ngx-codinus/material/table';
 import { CSTranslatePipe } from '@ngx-codinus/cdk/localization';
 import { CSAggregation } from '@ngx-codinus/core/data';
@@ -68,7 +68,6 @@ const BaseData = {
   imports: [
     CommonModule, TableButtonsComponent, MatTableModule,
     CodinusTableModule,
-    CSTableDisplayedColumns,
     MatSortModule,
     CSTableMetaRowsVisiblity,
     //FilterTextCustom, 

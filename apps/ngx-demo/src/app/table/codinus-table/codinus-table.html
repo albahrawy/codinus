@@ -2,7 +2,7 @@
 <mat-table class="table-area absolute-footer" cs-table recycleRows [virtual-scroll]="buttons.dataSource"
     [cellHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="config.editable"
     attachFilter="true" [editWithF2]="true" [stickyHeader]="config.stickyHeader" [selectColumn]="'before'"
-    [editWithEnter]="true" [reorderColumns]="true" [sortable]="true" responsiveHeaderColumn="name"
+    [editWithEnter]="true" [reorderColumns]="true" [sortable]="true" responsiveHeaderColumn="name" [resizable]="true"
     [displayedColumns]="buttons.displayedColumns" [showHeader]="true" [showFooter]="true" [showFilter]="true"
     (initialized)="buttons.onCreated($event)" [columns]="config.columns" [responsive]="[2,2,0]">
 

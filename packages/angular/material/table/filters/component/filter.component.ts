@@ -2,7 +2,7 @@
 import { CdkPortalOutletAttachedRef, ComponentPortal, PortalModule } from '@angular/cdk/portal';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-    Component, ComponentRef, Type, computed, contentChild, effect, inject, input,
+    Component, ComponentRef, Type, ViewEncapsulation, computed, contentChild, effect, inject, input,
     linkedSignal, output, signal, viewChild
 } from '@angular/core';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
@@ -19,8 +19,9 @@ import { CSCdkFilterCellDef } from '../filter-def.directive';
 @Component({
     selector: 'cs-filter, [cs-filter]',
     templateUrl: 'filter.component.html',
-    styleUrls: [`./filter.component.scss`],
+    encapsulation: ViewEncapsulation.None,
     host: {
+        'class': 'cs-table-filter-wrapper',
         '[class.cs-table-filtered]': 'filtered()',
         '[class.cs-table-trigger-shown]': 'shouldShowTrigger'
     },

@@ -53,7 +53,7 @@ export class TableButtonsComponent {
     positionColumnDataDef: unknown;
     currentOperation = 'notEquals';
 
-    displayedColumns: string[] = ['selector','position', 'name', 'weight', 'date', 'active', 'type'];
+    displayedColumns: string[] = ['position', 'name', 'weight', 'date', 'active', 'type'];
     dataSource = new CSTableDataSource(this.createData(100));
     rowHeight = 30;
 

@@ -11,6 +11,7 @@ import { createEventManager } from "@ngx-codinus/core/events";
 import { booleanTrueAttribute, SMOOTH_SCHEDULER } from "@ngx-codinus/core/shared";
 import { auditTime } from "rxjs";
 import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
+import { CODINUS_TABLE_RESIZABLE } from "./types";
 
 @Directive({
     selector: `mat-header-cell[resizable],
@@ -22,6 +23,8 @@ import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
 export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
 
     //#region fields
+
+    private _csTableResizable = inject(CODINUS_TABLE_RESIZABLE, { optional: true });
 
     private _cssWidthVariable!: string;
     private _cssBorderVariable!: string;
@@ -51,7 +54,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     //#region inputs
 
     resizable = input(true, { transform: booleanTrueAttribute });
-    columnWidth = input<Nullable<string | number>>();
+    columnWidth = input<Nullable<string | number>>(this._csTableResizable?.getSize(this.columnDef.name));
     resizbleBorderStyle = input('1px dashed blue');
 
     //#endregion
@@ -69,8 +72,11 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        const cashedWidth = this._tableElement?.style.getPropertyValue(this._cssWidthVariable) ?? '';
-        this.setWidth(cashedWidth.length > 0 ? cashedWidth : this.columnWidth());
+        const originalSize = this.elementRef.nativeElement.computedStyleMap().get('width');
+        console.log(this.columnDef.name);
+        // this.initialized = true;
+        // const cashedWidth = this._tableElement?.style.getPropertyValue(this._cssWidthVariable) ?? '';
+        // this.setWidth(cashedWidth.length > 0 ? cashedWidth : this.columnWidth());
     }
 
     ngOnDestroy(): void {
@@ -83,7 +89,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     //#region private methods
 
     private addCssToDocument() {
-
+        return;
         const columnClass = this.columnDef._columnCssClassName.find(c => c == `cdk-column-${this.columnDef.cssClassFriendlyName}`);
 
         const tableNgAttributes = findElementAttributeByPrefix(this._tableElement?.attributes, NG_HOST_PREFIX, NG_CONTENT_PREFIX);
@@ -146,10 +152,12 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
             value = this._constraintWidth(value);
             value = `${value}px`;
         }
-        if (value)
-            this.renderer.setStyle(this._tableElement, this._cssWidthVariable, value, RendererStyleFlags2.DashCase);
-        else
-            this.renderer.removeStyle(this._tableElement, this._cssWidthVariable, RendererStyleFlags2.DashCase);
+
+        this._csTableResizable?.setColumnSize(this.columnDef.name, value);
+        // if (value)
+        //     this.renderer.setStyle(this._tableElement, this._cssWidthVariable, value, RendererStyleFlags2.DashCase);
+        // else
+        //     this.renderer.removeStyle(this._tableElement, this._cssWidthVariable, RendererStyleFlags2.DashCase);
     }
 
     private onMouseDown = (event: MouseEvent) => {

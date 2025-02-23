@@ -8,7 +8,7 @@ import {
     CSTableApiIRegistrar,
     CSTableDataSource,
     CSTableDirective,
-    CSTableDisplayedColumns, ICSTableApi,
+    ICSTableApi,
     ICSTableColumn, SelectionType
 } from '@ngx-codinus/material/table';
 import { TableButtonsComponent } from '../table-buttons/table-buttons';
@@ -73,7 +73,6 @@ export type TableConfig<T = unknown> = EditableTableConfig<T>
     styleUrl: './codinus-table.scss',
     imports: [CommonModule, MatTableModule, TableButtonsComponent,
         CodinusTableModule,
-        CSTableDisplayedColumns,
         MatSortModule,
         CSTableDirective,
         //FilterTextCustom, 

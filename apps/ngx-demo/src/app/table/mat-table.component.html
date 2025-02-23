@@ -1,8 +1,8 @@
 <mat-table class="table-area absolute-footer" recycleRows [virtual-scroll]="buttons.dataSource"
-  [cellHeight]="buttons.rowHeight" [responsive]="[2,2,2]" [selectable]="'single'" keyboard-navigation="cell"
+  [rowHeight]="buttons.rowHeight"  [selectable]="'single'" keyboard-navigation="cell"
   [editable]="true" attachFilter="true" [editWithF2]="true" [editWithEnter]="true" [reorderColumns]="true"
   [sortable]="true" responsiveHeaderColumn="name" [displayedColumns]="buttons.displayedColumns" [showHeader]="true"
-  [showFooter]="true" [showFilter]="true" (initialized)="buttons.onCreated($event)" [events]="gridEvents"
+  [showFooter]="true" [showFilter]="true" (initialized)="buttons.onCreated($event)" [events]="gridEvents" [resizable]="true"
   (selectionChange)="onSelectChange($event)">
 
   <ng-container matColumnDef="position" csColumnDataDef [footerAggregation]="footerAggregation">
@@ -101,14 +101,14 @@
     <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
   </ng-container>
   }
-  <mat-header-row *matHeaderRowDef></mat-header-row>
+  <mat-header-row *matHeaderRowDef="buttons.displayedColumns,sticky:true"></mat-header-row>
   <mat-filter-row *matFilterRowDef="buttons.displayedColumns,sticky:true"></mat-filter-row>
   <div class="mat-row" *matNoDataRow>
     <div class="mat-cell">No data</div>
   </div>
-  <mat-footer-row *matFooterRowDef></mat-footer-row>
+  <mat-footer-row *matFooterRowDef="buttons.displayedColumns,sticky:true"></mat-footer-row>
 
-  <mat-row *matRowDef></mat-row>
+  <mat-row *matRowDef="let row; columns: buttons.displayedColumns;"></mat-row>
 </mat-table>
 
 <table-buttons #buttons color="primary">
