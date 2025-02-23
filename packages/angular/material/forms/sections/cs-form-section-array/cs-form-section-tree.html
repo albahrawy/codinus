@@ -1,0 +1,22 @@
+<cs-splitter unit="percent" class="cs-form-section-array-splitter">
+    <cs-splitter-pane class="cs-form-section-array-list-pane" [size]="listWidth()">
+        <ng-content select="[tree-panel-header]"></ng-content>
+        <mat-tree csTree class="cs-form-section-array-list-control" [csChildrenAccessor]="childrenAccessor()"
+            [displayMember]="displayMember()" [showIcon]="showIcon()" [iconMember]="iconMember()"
+            [isRemoveAllowed]="isRemoveAllowed()" (nodeRemoved)="_onNodeRemoved($event)"
+            [allowedChildTypes]="allowedChildTypes()" [readOnly]="readOnly()" [disabled]="disabled"
+            [activateFirstItem]="activateFirstItem()" [csDataSource]="value" [optionHeight]="optionHeight()"
+            (currentChanged)="_onCurrentChanged($event)" (conextMenuOpening)="conextMenuOpening.emit($event)">
+            @if(showSearch()){
+            <cs-tree-action-top-bar></cs-tree-action-top-bar>
+            }
+            <cs-node-action-bar></cs-node-action-bar>
+            <cs-tree-node *matTreeNodeDef [indent]="nodeIndent()"></cs-tree-node>
+        </mat-tree>
+    </cs-splitter-pane>
+    <cs-splitter-pane [size]="contentWidth()" class="cs-form-section-array-form-view"
+        [class.cs-form-section-array-form-view-hasItems]="value?.length">
+        <ng-container #contentOutlet="csOutlet" cs-outlet></ng-container>
+        <ng-container #conditionalOutlet="csOutlet" cs-outlet></ng-container>
+    </cs-splitter-pane>
+</cs-splitter>

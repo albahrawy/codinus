@@ -1,5 +1,5 @@
 import {
-    AfterViewInit, Directive, Injector, Input, OnDestroy, Signal, computed, effect, forwardRef, inject, input, output, signal, ɵWritable
+    AfterViewInit, Directive, Injector, Input, OnDestroy, Signal, booleanAttribute, computed, effect, forwardRef, inject, input, output, signal, ɵWritable
 } from '@angular/core';
 import {
     ControlContainer, Form, FormControl, FormControlName, FormGroupDirective,
@@ -25,7 +25,10 @@ declare module "@angular/forms" {
         _boundConfig: () => unknown;
         /** @internal */
         _updateValue(): void;
+        /** @internal */
         readonly _status: Signal<FormControlStatus | undefined>;
+        /** @internal */
+        readonly _pristine: Signal<boolean>;
     }
 }
 
@@ -34,7 +37,7 @@ export abstract class CSAbstractFormControlName extends NgControl implements OnD
 
     private _activeFormDirective: FormGroupDirective | null = null;
 
-    protected _parent = inject(ControlContainer, { optional: true, host: true, skipSelf: true }) ??
+    protected _parent = inject(ControlContainer, { optional: true, skipSelf: true }) ??
         inject(CODINUS_RUNTIME_CONTROL_CONTAINER, { optional: true, skipSelf: true });
 
     private _valueAccessors = inject(NG_VALUE_ACCESSOR, { optional: true, self: true });
@@ -102,22 +105,23 @@ export abstract class CSAbstractFormControlName extends NgControl implements OnD
     private _hasBeenSet = false;
 
     csFormControlName = input<Nullable<string>>(null);
+    initialDisableStatus = input(false, { transform: booleanAttribute });
 
     abstract get defaultValue(): unknown;
 
-    @Input()
-    get isDisabled(): boolean { return this._isDisabled || !!this.control?.disabled }
-    set isDisabled(value: boolean) {
-        const _ctrl = this._control();
-        if (_ctrl) {
-            if (value && !_ctrl.disabled)
-                _ctrl.disable({ emitEvent: false });
-            else if (!value && _ctrl.disabled)
-                _ctrl.enable({ emitEvent: false });
-        }
+    // @Input({ transform: booleanAttribute })
+    // get iinitalDisabled(): boolean { return this._isDisabled || !!this.control?.disabled }
+    // set isDisabled(value: boolean) {
+    //     const _ctrl = this._control();
+    //     if (_ctrl) {
+    //         if (value && !_ctrl.disabled)
+    //             _ctrl.disable({ emitEvent: false });
+    //         else if (!value && _ctrl.disabled)
+    //             _ctrl.enable({ emitEvent: false });
+    //     }
 
-        this._isDisabled = value;
-    }
+    //     this._isDisabled = value;
+    // }
 
     refresh(): void {
         const old_parent = this._activeFormDirective;

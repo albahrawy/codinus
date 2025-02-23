@@ -2,7 +2,6 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatSortModule } from '@angular/material/sort';
-import { CSTranslatePipe } from '@ngx-codinus/cdk/localization';
 import { CODINUS_TABLE_COLUMNS, CODINUS_TABLE_DATA_DIRECTIVES, CODINUS_TABLE_RESPONSIVE, CODINUS_TABLE_VIRTUAL_SCROLL, CSTableApiIRegistrar, CSTableMetaRowsVisiblity } from '@ngx-codinus/material/table';
 import { TableButtonsComponent } from './table-buttons/table-buttons';
 
@@ -23,7 +22,7 @@ import { TableButtonsComponent } from './table-buttons/table-buttons';
     MatSortModule,
     CSTableMetaRowsVisiblity,
     //FilterTextCustom, 
-    CSTranslatePipe, CSTableApiIRegistrar
+    CSTableApiIRegistrar
   ]
 })
 export class TestCdkTableComponent {

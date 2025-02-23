@@ -8,21 +8,32 @@
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/ngx-demo",
         "index": "apps/ngx-demo/src/index.html",
         "browser": "apps/ngx-demo/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/ngx-demo/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*",
             "input": "apps/ngx-demo/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "node_modules/monaco-editor/min/vs",
+            "output": "/assets/monaco/vs"
           }
         ],
-        "styles": ["apps/ngx-demo/src/styles.scss"],
+        "styles": [
+          "apps/ngx-demo/src/styles.scss"
+        ],
         "scripts": []
       },
       "configurations": {
@@ -31,12 +42,12 @@
             {
               "type": "initial",
               "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumError": "2mb"
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "4kb",
-              "maximumError": "8kb"
+              "maximumWarning": "6kb",
+              "maximumError": "20kb"
             }
           ],
           "outputHashing": "all"
@@ -72,7 +83,9 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/ngx-demo/src/jest.config.ts"
       }

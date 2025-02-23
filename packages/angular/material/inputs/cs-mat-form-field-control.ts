@@ -1,5 +1,5 @@
 import { _IdGenerator } from '@angular/cdk/a11y';
-import { Directive, DoCheck, ElementRef, inject, Input, OnDestroy } from '@angular/core';
+import { booleanAttribute, Directive, DoCheck, effect, ElementRef, inject, input, Input, OnDestroy } from '@angular/core';
 import { AbstractControl, FormGroupDirective, NgControl, NgForm, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldControl } from '@angular/material/form-field';
@@ -20,7 +20,7 @@ import { IMatFormFieldSupport } from './base/types';
 })
 export class CSMatFormFieldControl<TValue> implements MatFormFieldControl<TValue | null>, OnDestroy, DoCheck {
 
-    private readonly _elementRef = inject(ElementRef, { self: true });
+    readonly _elementRef = inject(ElementRef, { self: true });
     private readonly parentFrom = inject(FormGroupDirective, { optional: true, skipSelf: true }) ??
         inject(NgForm, { optional: true, skipSelf: true });
 
@@ -30,17 +30,23 @@ export class CSMatFormFieldControl<TValue> implements MatFormFieldControl<TValue
     private _placeholder!: string;
     private _required?: boolean;
     private _focused = false;
+    private _id: string;
+    private _uid: string;
 
+    readonly disableAutomaticLabeling = true;
     readonly controlType = this._elementRef.nativeElement.tagName.toLowerCase();
     ngControl = inject(NgControl, { optional: true, self: true });
     readonly stateChanges = new Subject<void>();
     readonly changeState = () => this.stateChanges.next();
     errorState = false;
 
+    floatLabel = input(false, { transform: booleanAttribute });
+
     constructor() {
-        this.id = inject(_IdGenerator).getId(this.controlType);
-        if (this.ngControl)
+        this._id = this._uid = inject(_IdGenerator).getId(this.controlType);
+        if (this.ngControl) {
             this.ngControl.valueAccessor = this;
+        }
     }
 
     setComponent(component: IMatFormFieldSupport<TValue>) {
@@ -55,11 +61,16 @@ export class CSMatFormFieldControl<TValue> implements MatFormFieldControl<TValue
     get value() { return this._component?.value ?? null; }
     get disabled() { return this._component?.disabled ?? false; }
     get focused(): boolean { return this._focused || !!this._component?.specialFocusState; }
-    get shouldLabelFloat(): boolean { return this._component?.shouldLabelFloat ?? false; }
+    get shouldLabelFloat(): boolean { return this._component?.shouldLabelFloat ?? this.floatLabel(); }
     get empty(): boolean { return this._component?.empty ?? false; }
     get autofilled(): boolean { return this._component?.autofilled ?? false; }
 
-    @Input() id: string;
+    @Input()
+    get id(): string { return this._id; }
+    set id(value: string) {
+        this._id = value || this._uid;
+        this.stateChanges.next();
+    }
 
     @Input() errorStateMatcher: ErrorStateMatcher | undefined;
 
@@ -87,15 +98,23 @@ export class CSMatFormFieldControl<TValue> implements MatFormFieldControl<TValue
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    setDescribedByIds(ids: string[]): void {/** */ }
+    setDescribedByIds(ids: string[]) {
+        if (ids.length)
+            this._elementRef.nativeElement.setAttribute('aria-describedby', ids.join(' '));
+        else
+            this._elementRef.nativeElement.removeAttribute('aria-describedby');
+    }
 
     onContainerClick(event: MouseEvent): void {
         if (!this.focused) {
-            this._component?.focus();
+            this._component?.focus?.();
         }
         this._component?.onContainerClick?.(event);
         this.changeState();
+    }
+
+    focusElement() {
+        this._elementRef.nativeElement.focus?.();
     }
 
     updateErrorState(): void {

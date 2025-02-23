@@ -9,6 +9,7 @@ export function addStyleSectionToDocument(id: string, cssContent: string): HTMLS
     if (id && document.getElementById(id)) {
         return;
     }
+    cssContent = cssContent.replace(/[\r\n]+/g, '');
     let styleElement: HTMLStyleElement | null = document.createElement('style');
     styleElement.id = id;
     styleElement.innerText = cssContent;
@@ -28,7 +29,7 @@ export interface HTMLStyleElementScope {
     remove: () => void;
 }
 
-export function getProperCssValue(value?: string | number | null, defaultValue = 'initial') {
+export function getProperCssValue(value?: string | number | null, defaultValue = 'unset') {
     if (value == null)
         return defaultValue;
     if (isNumber(value) || isNumberString(value))

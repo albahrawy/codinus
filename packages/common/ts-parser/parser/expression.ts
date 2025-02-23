@@ -3798,7 +3798,7 @@ export abstract class ParserExpression<SH extends ScopeHandlerBase<S>, S extends
     }
 
     protected parseLiteralAtNode<T extends ILiteralExpression>(value: unknown, type: T["type"], node: T): T {
-        if (value)
+        if (value != null)
             node.rawValue = this.input.slice(node.location.start.index, this.state.end);
         node.value = value as T["type"];
         this.next();

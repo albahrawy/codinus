@@ -1,4 +1,5 @@
 import { Directive, booleanAttribute, input, output } from '@angular/core';
+import { booleanTrueAttribute } from '@ngx-codinus/core/shared';
 
 @Directive({
     selector: '[csfileDrop]',
@@ -14,7 +15,7 @@ import { Directive, booleanAttribute, input, output } from '@angular/core';
 export class CSFileDropZone {
 
     csfileDrop = output<DragEvent>();
-    preventBodyDrop = input(true, { transform: booleanAttribute });
+    preventBodyDrop = input(true, { transform: booleanTrueAttribute });
     disableDrop = input(false, { transform: booleanAttribute });
     dropEffect = input<'none' | 'copy' | 'link' | 'move'>('copy');
 

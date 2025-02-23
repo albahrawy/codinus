@@ -1,35 +1,38 @@
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { _getFocusedElementPierceShadowDom } from '@angular/cdk/platform';
 import { CdkVirtualScrollViewport, ScrollingModule, ViewportRuler } from '@angular/cdk/scrolling';
 import {
-    AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, Component, ElementRef,
-    Input, NgZone, OnDestroy, Signal, ViewEncapsulation, booleanAttribute, computed,
+    AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, Injector,
+    Input, NgZone, OnDestroy, ViewEncapsulation, afterNextRender, booleanAttribute, computed,
     effect, forwardRef, inject, input, numberAttribute, output, signal, untracked, viewChild, viewChildren
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatList, MatListModule } from '@angular/material/list';
-import { focusElement, preventEvent } from '@codinus/dom';
-import { removeFromArray, toStringValue } from '@codinus/js-extensions';
-import { Nullable, ObjectGetter } from '@codinus/types';
-import { HtmlElementRuler } from '@ngx-codinus/cdk/observer';
-import { CSDataSource, CSDataSourceObserver, CSListBinder, CSSelectionModel } from '@ngx-codinus/core/data';
+import { preventEvent, scrollIntoViewAndFocus } from '@codinus/dom';
+import { Nullable, ValueGetter } from '@codinus/types';
+import {
+    CSDataManager, CSDataSource, CSSelectionModel,
+    CSStringFilterPredicate, CurrentChangingFn, ICSValueChangeArgs, ValueChangeReason
+} from '@ngx-codinus/core/data';
 import { createEventManager } from '@ngx-codinus/core/events';
+import { HtmlElementRuler } from '@ngx-codinus/core/observer';
 import { CSNamedTemplate } from '@ngx-codinus/core/outlet';
+import { booleanTrueAttribute } from '@ngx-codinus/core/shared';
 import {
     CODINUS_CONTEXT_MENU_PARENT, ConextMenuOpeningArgs, ICSContextMenuParent
 } from '@ngx-codinus/material/context-menu';
+import { ICSSelectionChangingArgs, SelectPredicate } from '@ngx-codinus/material/table';
 import { CSListOption } from '../option/list-option';
 import {
     CODINUS_SELECTION_LIST, CSVirtualSelectionListChange, ICSListOption,
-    ICSSelectionList, ListFilterPredicate, ListIconType, ListTogglePosition
+    ICSSelectionList, ListIconType, ListTogglePosition
 } from './types';
 
 const OPTION_TAG_NAME = 'CS-LIST-OPTION';
-
 const DEFAULT_OPTION_HEIGHT = 48;
+const ARROW_SETPS = { ArrowDown: 1, PageDown: 8, ArrowUp: -1, PageUp: -8 }
 
 @Component({
     selector: 'cs-selection-list-panel',
@@ -63,7 +66,7 @@ const DEFAULT_OPTION_HEIGHT = 48;
 })
 export class CSSelectionListPanel<TRow, TValue = unknown>
     extends MatList implements ICSSelectionList<TRow, TValue>,
-    ICSContextMenuParent, AfterViewInit, AfterViewChecked, OnDestroy {
+    ICSContextMenuParent, AfterViewInit, OnDestroy {
 
     override _isNonInteractive = false;
 
@@ -72,53 +75,54 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     private _elementRef = inject(ElementRef);
     protected _htmlElementRuler = inject(HtmlElementRuler, { self: true });
     private _ngZone = inject(NgZone);
+    private _injector = inject(Injector);
 
     //#endregion
 
-    private _needToSetFocus = false;
-    private _pendingFocusOption?: HTMLElement;
     private _initialized = false;
-    private _currentItem: TRow | null = null;
 
-    private _filter = signal<Nullable<string>>(null);
-    private _dataVersion = signal(0);
-    private _itemMoved = signal(false);
     private _coreValue = signal<TValue[] | null>(null);
     private _isDisabled = signal(false);
 
     private _selectionModel = new CSSelectionModel<TValue>(false);
     private _eventManager = createEventManager();
 
-    readonly _binder = new CSListBinder<TRow, TValue>(this);
-
     //#region output
     readonly conextMenuOpening = output<ConextMenuOpeningArgs>();
     readonly selectionChange = output<CSVirtualSelectionListChange<TRow, TValue>>();
+    readonly valueChange = output<ICSValueChangeArgs<typeof this.value>>();
     readonly currentChanged = output<Nullable<TRow>>();
     //#endregion
 
     //#region inputs
 
-    displayMember = input<ObjectGetter<TRow>>();
-    valueMember = input<ObjectGetter<TRow, TValue>>();
-    disableMember = input<ObjectGetter<TRow, boolean>>();
-    iconMember = input<ObjectGetter<TRow>>();
-    filterPredicate = input<ListFilterPredicate<TRow>>();
+    displayMember = input<ValueGetter<TRow>>();
+    valueMember = input<ValueGetter<TRow, TValue>>();
+    disableMember = input<ValueGetter<TRow, boolean>>();
+    iconMember = input<ValueGetter<TRow>>();
+    filterPredicate = input<CSStringFilterPredicate<TRow>>();
+    selectionPredicate = input<SelectPredicate<TRow, TValue>>();
+    currentChanging = input<CurrentChangingFn<TRow>>();
+
 
     multiple = input(false, { transform: booleanAttribute });
     readOnly = input(false, { transform: booleanAttribute });
     selectOnlyByCheckBox = input(false, { transform: booleanAttribute });
     enableDrag = input(false, { transform: booleanAttribute });
     stickySelected = input(false, { transform: booleanAttribute });
+    activateFirstItem = input(false, { transform: booleanAttribute });
+    hasCustomFilter = input(false, { transform: booleanAttribute });
 
     showIndex = input(false, { transform: booleanAttribute });
-    showTitle = input(true, { transform: booleanAttribute });
-    showSearch = input(true, { transform: booleanAttribute });
+    showTitle = input(true, { transform: booleanTrueAttribute });
+    showSearch = input(true, { transform: booleanTrueAttribute });
     dataSource = input<CSDataSource<TRow>>();
 
     togglePosition = input<ListTogglePosition>('after');
     iconType = input<ListIconType>('none');
     optionHeight = input(48, { transform: numberAttribute });
+
+    protected isNotDraggable = computed(() => !this.enabled() || !this.enableDrag());
 
     @Input()
     get value(): TValue | TValue[] | null {
@@ -131,7 +135,7 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
         return _value;
     }
     set value(newValue: TValue | TValue[] | null) {
-        this._setValue(newValue);
+        this._setValue(newValue, 'value');
         this._notifyValueChange();
     }
 
@@ -139,11 +143,15 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
 
     //#region viewchildren
 
+    readonly _csDataManager = new CSDataManager<TRow, TValue>(this, () => this.dataSource);
+    protected readonly _data = computed(() => this._csDataManager.filteredData());
+
     protected _items = viewChildren(CSListOption);
     protected _viewport = viewChild(CdkVirtualScrollViewport);
     protected _optTemplates = viewChildren(CSNamedTemplate);
+
     private _searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
-    private _searchContainer = viewChild<ElementRef<HTMLElement>>('searchContainer');
+    private _searchContainer = viewChild('searchContainer', { read: ElementRef });
 
     //#endregion
 
@@ -153,9 +161,8 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
             const multiple = this.multiple();
             if (multiple != this._selectionModel.multiple) {
                 this._selectionModel.multiple = multiple;
-                if (this._initialized) {
+                if (this._initialized)
                     this.value = this._selectionModel.selected;
-                }
             }
         });
 
@@ -167,33 +174,24 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
 
     //#region data population
 
-    private _dataSourceObserver = new CSDataSourceObserver<TRow>({ host: this });
-    private _origData = toSignal(this._dataSourceObserver.dataSourceChanged, { initialValue: [] });
+    _hasfilterStrategy = computed(() => this.stickySelected());
 
-    private _filterPredicate = computed<ListFilterPredicate<TRow>>(() => {
-        const customFilter = this.filterPredicate();
-        if (customFilter)
-            return customFilter;
-        const titleFn = this._binder.displayMember();
-        return (d, f) => toStringValue(titleFn(d)).includes(f);
-    });
+    _applyFilterStartegy?(data: readonly TRow[], filter: Nullable<string>, predicate: CSStringFilterPredicate<TRow>): TRow[] {
+        const value = this._coreValue();
+        const selected: TRow[] = [];
+        const noneSelected: TRow[] = [];
+        const selectedSet = new Set(value ?? []);
+        const _cValueFn = this._csDataManager.valueMember();
+        const hasCustomFilter = this.hasCustomFilter();
 
-    protected _data: Signal<TRow[]> = computed(() => {
-        this._itemMoved();
-        this._dataVersion();
-        const origData = this._origData();
-        const filter = this._filter();
-        if (this.stickySelected()) {
-            return this._getStickyData(origData, filter, this._coreValue());
-        } else {
-            if (filter) {
-                const filterPredicate = this._filterPredicate();
-                return origData.filter(i => filterPredicate(i, filter));
-            } else {
-                return [...origData];
-            }
+        for (const item of data) {
+            if (selectedSet.size && selectedSet.has(_cValueFn(item)))
+                selected.push(item);
+            else if ((!filter && !hasCustomFilter) || predicate(item, filter))
+                noneSelected.push(item);
         }
-    });
+        return selected.concat(noneSelected);
+    }
 
     //#endregion
 
@@ -203,6 +201,9 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
         const height = this.optionHeight();
         return !height || isNaN(height) ? DEFAULT_OPTION_HEIGHT : height;
     });
+
+    protected _minBufferPx = computed(() => this._optionHeight() * 8);
+    protected _maxBufferPx = computed(() => this._optionHeight() * 16);
 
     _optionToggleType = computed(() => this.togglePosition() === 'none' ? null : this.multiple() ? 'check' : 'radio');
     _optionIconType = computed(() => {
@@ -230,6 +231,10 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
 
     enabled = computed(() => { return !this._isDisabled() && !this.readOnly(); });
 
+    listDataHeight = computed(() => (this._csDataManager.filteredData().length * this._optionHeight()));
+
+    get searchHeight(): number { return this.showSearch() ? this._searchContainer()?.nativeElement.clientHeight ?? 0 : 0; }
+
     override get disabled(): boolean {
         return super.disabled;
     }
@@ -245,13 +250,38 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     }
 
     _isOptionCurrent(option: ICSListOption<TRow, TValue>): boolean {
-        return this._currentItem === option.data();
+        return this._csDataManager.isCurrent(option.data());
     }
 
     _optionSelectChange(option: ICSListOption<TRow, TValue>, selected: boolean): void {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const index = this._items().indexOf(option as any);
-        this._pendingFocusOption = this._items().at(Math.min(this._items().length - 1, index + 1))?._elementRef.nativeElement;
+        if (!this.enabled())
+            return;
+
+        const predicate = this.selectionPredicate();
+        if (typeof predicate === 'function') {
+            const data = this._csDataManager.dataTracker().data;
+            const dataItem = option.data();
+            if (!dataItem)
+                return;
+
+            const args: ICSSelectionChangingArgs<TRow, TValue> = {
+                data,
+                selected: this._selectionModel.selected,
+                rowKey: option.value(),
+                rowData: dataItem,
+                type: selected ? 'select' : 'deselect'
+            };
+            if (!predicate(args))
+                return;
+        }
+
+        if (this.stickySelected()) {
+            const items = this._items();
+            const index = items.indexOf(option as unknown as CSListOption);
+            const optionToFocus = items.at(Math.min(items.length - 1, index + 1));
+            afterNextRender(() => optionToFocus?.focus(), { injector: this._injector });
+        }
+
         if (selected) {
             // if (!this.multiple()) {
             //     if (option.value == null)
@@ -269,7 +299,7 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     }
 
     _optionClicked(option: ICSListOption<TRow, TValue>): void {
-        this._changeCurrentItem(option.data());
+        this._csDataManager.setCurrent(option.data());
     }
 
     protected _onFilterInput(event: Event) {
@@ -277,7 +307,7 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     }
 
     protected _trackBy = (index: number, item: TRow) => {
-        return this._binder.valueMember()(item);
+        return this._csDataManager.valueMember()(item);
     }
 
     protected _handleKeydown(event: KeyboardEvent) {
@@ -297,26 +327,37 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
                 el.click();
                 preventEvent(event);
                 break;
-            case 'ArrowDown': {
-                const next = el.nextElementSibling;
-                if (next) {
-                    preventEvent(event);
-                    focusElement(next);
-                }
-                break;
-            }
-            case 'PageUp':
+            case 'ArrowDown':
             case 'PageDown':
-                this.performPageUpDown(el);
-                break;
-            case 'ArrowUp': {
-                const prev = el.previousElementSibling;
-                if (prev) {
-                    preventEvent(event);
-                    focusElement(prev);
-                }
+            case 'ArrowUp':
+            case 'PageUp': {
+                this._focuNextElement(el, event, ARROW_SETPS[event.code]);
                 break;
             }
+            // case 'ArrowDown': {
+            //     const next = this._getNextElement(1);
+            //     if (next) {
+            //         preventEvent(event);
+            //         this._focusElement(next);
+            //     }
+            //     break;
+            // }
+            // case 'PageUp':
+            //     preventEvent(event);
+            //     this._moveByPage(el, -8);
+            //     break;
+            // case 'PageDown':
+            //     preventEvent(event);
+            //     this._moveByPage(el, 8);
+            //     break;
+            // case 'ArrowUp': {
+            //     const prev = el.previousElementSibling;
+            //     if (prev) {
+            //         preventEvent(event);
+            //         this._focusElement(prev);
+            //     }
+            //     break;
+            // }
             case "KeyA":
                 if (this.multiple() && (event.ctrlKey || event.metaKey)) {
                     preventEvent(event);
@@ -337,8 +378,8 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     selectAll(onlyFiltered = false): void {
         if (!this.multiple())
             return;
-        const _data = onlyFiltered && this._filter() ? this._data() : this._origData();
-        const activeData = this._binder.getActive(_data);
+        const _data = this._csDataManager.getData(onlyFiltered);
+        const activeData = this._csDataManager.getActive(_data);
         if (!activeData)
             return;
         this._coreValue.set(activeData.values);
@@ -352,16 +393,18 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
         });
     }
 
-    getSelectedData(): TRow[] {
-        return this._binder.getSelectedItems(this._origData(), this._coreValue()) ?? [];
+    getSelectedRecords(): TRow[] {
+        return this._csDataManager.getSelectedRecords(this._coreValue());
     }
 
-    getSelectedTitles(): string[] {
-        return this._binder.getSelectedTitles(this._origData(), this._coreValue()) ?? [];
+    selectedTitles = computed(() => this._csDataManager.getSelectedTitles(this._coreValue()));
+
+    getSelectedTitles(values: TValue[]) {
+        return this._csDataManager.getSelectedTitles(values);
     }
 
-    setFilter(value?: string | null) {
-        this._filter.set(value);
+    setFilter(value: Nullable<string>) {
+        this._csDataManager.setFilter(value);
     }
 
     _emitChangeEvent(option: ICSListOption<TRow, TValue>) {
@@ -371,99 +414,58 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
             value: this.value,
             reason: 'option'
         });
+        this.valueChange.emit({ value: this.value, reason: 'user' });
     }
 
-    setCurrentItem(item: TRow, autoScroll = true) {
-        this._changeCurrentItem(item);
-        if (autoScroll) {
-            const _data = this._origData() as TRow[];
-            const _index = Math.max(0, _data.indexOf(item));
-            setTimeout(() => this._viewport()?.scrollToIndex(_index, 'smooth'), 10);
-        }
+    setCurrentItem(item: Nullable<TRow>, autoScroll = true) {
+        this._csDataManager.setCurrent(item, autoScroll);
     }
 
-    add(row?: TRow | TRow[], autoSelect = true, autoScroll = true) {
-        const rows = !row ? [{} as TRow] : Array.isArray(row) ? row : [row];
-        const _data = this._origData() as TRow[];
-        _data?.push(...rows);
-        if (autoSelect)
-            this.setCurrentItem(rows[0], autoScroll);
-        this.reDraw();
-        return _data;
+    scrollToIndex(index: number) {
+        afterNextRender(() => this._viewport()?.scrollToIndex(index, 'smooth'), { injector: this._injector });
     }
 
-    remove(row?: TRow | TRow[], autoSelect = true) {
-        if (!row && this._currentItem)
-            row = this._currentItem;
-        if (!row)
-            return;
-        const rows = Array.isArray(row) ? row : [row];
-        const _data = this._origData() as TRow[];
-        let _lastRemoved = -1;
-        rows.forEach(element => {
-            _lastRemoved = removeFromArray(_data, element);
-        });
+    scrollToStart() {
+        this._viewport()?.scrollToIndex(0, 'smooth');
+    }
 
-        if (autoSelect) {
-            _lastRemoved = Math.min(_lastRemoved, _data.length - 1);
-            this.setCurrentItem(_data[_lastRemoved], false);
-        }
+    add(row?: TRow | TRow[], setCurrent = true, autoScroll = true) {
+        return this._csDataManager.add(row, setCurrent, autoScroll);
+    }
 
-        this.reDraw();
+    remove(row?: TRow | TRow[] | null, setCurrent = true) {
+        this._csDataManager.remove(row, setCurrent);
     }
 
     reDraw() {
-        this._dataVersion.update(v => {
-            v++;
-            if (v >= Number.MAX_VALUE)
-                v = 0;
-            return v;
-        });
+        this._csDataManager.reDraw();
     }
 
-    private _changeCurrentItem(item?: TRow | null): void {
-        this._currentItem = item ?? null;
-        this.currentChanged.emit(item);
+    private _focuNextElement(el: HTMLElement, event: KeyboardEvent, step: number) {
+        const nextOption = this._getNextEnabledOptionByStep(el, step);
+        if (nextOption) {
+            preventEvent(event);
+            scrollIntoViewAndFocus(nextOption._elementRef.nativeElement, this._viewport()?.elementRef.nativeElement);
+        }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected performPageUpDown(el: HTMLElement) {
-        // setTimeout(() => {
-        //     this._element.nativeElement.focus();
-        //     if (document.activeElement?.tagName === OptionTagName) {
-        //         (document.activeElement as HTMLElement).focus();
-        //     }
-        // }, 300);
-        // const _viewPortWrapper = el.parentElement;
-        // const _viewport = _viewPortWrapper?.parentElement;
-        // if (_viewport) {
-        //     const olcPosition = el.getBoundingClientRect().top;
-        //     setTimeout(() => {
-        //         const childs = _viewPortWrapper.children;
-        //         let diffTop = 0;
-        //         for (let i = 0; i < childs.length - 1; i++) {
-        //             const newEl1 = childs.item(i)! as HTMLElement;
-        //             const newEl2 = childs.item(i + 1)! as HTMLElement;
-        //             const el1Top = newEl1.getBoundingClientRect().top;
-        //             const el2Top = newEl2.getBoundingClientRect().top;
-        //             if (el1Top < 0 && el2Top > 0) {
-        //                 diffTop = -el1Top;
-        //             }
-        //             if (numbers.between(olcPosition + diffTop, el1Top, el2Top)) {
-        //                 newEl1.focus();
-        //                 console.log(olcPosition, newEl1.getBoundingClientRect().top, diffTop);
-        //                 break;
-        //             }
-        //         }
-        //     }, 300);
-        // }
+    private _getNextEnabledOptionByStep(el: HTMLElement, step: number) {
+        const items = this._items();
+        const index = items.findIndex(o => o._elementRef.nativeElement == el);
+        const nextIndex = Math.max(0, Math.min(items.length - 1, index + step));
+        let nextOption = items.at(nextIndex);
+        step = step > 0 ? 1 : -1;
+        while (nextOption?.disabled) {
+            nextOption = items.at(nextIndex + step);
+        }
+        return nextOption;
     }
 
     focus(options?: FocusOptions) {
         if (!this.enabled)
             return;
         if (!this._initialized) {
-            this._needToSetFocus = true;
+            afterNextRender(() => this.focus(), { injector: this._injector });
             return;
         }
         if (this._items()?.length) {
@@ -476,47 +478,24 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
         }
     }
 
-    getSearchHeight() {
-        if (!this.showSearch() || !this._searchContainer())
-            return 0;
-        return this._searchContainer()?.nativeElement.clientHeight;
-    }
-
     refreshItem(item: TRow) {
-        this._items().find(o => o.data === item)?.update();
+        this._items().find(o => o.data() === item)?.update();
     }
 
-    protected drop(event: CdkDragDrop<TRow[]>, data: TRow[]) {
-        const allData = this._origData() as TRow[];
-        const previousItem = data[event.previousIndex];
-        const currentItem = data[event.currentIndex];
-        const previousIndex = allData.indexOf(previousItem);
-        const currentIndex = allData.indexOf(currentItem);
-        moveItemInArray(allData, previousIndex, currentIndex);
-        this._itemMoved.set(!this._itemMoved());
+    protected drop(event: CdkDragDrop<TRow[]>) {
+        this._csDataManager.swapRecord(event.previousIndex, event.currentIndex);
     }
 
-    private _getStickyData(data: readonly TRow[], filter?: string | null, value?: TValue[] | null) {
-        const selected: TRow[] = [];
-        const noneSelected: TRow[] = [];
-        const selectedSet = new Set(value ?? []);
-        const _cValueFn = this._binder.valueMember();
-        const filterPredicate = this._filterPredicate()
-
-        for (const item of data) {
-            if (selectedSet.size && selectedSet.has(_cValueFn(item)))
-                selected.push(item);
-            else if (!filter || filterPredicate(item, filter))
-                noneSelected.push(item);
+    protected _setValue(value: Nullable<TValue | TValue[]>, reason: ValueChangeReason) {
+        if (!this._initialized) {
+            afterNextRender(() => this._setValue(value, reason), { injector: this._injector });
+            return;
         }
-        return selected.concat(noneSelected);
-    }
-
-    protected _setValue(value?: TValue | TValue[] | null) {
         let _value = value == null ? [] : !Array.isArray(value) ? [value] : value;
         if (!this.multiple() && _value && _value.length > 1)
             _value = _value.slice(0, 1);
         this._coreValue.set(_value);
+        this.valueChange.emit({ value: this.value, reason });
     }
 
     _notifyTouched() {/** */ }
@@ -554,17 +533,6 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
             this._eventManager.listenAndRegister('focusin', this._elementRef.nativeElement, 'focusin', this._handleFocusin);
             this._eventManager.listenAndRegister('focusout', this._elementRef.nativeElement, 'focusout', this._handleFocusout)
         });
-    }
-
-    ngAfterViewChecked(): void {
-        if (this.stickySelected() && this._pendingFocusOption) {
-            this._pendingFocusOption.focus({ preventScroll: true });
-            this._pendingFocusOption = undefined;
-        }
-        else if (this._needToSetFocus) {
-            this._needToSetFocus = false;
-            setTimeout(() => this.focus(), 100);
-        }
     }
 
     ngOnDestroy(): void {

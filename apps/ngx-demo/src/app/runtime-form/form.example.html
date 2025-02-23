@@ -1,0 +1,55 @@
+<cs-runtime-form #form [events]="events" [config]="config">
+    After
+    <span before>Before</span>
+    <!-- <ng-template #elementTemplate let-element let-section="section" name="ahmed">
+        <ng-container [nova-form-portal]="element" [parentSection]="section"></ng-container>
+    </ng-template> -->
+    <!--
+    <ng-template #elementTemplateWithLabel let-element let-section="section" name="labeled">
+        <div [class]="'form-element-without-mat-field form-element-without-mat-field_'+ element.type"
+            [class.form-element-invisible]="element.invisible" layout-flex-element [flex-basis]="element.flex"
+            [flex-order]="element.order">
+            <div class="label-area">
+                @if(element.labelIcon){
+                <mat-icon [novaIcon]="element.labelIcon" [iconType]="element.labelIconType"></mat-icon>
+                }
+                {{element.label|novaTranslate}}
+            </div>
+            <ng-container [nova-form-portal]="element" [parentSection]="section"></ng-container>
+        </div>
+    </ng-template>
+
+    <ng-template #matFieldElementTemplate let-element let-section="section" name="mat-field">
+        <mat-form-field [class.form-element-invisible]="element.invisible" layout-flex-element
+            [flex-basis]="element.flex" [flex-order]="element.order">
+            <mat-label>
+                @if(element.labelIcon){
+                <mat-icon [novaIcon]="element.labelIcon" [iconType]="element.labelIconType"></mat-icon>
+                }
+                {{element.label|novaTranslate}}
+            </mat-label>
+            <ng-container #portal="novaFormPortalWithHints" [nova-form-portal]="element" hints
+                [parentSection]="section"></ng-container>
+
+            @if(element.buttons?.length){
+            <ng-container matSuffix>
+                @for (btn of element.buttons; track btn) {
+                <button mat-icon-button [disabled]="btn.disabled" (click)="form.onButtonClick($event,btn,element)">
+                    <mat-icon [novaIcon]="btn.icon" [iconType]="btn.iconType"></mat-icon>
+                </button>
+                }
+            </ng-container>
+            }
+
+            @if(portal.leftHint()){<mat-hint>{{portal.leftHint()|novaTranslate}}</mat-hint>}
+            @if(portal.rightHint()){<mat-hint align="end">{{portal.rightHint()|novaTranslate}}</mat-hint>}
+            @if (!portal.isValid()) {<mat-error>{{portal.firstError()}}</mat-error>}
+        </mat-form-field>
+
+    </ng-template> -->
+
+</cs-runtime-form>
+
+<BR>
+{{form.value|json}}
+<BR> <button (click)="onClick()">Reset</button>

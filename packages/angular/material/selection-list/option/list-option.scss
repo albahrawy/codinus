@@ -99,8 +99,8 @@
 
 .mat-mdc-list-option.mdc-list-item--current,
 .mat-mdc-list-option.mdc-list-item--current:hover {
-  background-color: #d7e3ff;
-  color: var(--mdc-text-button-label-text-color);
+  background-color: var(--mdc-list-list-item-current-state-layer-color, #d7e3ff);
+  color: var(--mdc-list-list-item-current-state-text-color, var(--mdc-text-button-label-text-color));
 
   --mdc-list-list-item-label-text-color: currentColor;
   --mdc-list-list-item-leading-icon-color: currentColor;

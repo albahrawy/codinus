@@ -19,8 +19,8 @@ interface CSButtonItem {
     templateUrl: './button-container.html',
     host: {
         'class': 'cs-button-container',
-        '[style.justify-content]': 'position',
-        '[style.flex-direction]': 'direction'
+        '[style.justify-content]': 'position()',
+        '[style.flex-direction]': 'direction()',
     },
     styles: `
         :host{

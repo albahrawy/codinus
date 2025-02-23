@@ -22,7 +22,7 @@ export type Constructor<T = any> = new (...args: any[]) => T;
 export type IFunc<I, O> = (arg: I) => O;
 export type IAction<O = void> = (arg: O) => void;
 export type IArglessFunc<O> = () => O;
-export type ObjectGetter<I, O = string> = Nullable<string | IFunc<I, O>>;
+export type ValueGetter<I, O = string> = Nullable<string | IFunc<I, O>>;
 
 export type MergedObject<T extends [...any]> = Spread<T>;
 

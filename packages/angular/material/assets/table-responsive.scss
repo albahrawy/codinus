@@ -88,6 +88,7 @@ $row-bottom-margin: 3px;
         min-height: unset;
         margin-bottom: $row-bottom-margin;
         border: 2px solid #ddd !important;
+        position: relative;
         // border-right: 1px solid #ddd !important;
         // border-left: 1px solid #ddd !important;
 
@@ -156,6 +157,23 @@ $row-bottom-margin: 3px;
                 min-width: 0px;
 
             }
+        }
+
+        &.cs-selector-cell {
+            position: absolute;
+            right: 0;
+            height: calc(var(--cs-table-row-height) /(var(--cs-responsive-cell-count) - 1));
+            border: none;
+            background: transparent;
+
+            [dir='rtl'] & {
+                right: unset;
+                left: 0;
+            }
+
+            // &:focus {
+            //     box-shadow: none !important;
+            // }
         }
     }
 

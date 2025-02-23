@@ -10,9 +10,11 @@ import {
     CSSpeedButtonDirection,
     CSSpeedButtonMode,
     CSIconType,
-    CSImageIcon
+    CSImageIcon,
+    CSSplitButton
 } from '@ngx-codinus/material/buttons';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select'
+import { CSSplitButtonItem } from "@ngx-codinus/material/buttons";
 
 
 const _Directions: CSSpeedButtonDirection[] = ['up', 'down', 'left', 'right'];
@@ -29,7 +31,12 @@ const THUMBUP_ICON =
     selector: 'app-buttons-example',
     templateUrl: 'buttons.html',
     styleUrl: './buttons.scss',
-    imports: [MatButtonModule, MatIconModule, CSImageIcon, CSMatButtonStyle, CSButtonContainer, MatSelectModule, CSSpeedButton]
+    imports: [
+        MatButtonModule, MatIconModule, CSImageIcon, CSMatButtonStyle,
+        CSButtonContainer, MatSelectModule, CSSpeedButton,
+        CSSplitButton,
+        CSSplitButtonItem
+    ]
 })
 
 export class ButtonsExampleComponent {

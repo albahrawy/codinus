@@ -1,0 +1,17 @@
+<cs-overlay-host [isOpen]="_panelOpen()" (animationDone)="_panelDoneAnimatingStream.next($event)"
+    (positioningSettled)="positioningSettled()" (detach)="close()" (triggerClicked)="open()" (backdropClick)="close()"
+    [placeholder]="_mfc.placeholder" [overlayPanelClass]="overlayPanelClass()" [overlayWidth]="_overlayWidth"
+    [id]="_mfc.id" [multiple]="multiple()" [preferredOverlayOrigin]="_preferredOverlayOrigin" [maxHeight]="maxHeight()"
+    [suggestedHeight]="suggestedHeight()" [empty]="empty" [valueId]="_valueId" [triggerValue]="triggerText().trigger"
+    [triggerValueMore]="triggerText().more" (clear)="clear($event)"
+    [canClear]="allowClear() && !disabled && !empty && !_panelOpen() && !readOnly()">
+    <cs-selection-list-panel [multiple]="multiple()" [displayMember]="displayMember()" [valueMember]="valueMember()"
+        [disableMember]="disableMember()" [iconMember]="iconMember()" [filterPredicate]="filterPredicate()"
+        [selectOnlyByCheckBox]="selectOnlyByCheckBox()" [stickySelected]="stickySelected()" [readOnly]="readOnly()"
+        [activateFirstItem]="activateFirstItem()" [showIndex]="showIndex()" [showTitle]="showTitle()"
+        [showSearch]="showSearch()" [dataSource]="dataSource()" [togglePosition]="togglePosition()"
+        [iconType]="iconType()" [optionHeight]="optionHeight()" (valueChange)="_elementValueChanged($event)"
+        (selectionChange)="_elementSelectionChange($event)">
+    </cs-selection-list-panel>
+    <ng-content select="mat-select-trigger"></ng-content>
+</cs-overlay-host>

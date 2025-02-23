@@ -9,9 +9,11 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
     ChangeDetectionStrategy, Component, OnDestroy, ViewEncapsulation,
-    computed, effect, inject, input, signal
+    computed, effect, inject, input
 } from '@angular/core';
+import { MatPseudoCheckbox } from '@angular/material/core';
 import { MatListItem } from '@angular/material/list';
+import { signalVersion } from '@ngx-codinus/core/shared';
 import { CODINUS_SELECTION_LIST, ICSSelectionList } from '../list/types';
 
 @Component({
@@ -20,12 +22,12 @@ import { CODINUS_SELECTION_LIST, ICSSelectionList } from '../list/types';
     styleUrls: ['./list-option.scss'],
     templateUrl: './list-option.html',
     host: {
-        'class': 'mat-mdc-list-item mat-mdc-list-option mdc-list-item mat-mdc-list-item-single-line mdc-list-item--with-one-line',
+        'class': 'mat-mdc-list-item-interactive mat-mdc-list-item mat-mdc-list-option mdc-list-item mat-mdc-list-item-single-line mdc-list-item--with-one-line',
         'role': 'option',
         // As per MDC, only list items without checkbox or radio indicator should receive the
         // `--selected` class.
         '[class.mdc-list-item--selected]': 'selected()',
-        '[class.mdc-list-item--current]': 'isCurrent',
+        '[class.mdc-list-item--current]': 'isCurrent()',
         '[class.mdc-list-item--with-leading-avatar]': 'isLeadingAvatar()',
         '[class.mdc-list-item--with-leading-icon]': 'isLeadingIcon()',
         '[class.mdc-list-item--with-leading-checkbox]': 'isLeadingCheckbox()',
@@ -38,13 +40,13 @@ import { CODINUS_SELECTION_LIST, ICSSelectionList } from '../list/types';
         '[class._mat-animation-noopable]': '_noopAnimations',
         '[attr.aria-selected]': 'selected()',
         '[attr.aria-disabled]': '_isDisabled()',
-        '[attr.tabindex]': '_isDisabled()? -1: 0',
+        '[attr.tabindex]': '_isDisabled() ? null: 0',
         '(blur)': '_handleBlur()',
         '(click)': '_onClick()',
         '(contextmenu)': '_onContextMenu($event)',
     },
     encapsulation: ViewEncapsulation.None,
-    imports: [NgTemplateOutlet],
+    imports: [NgTemplateOutlet, MatPseudoCheckbox],
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [
         { provide: MatListItem, useExisting: CSListOption },
@@ -53,28 +55,28 @@ import { CODINUS_SELECTION_LIST, ICSSelectionList } from '../list/types';
 //@ts-expect-error override private property
 export class CSListOption<TData = unknown, TValue = unknown> extends MatListItem implements OnDestroy {
 
-    protected _dataVersion = signal(0);
+    protected _dataVersion = signalVersion();
     protected override _listBase = inject(CODINUS_SELECTION_LIST) as ICSSelectionList<TData, TValue>;
     data = input.required<TData>();
     index = input<number>();
 
     value = computed(() => {
         this._dataVersion();
-        return this._listBase._binder.valueMember()(this.data());
+        return this._listBase._csDataManager.valueMember()(this.data());
     });
 
     protected _isDisabled = computed(() => {
         this._dataVersion();
-        return !this._listBase.enabled() || (this._listBase._binder.disableMember?.()?.(this.data()) ?? false);
+        return !this._listBase.enabled() || (this._listBase._csDataManager.disableMember?.()?.(this.data()) ?? false);
     });
 
     protected _icon = computed(() => {
         this._dataVersion();
-        return this._listBase._binder.iconMember?.()?.(this.data());
+        return this._listBase._csDataManager.iconMember?.()?.(this.data());
     });
     protected _title = computed(() => {
         this._dataVersion();
-        return this._listBase._binder.displayMember()(this.data());
+        return this._listBase._csDataManager.displayMember()(this.data());
     });
     /**
      *
@@ -86,13 +88,9 @@ export class CSListOption<TData = unknown, TValue = unknown> extends MatListItem
         });
     }
 
-    selected = computed(() => {
-        return this._listBase.isSelected(this.value());
-    });
+    selected = computed(() => this._listBase.isSelected(this.value()));
 
-    get isCurrent(): boolean {
-        return this._listBase._isOptionCurrent(this);
-    }
+    protected isCurrent = computed(() => this._listBase._isOptionCurrent(this));
 
     protected isLeadingAvatar = computed(() =>
         this._listBase._optionIconType() === "avatar" && this._listBase._optionIconPosition() === "before")
@@ -122,12 +120,7 @@ export class CSListOption<TData = unknown, TValue = unknown> extends MatListItem
     }
 
     update() {
-        this._dataVersion.update(v => {
-            v++;
-            if (v >= Number.MAX_VALUE)
-                v = 0;
-            return v;
-        });
+        this._dataVersion.refresh();
     }
 
     /**
@@ -146,7 +139,7 @@ export class CSListOption<TData = unknown, TValue = unknown> extends MatListItem
      * Mainly used to trigger an update of the list option if the disabled state of the selection
      * list changed.
      */
-    
+
     protected _onCheckBoxClick(event: Event) {
         event.stopImmediatePropagation();
         if (!this.disabled && this._listBase.enabled()) {
@@ -174,6 +167,6 @@ export class CSListOption<TData = unknown, TValue = unknown> extends MatListItem
     }
 
     protected _onContextMenu(event: Event) {
-        this._listBase.conextMenuOpening.emit({ event, data: this.data });
+        this._listBase.conextMenuOpening.emit({ event, data: this.data, source: this._elementRef.nativeElement });
     }
 }

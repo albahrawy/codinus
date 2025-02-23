@@ -1,0 +1,67 @@
+<ng-template let-element let-section="section" name="default">
+    <ng-container [cs-form-portal]="element" [parentFormGroup]="section"></ng-container>
+</ng-template>
+
+<ng-template let-element let-section="section" name="default-flex">
+    <div [class]="'cs-runtime-form-element cs-form-element-without-mat-field cs-form-element-without-mat-field_'+ element.type"
+        [class.cs-form-element-invisible]="element.renderState?.invisible()" flex-grid-element
+        [flex-grid-column-span]="element.flexSpan" [flex-grid-order]="element.order"
+        [flex-grid-new-row]="element.flexNewRow" [flex-grid-full-row]="element.flexFullRow">
+        <ng-container [cs-form-portal]="element" [parentFormGroup]="section"></ng-container>
+    </div>
+</ng-template>
+
+<ng-template let-element let-section="section" let-formHandler="formHandler" name="labeled">
+    <div [class]="'cs-runtime-form-element cs-form-element-without-mat-field cs-form-element-without-mat-field_'+ element.type"
+        [class.cs-form-element-invisible]="element.renderState?.invisible()" flex-grid-element
+        [flex-grid-column-span]="element.flexSpan" [flex-grid-order]="element.order"
+        [flex-grid-new-row]="element.flexNewRow" [flex-grid-full-row]="element.flexFullRow">
+        <div class="label-area">
+            @if(element.labelIcon){
+            <mat-icon [csIcon]="element.labelIcon" [iconType]="element.labelIconType"></mat-icon>
+            }
+            {{(element.label|csTranslate)()}}
+        </div>
+        <ng-container [cs-form-portal]="element" [parentFormGroup]="section"></ng-container>
+        <div class="cs-runtime-form-element-button-container">
+            @for (btn of element.buttons; track btn) {
+            <button mat-icon-button [disabled]="btn.disabled" (click)="formHandler.onButtonClick($event,btn,element)">
+                <mat-icon [csIcon]="btn.icon" [iconType]="btn.iconType"></mat-icon>
+            </button>
+            }
+        </div>
+    </div>
+</ng-template>
+
+<ng-template let-element let-section="section" let-formHandler="formHandler" name="mat-field">
+    <mat-form-field subscriptSizing="dynamic" class="cs-runtime-form-element"
+        [class.cs-form-element-invisible]="element.renderState?.invisible()" flex-grid-element
+        [flex-grid-column-span]="element.flexSpan" [flex-grid-order]="element.order"
+        [flex-grid-new-row]="element.flexNewRow" [flex-grid-full-row]="element.flexFullRow">
+        <mat-label>
+            @if(element.labelIcon){
+            <mat-icon [csIcon]="element.labelIcon" [iconType]="element.labelIconType"></mat-icon>
+            }
+            {{(element.label|csTranslate)()}}
+        </mat-label>
+        <ng-container #portal="csFormPortal" [cs-form-portal]="element" hints
+            [parentFormGroup]="section"></ng-container>
+
+        @if(element.buttons?.length){
+        <ng-container matSuffix>
+            @for (btn of element.buttons; track btn) {
+            <button mat-icon-button [disabled]="btn.disabled" (click)="formHandler.onButtonClick($event,btn,element)">
+                <mat-icon [csIcon]="btn.icon" [iconType]="btn.iconType"></mat-icon>
+            </button>
+            }
+        </ng-container>
+        }
+        @if(portal.leftHint()){
+        <mat-hint>{{(portal.leftHint()|csTranslate)()}}</mat-hint>
+        }
+        @if(portal.rightHint()){
+        <mat-hint align="end">{{(portal.rightHint()|csTranslate)()}}</mat-hint>
+        }
+        @if (!portal.isValid()) {<mat-error>{{portal.firstError()}}</mat-error>}
+    </mat-form-field>
+</ng-template>

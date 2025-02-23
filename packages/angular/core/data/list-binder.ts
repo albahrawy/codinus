@@ -1,23 +1,24 @@
 import { isFunction, isString, getValue } from "@codinus/js-extensions";
-import { IFunc, ObjectGetter } from "@codinus/types";
+import { IFunc, ValueGetter } from "@codinus/types";
 import { ICSListBinder, ICSSupportListBinder } from "./types";
 import { computed } from "@angular/core";
+import { getDisplayText } from "./functions";
 
-const DefaultMemberFn = <T, V>(record: T) => record as unknown as V;
+export const DefaultMemberFn = <T, V>(record: T) => record as unknown as V;
 
 export class CSListBinder<TRow, TValue> implements ICSListBinder<TRow, TValue> {
 
     constructor(private owner: ICSSupportListBinder<TRow, TValue>) { }
 
     displayMember = computed(() => normalizeGetterMember(this.owner.displayMember(), DefaultMemberFn<TRow, string>));
-    valueMember = computed(() => normalizeGetterMember(this.owner.valueMember(), DefaultMemberFn<TRow, TValue>));
+    valueMember = computed(() => normalizeGetterMember(this.owner.valueMember?.(), DefaultMemberFn<TRow, TValue>));
     iconMember = computed(() => normalizeGetterMember(this.owner.iconMember?.(), null));
     disableMember = computed(() => normalizeGetterMember(this.owner.disableMember?.(), null));
 
-    getSelectedItems(data?: readonly TRow[] | null, selected?: TValue[] | null): TRow[] | null {
-        if (!selected?.length || !data?.length)
+    getItemsOfValue(data?: readonly TRow[] | null, value?: TValue[] | null): TRow[] | null {
+        if (!value?.length || !data?.length)
             return null;
-        const selectedSet = new Set(selected);
+        const selectedSet = new Set(value);
         const _cValueFn = this.valueMember();
         return data?.filter(record => selectedSet.has(_cValueFn(record))) ?? null;
     }
@@ -35,21 +36,8 @@ export class CSListBinder<TRow, TValue> implements ICSListBinder<TRow, TValue> {
         return data.map(record => _cValueFn(record)).filter(v => selectedSet.has(v));
     }
 
-    getSelectedTitles(data?: readonly TRow[] | null, selected?: TValue[] | null): string[] | null {
-        if (!selected?.length || !data?.length)
-            return null;
-        const _titleFn = this.displayMember();
-        const _cValueFn = this.valueMember();
-        const selectedSet = new Set(selected);
-        const titles: string[] = [];
-        for (const record of data) {
-            if (selectedSet.has(_cValueFn(record)))
-                titles.push(_titleFn(record));
-            if (titles.length === selectedSet.size)
-                break;
-        }
-
-        return titles;
+    getTitlesOfValue(data?: readonly TRow[] | null, value?: TValue[] | null): string[] | null {
+        return getDisplayText(this.displayMember(), this.valueMember(), data, value);
     }
 
     getActive(data?: readonly TRow[]): ({ data?: readonly TRow[], values: TValue[] }) | null {
@@ -72,7 +60,7 @@ export class CSListBinder<TRow, TValue> implements ICSListBinder<TRow, TValue> {
     }
 }
 
-export function normalizeGetterMember<TElement, TValue, TDefault>(value: ObjectGetter<TElement, TValue>, defaultFn: TDefault)
+export function normalizeGetterMember<TElement, TValue, TDefault>(value: ValueGetter<TElement, TValue>, defaultFn: TDefault)
     : IFunc<TElement, TValue> | TDefault {
     return isFunction(value)
         ? value

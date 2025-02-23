@@ -1,0 +1,15 @@
+:host {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+
+    .cs-icon-selector-icon {
+        border: 1px solid gray;
+        padding: 3px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--mat-sys-primary);
+    }
+}

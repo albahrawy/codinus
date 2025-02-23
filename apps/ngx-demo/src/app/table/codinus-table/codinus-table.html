@@ -1,0 +1,27 @@
+<!-- [responsive]="[2,2,0]" -->
+<mat-table class="table-area absolute-footer" cs-table recycleRows [virtual-scroll]="buttons.dataSource"
+    [cellHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="config.editable"
+    attachFilter="true" [editWithF2]="true" [stickyHeader]="config.stickyHeader" [selectColumn]="'before'"
+    [editWithEnter]="true" [reorderColumns]="true" [sortable]="true" responsiveHeaderColumn="name"
+    [displayedColumns]="buttons.displayedColumns" [showHeader]="true" [showFooter]="true" [showFilter]="true"
+    (initialized)="buttons.onCreated($event)" [columns]="config.columns" [responsive]="[2,2,0]">
+
+    <!-- [editable]="config.editable" [commitOnDestroy]="config.commitOnDestroy"
+    [editWithF2]="config.editWithF2" [editWithEnter]="config.editWithEnter" [rowHeight]="config.rowHeight"
+    [attachFilter]="config.attachFilter" [reorderColumns]="config.reorderColumns" [sortable]="config.sortable"
+    [showHeader]="config.showHeader" [showFilter]="config.showFilter" [showFooter]="config.showFooter"
+    [stickyHeader]="config.stickyHeader" [stickyFilter]="config.stickyFilter" [stickyFooter]="config.stickyFooter"
+    [noDataText]="config.noDataText" [responsive]="config.responsive" [dataSource]="dataSource"
+    [selectColumn]="config.selectColumn" [selectable]="config.selectable" [columns]="config.columns"
+    (edited)="onEdited($event)" [iconMember]="config.iconMember" [iconColumn]="config.iconColumn"
+    [showIndex]="config.showIndex" [disabled]="disabled" [iconType]="config.iconType" keyboardNavigation="row"
+    (created)="onTableCreated($event) -->
+
+
+
+</mat-table>
+
+<table-buttons #buttons color="primary">
+    <button mat-button="stroked" (click)="config.stickyHeader = !config.stickyHeader">Test Aggregation</button>
+</table-buttons>
+<!-- <button (click)="changeFilterConfig()">changeFilter</button> -->

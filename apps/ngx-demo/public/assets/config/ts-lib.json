@@ -1,7 +1,7 @@
 {
     "path": "assets/ts-lib",
     "files": [
-        "http",
-        "localizer"
+        "ng-core",
+        "ng-observable"
     ]
 }

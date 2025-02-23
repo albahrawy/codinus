@@ -1,0 +1,9 @@
+{
+  "name": "@ngx-codinus/app-setup",
+  "version": "5.0.0",
+  "peerDependencies": {
+    "@angular/common": "^19.1.2",
+    "@angular/core": "^19.1.2"
+  },
+  "sideEffects": false
+}

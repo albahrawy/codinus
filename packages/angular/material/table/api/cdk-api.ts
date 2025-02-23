@@ -1,9 +1,6 @@
 import { CdkTable, RowOutlet } from "@angular/cdk/table";
 import { QueryList } from "@angular/core";
-import {
-    CSTableResponsive, EditablePredicate, ICSTableApi, ICSTableApiRegistrar,
-    ICSTableApiSelectModel, KeyboardNavigationType
-} from "./types";
+import { CSTableResponsive, EditablePredicate, ICSTableApi, ICSTableApiRegistrar, ICSTableApiSelectModel } from "./types";
 
 export class CSTableApi<TRow> implements ICSTableApi<TRow> {
 
@@ -30,10 +27,10 @@ export class CSTableApi<TRow> implements ICSTableApi<TRow> {
             this.registrar.sortableDirective.sortable = value;
     }
 
-    get editable(): boolean { return this.registrar.editableDirective?.editable() ?? false; }
+    get editable(): boolean { return this.registrar.editableDirective?.editable ?? false; }
     set editable(value: boolean) {
         if (this.registrar.editableDirective)
-            this.registrar.editableDirective.editable.set(value);
+            this.registrar.editableDirective.editable = value;
     }
 
     get commitOnDestroy(): boolean { return this.registrar.editableDirective?.commitOnDestroy ?? false; }
@@ -65,17 +62,8 @@ export class CSTableApi<TRow> implements ICSTableApi<TRow> {
         this.registrar.tableApiResponsive?.setResponsive(value);
     }
 
-    get keyboardNavigation(): KeyboardNavigationType { return this.registrar.keyboardNavigationDirective?.navigationMode ?? 'none'; }
-    set keyboardNavigation(value: KeyboardNavigationType) {
-        if (this.registrar.keyboardNavigationDirective)
-            this.registrar.keyboardNavigationDirective.navigationMode = value;
-    }
-
-    get stickyTopHeight(): number { return this.registrar.keyboardNavigationDirective?.stickyTopHeight ?? 0; }
-    get stickyBottomHeight(): number { return this.registrar.keyboardNavigationDirective?.stickyBottomHeight ?? 0; }
-
     get selectionModel(): ICSTableApiSelectModel<TRow> | undefined { return this.registrar.tableApiSelectModel; }
-    get startVisibleIndex() { return this.registrar.tableApiScrollable?.startIndex ?? 0; }
+    get renderedRange() { return this.registrar.tableApiScrollable?.renderedRange; }
 
     getData(): TRow[] | null {
         return this.registrar.dataSourceDirective?.getData() ?? null;

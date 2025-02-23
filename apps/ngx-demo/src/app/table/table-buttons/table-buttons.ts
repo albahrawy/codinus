@@ -13,7 +13,7 @@ import { CSTableDataSource, ICSTableApi } from '@ngx-codinus/material/table';
 // import { NovaMatButtonStyle } from '@ngx-nova/material-extensions/components';
 
 // import { arrays } from '@ngx-nova/js-extensions';
-type ToggleProp = 'showHeader' | 'showFooter' | 'showFilter' | 'reorderColumns' | 'sortable' | 'editable' ;
+type ToggleProp = 'showHeader' | 'showFooter' | 'showFilter' | 'reorderColumns' | 'sortable' | 'editable';
 export interface PeriodicElement {
     name_en: string;
     name_ar: string;
@@ -45,6 +45,7 @@ export class TableButtonsComponent {
     //private matTableExample = inject(TestMatTableComponent, { optional: true });
 
     showSymbol = false;
+    isResizable = true;
     showHeader = false;
     showFooter = true;
     showFilter = true;
@@ -52,7 +53,7 @@ export class TableButtonsComponent {
     positionColumnDataDef: unknown;
     currentOperation = 'notEquals';
 
-    displayedColumns: string[] = ['position', 'name', 'weight', 'date', 'active', 'type', 'typeGrid'];
+    displayedColumns: string[] = ['selector','position', 'name', 'weight', 'date', 'active', 'type'];
     dataSource = new CSTableDataSource(this.createData(100));
     rowHeight = 30;
 
@@ -160,7 +161,7 @@ export class TableButtonsComponent {
         const dataArray = this.dataSource.data;
         const record = dataArray ? dataArray[2] : null;
         if (record)
-            this._tableApi?.selectionModel?.selectRow(record);
+            this._tableApi?.selectionModel?.select(record);
     }
 
     _tableApi?: ICSTableApi<PeriodicElement>;

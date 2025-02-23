@@ -1,0 +1,16 @@
+<cs-overlay-host [isOpen]="_panelOpen()" (animationDone)="_panelDoneAnimatingStream.next($event)"
+    (positioningSettled)="positioningSettled()" (detach)="close()" (triggerClicked)="open()" (backdropClick)="close()"
+    [placeholder]="_mfc.placeholder" [overlayPanelClass]="overlayPanelClass()" [overlayWidth]="_overlayWidth"
+    [id]="_mfc.id" [multiple]="multiple()" [preferredOverlayOrigin]="_preferredOverlayOrigin" [maxHeight]="maxHeight()"
+    [suggestedHeight]="suggestedHeight()" [empty]="empty" [valueId]="_valueId" [triggerValue]="triggerText().trigger"
+    [triggerValueMore]="triggerText().more" (clear)="clear($event)"
+    [canClear]="allowClear() && !disabled && !empty && !_panelOpen() && !readOnly()">
+    <mat-table cs-table recycleRows [virtual-scroll]="dataSource()" [rowHeight]="optionHeight()" [readOnly]="readOnly()"
+        [selectable]="_selectable()" keyboard-navigation="row" attachFilter="true" [stickyHeader]="stickyHeader()"
+        [sortable]="sortable()" [showHeader]="showHeader()" [showFooter]="showFooter()" [showFilter]="showFilter()"
+        [columns]="columns()" [iconGetter]="iconMember()" [iconType]="iconType()" [iconColumn]="iconColumn()"
+        [selectColumn]="selectColumn()" [noDataText]="noDataText()" [selectableKey]="valueMember()"
+        [selectionPredicate]="_selectionPredicate()" (selectionChange)="_tableSelctionChanged($event)">
+    </mat-table>
+    <ng-content select="mat-select-trigger"></ng-content>
+</cs-overlay-host>

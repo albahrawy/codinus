@@ -12,13 +12,13 @@ interface IFlexMediaColumnInitials<T> {
 };
 
 const FlEX_MEDIA_INITIALS = {
-    'default': 'initial',
-    'xs': 'initial',
-    'sm': 'initial',
-    'md': 'initial',
-    'lg': 'initial',
-    'xl': 'initial',
-    'sl': 'initial'
+    'default': 'unset',
+    'xs': 'unset',
+    'sm': 'unset',
+    'md': 'unset',
+    'lg': 'unset',
+    'xl': 'unset',
+    'sl': 'unset'
 };
 
 const FlEX_MEDIA_COLUMN_INITIALS = {

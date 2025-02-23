@@ -5,8 +5,7 @@ import {
 import { toSignal } from "@angular/core/rxjs-interop";
 import { MAT_FORM_FIELD } from "@angular/material/form-field";
 import { noopFn, Nullable } from "@codinus/types";
-import { CSElementStateObserverService } from "@ngx-codinus/cdk/observer";
-import { CODINUS_ELEMENT_STATE_OBSERVER } from "@ngx-codinus/core/layout";
+import { CODINUS_ELEMENT_STATE_OBSERVER, CSElementStateObserverService } from "@ngx-codinus/core/observer";
 import { CompositeComponentWrapper, RUNTIME_MAT_FORM_FIELD } from "@ngx-codinus/core/shared";
 import { noop } from "rxjs";
 import { DEFAULT_INPUT_BUTTONS_WRAPPER_KEYS, enforceFormFieldSuffix } from "../internal";
@@ -46,7 +45,7 @@ export abstract class CSInputButtonDirectiveBase<TValue, TElement extends CSInpu
     private _viewContainerRef = inject(ViewContainerRef);
     private _stateObserverService = inject(CODINUS_ELEMENT_STATE_OBSERVER, { optional: true }) ?? inject(CSElementStateObserverService);
 
-    private _stateObserverRef = toSignal(this._stateObserverService.stateObservable(this.elementRef.nativeElement));
+    private _stateObserverRef = toSignal(this._stateObserverService.watchState(this.elementRef.nativeElement));
 
     private _removeElement = noopFn;
     private _matFormFieldFlex: HTMLElement | null = null;

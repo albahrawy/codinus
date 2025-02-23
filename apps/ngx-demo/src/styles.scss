@@ -1,17 +1,61 @@
 @use '../../../packages/angular/cdk/assets/cdk.scss';
 @use '../../../packages/angular/material/assets/material.scss';
 @use '@angular/material' as mat;
+@use '@angular/material/core/theming/inspection';
 
 html {
-  @include mat.theme((
-    color: (
-      primary: mat.$violet-palette,
-      tertiary: mat.$orange-palette,
-      theme-type: light,
-    ),
-    typography: Roboto,
-    density: 0
-  ));
+  @include mat.theme((color: (primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: Roboto,
+      density: 0));
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.cs-mat-buttons-small {
+  .mat-icon {
+    transform: scale(.9);
+  }
+
+  @include mat.button-toggle-density(-4);
+  @include mat.button-density(-4);
+  @include mat.icon-button-density(-4);
+  @include mat.icon-density(-5);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+// .mat-icon {
+//   font-family: 'Material Symbols Outlined' !important;
+//   font-feature-settings: 'liga';
+// }
+
+.material-icons {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.mat-mdc-form-field {
+  --mdc-filled-text-field-input-text-color: var(--mat-sys-primary);
+  --mat-select-enabled-trigger-text-color: var(--mat-sys-primary);
+}

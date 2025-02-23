@@ -3,11 +3,13 @@
 
 @defer(when areaType === 'card') {
 @if(areaType === 'card') {
-<div class="cs-form-area-card" [layout-flex]="flexLayout()" [layout-flex-align]="flexAlign()" [flex-gap]="flexgap()">
+<cs-flex-grid-container class="cs-form-area-card" [flex-grid-align]="flexAlign()" [flex-grid-gap]="flexGap()"
+    [flex-grid-columns]="flexColumns()">
     @for(panel of _panels(); track $index){
     @if(!panel.hidden()){
-    <mat-card class="cs-form-area-panel-card" [appearance]="cardAppearance()" layout-flex-element [flex-basis]="flexBasis()"
-        [class.cs-form-element-invisible]="panel.invisible()">
+    <mat-card flex-grid-element class="cs-form-area-panel-card" [appearance]="cardAppearance()"
+        [flex-grid-column-span]="panel.flexGridColumn()" [flex-grid-order]="panel.flexOrder()"
+        [flex-grid-new-row]="panel.flexNewRow()" [class.cs-form-element-invisible]="panel.invisible()">
         @if(panel.label(); as label){
         <mat-card-header [class]="panel.labelClass()">
             <mat-card-title>
@@ -25,7 +27,7 @@
     </mat-card>
     }
     }
-</div>
+</cs-flex-grid-container>
 }
 }
 <!-- Tab -->
@@ -36,7 +38,7 @@
     [mat-stretch-tabs]="tabsStretch()">
     @for(panel of _panels();track $index){
     @if(!panel.hidden()){
-    <mat-tab [labelClass]="panel.tabLabelClasses()" [bodyClass]="panel.tabBodyClasses()">
+    <mat-tab [labelClass]="panel.tabLabelClasses()" [disabled]="panel.disabled()" [bodyClass]="panel.tabBodyClasses()">
         <ng-template mat-tab-label>
             @if(panel.icon(); as icon){
             <mat-icon [fontIcon]="icon" />
@@ -60,7 +62,8 @@
     [hideToggle]="accordionHideToggle()" [multi]="accordionMulti()" [togglePosition]="accordionTogglePosition()">
     @for(panel of _panels();track $index){
     @if(!panel.hidden()){
-    <mat-expansion-panel [expanded]="panel.accordionExpanded()" [class.cs-form-element-invisible]="panel.invisible()">
+    <mat-expansion-panel [expanded]="panel.accordionExpanded()" [disabled]="panel.disabled()"
+        [class.cs-form-element-invisible]="panel.invisible()">
         <mat-expansion-panel-header>
             <mat-panel-title [class]="panel.labelClass()">
                 @if(_hasAccordionIcon()){
@@ -80,23 +83,38 @@
 <!-- Accordion -->
 @defer(when areaType === 'none') {
 @if(areaType === 'none') {
-<div [layout-flex]="flexLayout()" [layout-flex-align]="flexAlign()" [flex-gap]="flexgap()">
+<cs-flex-grid-container class="cs-form-area-default" [flex-grid-align]="flexAlign()" [flex-grid-gap]="flexGap()"
+    [flex-grid-columns]="flexColumns()">
     @for(panel of _panels();track $index){
     @if(!panel.hidden()){
-    <div class="cs-form-area-panel-default" layout-flex-element [flex-basis]="flexBasis()"
+    <div class="cs-form-area-panel-default" flex-grid-element [flex-grid-column-span]="panel.flexGridColumn()"
+        [flex-grid-order]="panel.flexOrder()" [flex-grid-new-row]="panel.flexNewRow()"
         [class.cs-form-element-invisible]="panel.invisible()">
         <ng-container [ngTemplateOutlet]="contentTemplate"
             [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
     </div>
     }
     }
-</div>
+</cs-flex-grid-container>
+}
+}
+<!-- Accordion -->
+@defer(when areaType === 'flat') {
+@if(areaType === 'flat') {
+<cs-flex-grid-container class="cs-form-area-flat" [flex-grid-align]="flexAlign()" [flex-grid-gap]="flexGap()"
+    [flex-grid-columns]="flexColumns()">
+    @for(panel of _panels();track $index){
+    @if(!panel.hidden()){
+    <ng-container [ngTemplateOutlet]="panel.template()"></ng-container>
+    }
+    }
+</cs-flex-grid-container>
 }
 }
 
 <ng-template #contentTemplate let-panel>
-    <div class="cs-form-area-panel-content" [layout-flex]="panel.flexLayout()" [layout-flex-align]="panel.flexAlign()"
-        [flex-gap]="panel.flexgap()">
+    <cs-flex-grid-container class="cs-form-area-panel-content" [flex-grid-align]="panel.flexAlign()"
+        [flex-grid-gap]="panel.flexGap()" [flex-grid-columns]="panel.flexColumns()">
         <ng-container [ngTemplateOutlet]="panel.template()"></ng-container>
-    </div>
+    </cs-flex-grid-container>
 </ng-template>

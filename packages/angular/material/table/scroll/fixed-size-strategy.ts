@@ -27,8 +27,8 @@ import { computed, Directive, effect, forwardRef, input, numberAttribute } from 
 export class CSTableFixedSizeVirtualScroll {
 
     rowHeight = input(40, { transform: numberAttribute });
-    minBufferPx = input(100, { transform: numberAttribute });
-    maxBufferPx = input(200, { transform: numberAttribute });
+    // minBufferPx = input(100, { transform: numberAttribute });
+    // maxBufferPx = input(200, { transform: numberAttribute });
 
     private _minBufferPx = computed(() => this.rowHeight() * 8);
 

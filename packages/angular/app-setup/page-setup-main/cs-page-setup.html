@@ -1,0 +1,64 @@
+<mat-toolbar class="cs-page-setup-toolbar cs-mat-buttons-small">
+    <cs-split-button (buttonClick)="_onAddingClick($event)">
+        <cs-split-button-item key="cPage" icon="domain_add" text="Add Page"></cs-split-button-item>
+        <cs-split-button-item key="cGrid" icon="add_ad" text="Add Grid"></cs-split-button-item>
+        <cs-split-button-item key="cForm" icon="forms_add_on" text="Add Form"></cs-split-button-item>
+    </cs-split-button>
+
+    @if(!_isValid()){
+    <mat-icon class="invalid-form-button">warning</mat-icon>
+    }@else{
+    <button mat-icon-button class="save-button" [disabled]="_disabled()"
+        (click)="save()"><mat-icon>save</mat-icon></button>
+    }
+
+    <span class="cs-page-setup-toolbar-spacer"></span>
+    <mat-button-toggle-group [(ngModel)]="viewMode" (ngModelChange)="onViewModeChanged($event)" aria-label="View Mode"
+        class="cs-page-setup-toggle-group">
+        <mat-button-toggle value="properties">Properties</mat-button-toggle>
+        <mat-button-toggle value="sections">Sections</mat-button-toggle>
+        <mat-button-toggle value="code">Code</mat-button-toggle>
+    </mat-button-toggle-group>
+</mat-toolbar>
+<cs-splitter unit="percent" class="cs-page-setup-splitter">
+    <cs-splitter-pane [size]="20" class="cs-page-setup-list-area">
+        <mat-form-field style="width: 100%;" subscriptSizing="dynamic">
+            <mat-label>Choose Type</mat-label>
+            <mat-select [(ngModel)]="_filterType">
+                <mat-option [value]="null">All</mat-option>
+                <mat-option value="cPage">Pages</mat-option>
+                <mat-option value="cForm">Forms</mat-option>
+                <mat-option value="cGrid">Grids</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <cs-selection-list-panel class="cs-page-setup-list-control" [dataSource]="pages.value()"
+            [activateFirstItem]="true" displayMember="pageName" [iconMember]="_iconMember" [multiple]="true"
+            [showIndex]="true" [readOnly]="_readOnly()" [enableDrag]="true" iconType="icon"
+            [filterPredicate]="_filterPredicate()" [selectOnlyByCheckBox]="true" [hasCustomFilter]="!!_filterType()"
+            [currentChanging]="_currentChanging" (currentChanged)="_onCurrentPageChanged($event)">
+        </cs-selection-list-panel>
+    </cs-splitter-pane>
+    @let activePage = _currentPage();
+    <cs-splitter-pane [size]="80" class="cs-page-setup-area" [class.cs-page-setup-area-hasItems]="activePage" csAutoForm
+        (initialized)="_onMainFormInitialized($event)">
+        @if(activePage){
+        @defer (when viewMode==='properties') {
+        <cs-form-section class="cs-page-area-content" [hidden]="viewMode!=='properties'" csFormControlName="properties">
+            <cs-page-setup-properties (needRefresh)="_onPageNameChanged($event)"></cs-page-setup-properties>
+        </cs-form-section>
+        }
+        @defer (when viewMode==='sections') {
+        <page-setup-sections class="cs-page-area-content" csFormControlName="sections"
+            [sectionHandler]="_sectionsHandelr" [hidden]="viewMode!=='sections'"></page-setup-sections>
+        }
+
+        @defer (when viewMode==='code') {
+        <cs-monaco-editor [hidden]="viewMode!=='code'" class="cs-page-area-content" csFormControlName="pageCode">
+            <cs-monaco-editor-page key="code" [actions]="actions" language="typescript"
+                label="Code"></cs-monaco-editor-page>
+            <cs-monaco-editor-page key="styles" language="css" label="CSS"></cs-monaco-editor-page>
+        </cs-monaco-editor>
+        }
+        }
+    </cs-splitter-pane>
+</cs-splitter>

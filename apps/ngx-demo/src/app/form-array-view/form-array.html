@@ -1,0 +1,52 @@
+<cs-form (initialized)="onGroupCreated($event)">
+    <mat-form-field style="width: 100%;">
+        <mat-label>Test Form Array</mat-label>
+        <cs-form-section-array #input="csFormSectionArray" style="height: 500px;" csFormControlName="arrayControl"
+            displayMember="name_en" csContextMenu="true" [contextMenuItems]="_contextMenuItems"
+            (contextMenuClick)="onContextMenuClick($event)" [contextMenuOpen]="onContextMenuOpen">
+            <ng-container *csformSectionArrayContent>
+                <cs-form-area displayType="tab">
+                    <cs-form-area-panel label="Test Panel2">
+                        <cs-form-section>
+                            Name: EN <input csFormControlName="name_en" required="true">
+                            Name: AR <input csFormControlName="name_ar">
+                        </cs-form-section>
+
+                        <input csFormControlName="symbol">
+                        <input csFormControlName="icon">
+                        <cs-form-area borderAppearance="fill" style="width: 100%;" displayType="accordion"
+                            layout-flex="row wrap" flex-gap="5px" cardWhensingle="true">
+                            <cs-form-area-panel label="Test Panel" icon="home" layout-flex="row wrap" flex-gap="5"
+                                [hidden]="false" layout-flex-align="start">
+                                <cs-form-section csFormControlName="nested" layout-flex-element
+                                    flex-basis="50,100,100,50">
+                                    <input csFormControlName="weightx">
+                                    <input csFormControlName="symbolx">
+
+                                    <cs-form-section csFormControlName="nested2" layout-flex-element
+                                        flex-basis="50,100,100,50">
+                                        <input csFormControlName="weightx2">
+                                        <input csFormControlName="symbolx2">
+
+                                    </cs-form-section>
+
+                                </cs-form-section>
+                            </cs-form-area-panel>
+                        </cs-form-area>
+                    </cs-form-area-panel>
+                    <cs-form-area-panel label="Test Panel" icon="home" layout-flex="row wrap" flex-gap="5"
+                        [hidden]="!input.hasConditionalView()" layout-flex-align="start">
+                        <ng-container *csformSectionArrayContent="conditionalWhen">
+                            <input csFormControlName="position">
+                            <input csFormControlName="weight">
+                        </ng-container>
+                    </cs-form-area-panel>
+                </cs-form-area>
+            </ng-container>
+
+        </cs-form-section-array>
+    </mat-form-field>
+</cs-form>
+<button (click)="input.addNew()">Add New</button>
+<button (click)="input.remove()">Remove Selected</button>
+{{_group?.get('arrayControl')?.value|json}}

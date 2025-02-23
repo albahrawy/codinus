@@ -1,13 +1,4 @@
-export type ValueMap = {
-    boolean: boolean;
-    date: Date | undefined;
-    dateTime: Date | undefined;
-    int: number;
-    number: number;
-    string: string;
-};
-
-export type ValueType = keyof ValueMap | '';
+export type ValueType = 'boolean' | 'date' | 'dateTime' | 'int' | 'number' | 'string';
 
 export interface INumberFormatOptions extends Intl.NumberFormatOptions {
     padChar?: string,

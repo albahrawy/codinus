@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component } from '@angular/core';
 import { DateFilterFn, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { toDate } from '@codinus/js-extensions';
 import { IArglessFunc } from '@codinus/types';
@@ -18,16 +18,17 @@ import { ICSRuntimeFormFieldDate } from './_types';
             [startView]="config().startView" [dateFormat]="config().dateFormat" 
             [matDatepickerFilter]="dateFilter()!" [dateClass]="dateClass()"/>
     `,
-    imports: [ELEMENT_IMPORTS, CSDateMaskInput, CSDateFormatDirective, CSDateInput],
+    imports: [...ELEMENT_IMPORTS, CSDateMaskInput, CSDateFormatDirective, CSDateInput],
 })
 
 export class CSFormElementDate extends CSRunTimeFormValidableElementBase<ICSRuntimeFormFieldDate, Date> {
 
-    dateFilter = this.signalFunctionOf<DateFilterFn<Date | null>>('DateFilter');
-    dateClass = this.signalFunctionOf<MatCalendarCellClassFunction<Date>>('DateClass');
+    protected dateFilter = this.signalFunctionOf<DateFilterFn<Date | null>>('DateFilter');
+    protected dateClass = this.signalFunctionOf<MatCalendarCellClassFunction<Date>>('DateClass');
 
     private defaultValueFn = this.signalFunctionOf<IArglessFunc<Date | null>>('DateDefaultValue');
-    override defaultValue = computed(() => {
+
+    protected override getDefaultValue() {
         const defFn = this.defaultValueFn();
         if (defFn)
             return defFn();
@@ -38,5 +39,5 @@ export class CSFormElementDate extends CSRunTimeFormValidableElementBase<ICSRunt
                 ? new Date()
                 : toDate(config.defaultValue)
             : null;
-    });
+    }
 }

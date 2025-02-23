@@ -1,11 +1,10 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, effect, ElementRef, viewChild, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { LayoutFlexDirective } from '@ngx-codinus/core/layout';
-import { CSRuntimeFormDialogElementHostBase } from '../cs-element-base/dialog-container-base';
 import { CSMatFormFieldControl } from '@ngx-codinus/material/inputs';
-import { CSRunTimeFormTemplate } from '../cs-form-template.pipe';
+import { CSRuntimeFormDialogElementHostBase } from '../cs-element-base/dialog-element-host';
+import { CSFormTemplateOutlet } from '../cs-form-template-outlet';
+import { CODINUS_RUNTIME_FORM_SECTION } from '../injection-tokens';
 
 @Component({
     selector: 'cs-runtime-form-element-dialog',
@@ -13,33 +12,34 @@ import { CSRunTimeFormTemplate } from '../cs-form-template.pipe';
             <button csMatFormFieldControl mat-icon-button class="button-open" (click)="openDialog($event)">
                 <mat-icon>grid_view</mat-icon>
             </button>
-            <div #container style="display: none;">
-                <div layout-flex="row wrap">
-                    <ng-container *ngTemplateOutlet="templates()|csFormTemplate:dialogConfig().templateName:dialogConfig().type; 
-                        context: {$implicit:dialogConfig(),parentSection}">
+            <div style="display: none;">
+                <div #container>
+                    <ng-container *csFormTemplateOutlet="dialogConfig()">
                     </ng-container>
                 </div>
             </div>
     `,
     styles: [`
-        :host{
+        .cs-runtime-form-element-dialog{
             display:flex;
+            .button-open {
+                position: absolute;
+                top: 0%;
+                bottom: 0;
+                right: 0;
+                margin-top: auto;
+                margin-bottom: auto;
+                overflow:hidden;
+            }
         }
-        .button-open {
-            position: absolute;
-            top: 0%;
-            bottom: 0;
-            right: 0;
-            margin-top: auto;
-            margin-bottom: auto;
-        }
-        .form-dialog-panel .cs-dialog-content-area{
+        
+        .cs-runtime-form-dialog-panel .cs-dialog-content-area{
             padding:0 !important;
         }
         `],
     encapsulation: ViewEncapsulation.None,
-    imports: [CSMatFormFieldControl, MatButtonModule, MatIconModule, NgTemplateOutlet,
-        CSRunTimeFormTemplate, LayoutFlexDirective],
+    imports: [CSMatFormFieldControl, MatButtonModule, MatIconModule, CSFormTemplateOutlet],
+    providers: [{ provide: CODINUS_RUNTIME_FORM_SECTION, useExisting: CSFormElementDialog }]
 })
 
 export class CSFormElementDialog extends CSRuntimeFormDialogElementHostBase {
@@ -48,7 +48,7 @@ export class CSFormElementDialog extends CSRuntimeFormDialogElementHostBase {
     private _elementRef = viewChild('container', { read: ElementRef });
 
     protected override getComponent() {
-        return this._elementRef()?.nativeElement.firstChild;
+        return this._elementRef()?.nativeElement;
     }
 
     constructor() {

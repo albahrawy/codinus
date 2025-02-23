@@ -1,20 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ICSRuntimeFormAreaBase, ICSRuntimeFormConfig, ICSRuntimeFormFieldBase, ICSRuntimeFormFieldContainer } from "./cs-element-base/types";
+import { isArray } from "@codinus/js-extensions";
+import {
+    ICSRuntimeFormAreaBase, ICSRuntimeFormConfig,
+    ICSRuntimeFormFieldBase, ICSRuntimeFormFieldContainer
+} from "./cs-element-base/types";
 
 export function isCSRuntimeFormFieldContainer(element: any): element is ICSRuntimeFormFieldContainer {
     return !!element?.children;
 }
 
 export function isCSRuntimeFormArea(element: any): element is ICSRuntimeFormAreaBase {
-    return !!element?.panels;
+    return !!element?.panels && element.type === 'area';
 }
 
 export function generateFormRenderConfig(config?: ICSRuntimeFormConfig): ICSRuntimeFormAreaBase {
-    return isCSRuntimeFormFieldContainer(config)
-        ? { panels: [config], type: 'area', name: 'root' }
-        : config
-            ? { ...config, type: 'area', name: 'root' }
-            : { panels: [], type: 'area', name: 'root' };
+    return isCSRuntimeFormArea(config)
+        ? config
+        : isArray(config)
+            ? { panels: [{ children: config, type: 'panel', name: 'Main Panel' }], type: 'area', name: 'Root' }
+            : { panels: [], type: 'area', name: 'Root' };
 }
 
 export function getFormFieldChildrenByKey(element: unknown, key: string): ICSRuntimeFormFieldBase[] | undefined {

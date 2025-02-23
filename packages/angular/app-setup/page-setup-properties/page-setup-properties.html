@@ -1,0 +1,12 @@
+<!-- [flex-grid-align]="flexAlign()" [flex-grid-columns]="flexColumns()"
+    [flex-grid-gap]="flexGap()" -->
+<cs-flex-grid-container>
+    <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+        <mat-label>Name:</mat-label>
+        <input matInput csFormControlName="pageName" (formValueChange)="_onNameChanged($event)" />
+    </mat-form-field>
+    <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+        <mat-label>Css Class</mat-label>
+        <input matInput csFormControlName="cssClass" />
+    </mat-form-field>
+</cs-flex-grid-container>

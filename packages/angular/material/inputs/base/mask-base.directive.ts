@@ -22,7 +22,7 @@ export abstract class CSMaskInputBase {
 
     private _initialized = false;
     private oldVal?: string;
-    private focusText?: string;
+    private focusText = '';
     private caretTimeoutId: number | undefined;
 
     protected _elementRef: ElementRef<HTMLInputElement> = inject(ElementRef);
@@ -94,6 +94,9 @@ export abstract class CSMaskInputBase {
         if (!this.maskConfig())
             return;
         this.processValue();
+        const elValue = this._elementRef?.nativeElement.value;
+        if (!elValue && !this.focusText && !this.value)
+            return;
         if (this._elementRef?.nativeElement.value != this.focusText || this._elementRef?.nativeElement.value != this.value) {
             this.updateModel(e, false);
             this.dispatchChangeEvent();

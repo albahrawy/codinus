@@ -33,3 +33,14 @@
         padding: 5px 24px;
     }
 }
+
+.mat-mdc-dialog-content {
+    &.cs-dialog-content-area {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.cs-dialog-content-area-no-padding {
+        --mat-dialog-with-actions-content-padding: 1px 1px 0;
+    }
+}

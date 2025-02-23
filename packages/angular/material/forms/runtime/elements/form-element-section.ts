@@ -1,10 +1,9 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { CODINUS_REACTIVE_FORMS } from '@ngx-codinus/core/forms';
+import { CodinusFormsModule } from '@ngx-codinus/core/forms';
 import { CSFormSection } from '../../sections/cs-form-section';
 import { CSRunTimeFormValidableElementBase } from '../cs-element-base/form-element-validable-base';
-import { CSRunTimeFormTemplate } from '../cs-form-template.pipe';
+import { CSFormTemplateOutlet } from '../cs-form-template-outlet';
+import { CODINUS_RUNTIME_FORM_SECTION } from '../injection-tokens';
 import { ICSRuntimeFormFieldSection } from './_types';
 
 @Component({
@@ -14,13 +13,13 @@ import { ICSRuntimeFormFieldSection } from './_types';
             [csFormControlName]="config().dataKey" [asyncValidators]="asyncValidator()" [validators]="validator()">
             @for (element of config().children; track element) {
                 @if(!element.renderState?.hidden()){
-                    <ng-container *ngTemplateOutlet="templates()|csFormTemplate:element.templateName:element.type; 
-                    context: {$implicit:element,section}"></ng-container>
+                    <ng-container *csFormTemplateOutlet="element;section:section"></ng-container>
                 }
             }
             </cs-form-section>
     `,
-    imports: [ReactiveFormsModule, CODINUS_REACTIVE_FORMS, CSFormSection, NgTemplateOutlet, CSRunTimeFormTemplate],
+    imports: [CodinusFormsModule, CSFormSection, CSFormTemplateOutlet],
+    providers: [{ provide: CODINUS_RUNTIME_FORM_SECTION, useExisting: CSFormElementSection }]
 })
 
 export class CSFormElementSection extends CSRunTimeFormValidableElementBase<ICSRuntimeFormFieldSection, unknown> { }

@@ -1,0 +1,52 @@
+<div cdk-overlay-origin class="mat-mdc-select-trigger" #fallbackOverlayOrigin="cdkOverlayOrigin"
+    (click)="triggerClicked.emit()">
+    <div class="mat-mdc-select-value" [attr.id]="valueId()">
+        @if (empty()) {
+        <span class="mat-mdc-select-placeholder mat-mdc-select-min-line">{{placeholder()}}</span>
+        } @else {
+        <span class="mat-mdc-select-value-text">
+            @if (_customTrigger()) {
+            <ng-content select="mat-select-trigger"></ng-content>
+            } @else {
+            <span class="mat-mdc-select-min-line">{{(triggerValue())}}</span>
+            <span class="cs-select-trigger-more">{{triggerValueMore()}}</span>
+            }
+        </span>
+        }
+    </div>
+
+    @if(canClear()){
+    <div class="mat-mdc-select-arrow-wrapper cs-select-clear-button" (click)="clear.emit($event)">
+        <div class="mat-mdc-select-arrow">
+            <svg height="14" viewBox="0 0 24 24" width="14">
+                <path
+                    d="M19 6.415L17.565 5 12 10.565 6.415 5 5 6.415 10.565 12 5 17.565 6.415 19 12 13.415 17.565 19 19 17.565 13.415 12z" />
+                <path d="M0 0h24v24H0z" fill="none" />
+            </svg>
+        </div>
+    </div>
+    }
+
+    <div class="mat-mdc-select-arrow-wrapper">
+        <div class="mat-mdc-select-arrow cs-select-arrow">
+            <!-- Use an inline SVG, because it works better than a CSS triangle in high contrast mode. -->
+            <svg viewBox="0 0 24 24" width="24px" height="24px" focusable="false" aria-hidden="true">
+                <path d="M7 10l5 5 5-5z" />
+            </svg>
+        </div>
+    </div>
+</div>
+<ng-template cdk-connected-overlay cdkConnectedOverlayLockPosition cdkConnectedOverlayHasBackdrop
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    [cdkConnectedOverlayPanelClass]="overlayPanelClass()" [cdkConnectedOverlayScrollStrategy]="_scrollStrategy"
+    [cdkConnectedOverlayOrigin]="preferredOverlayOrigin()||fallbackOverlayOrigin" [cdkConnectedOverlayOpen]="isOpen()"
+    [cdkConnectedOverlayPositions]="_positions" [cdkConnectedOverlayWidth]="overlayWidth()"
+    (backdropClick)="backdropClick.emit($event)" (attach)="_onAttached()" (detach)="detach.emit()">
+    <div #panel role="listbox" tabindex="-1"
+        class="mat-mdc-select-panel cs-select-panel mdc-menu-surface mdc-menu-surface--open"
+        [style.max-height.px]="maxHeight()" [style.height.px]="_suggestedHeight()" [@transformPanel]="'showing'"
+        [attr.id]="id() + '-panel'" [attr.aria-multiselectable]="multiple()" [ngClass]="panelClass()"
+        (@transformPanel.done)="animationDone.emit($event.toState)">
+        <ng-content></ng-content>
+    </div>
+</ng-template>

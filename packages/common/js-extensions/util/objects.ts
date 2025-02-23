@@ -6,7 +6,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at the root.
  */
-import { uniqueArray } from "./array";
+import { arrayUnique } from "./array";
 import { isArray, isDate, isNumber, isNumberString, isObject, isPrimitive, isRegExp, isTypedArray } from "./is";
 import { IGenericRecord, MergedObject } from "@codinus/types";
 
@@ -47,7 +47,7 @@ export function mergeObjects<T extends any[]>(...objects: [...T]): MergedObject<
 
             return result;
         } else if (isArray(first) && isArray(second)) {
-            return uniqueArray([...first, ...second]);
+            return arrayUnique([...first, ...second]);
         } else {
             return second ?? first;
         }

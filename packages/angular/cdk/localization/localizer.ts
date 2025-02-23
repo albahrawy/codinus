@@ -1,6 +1,6 @@
 import { Direction, Directionality } from '@angular/cdk/bidi';
 import { DOCUMENT } from '@angular/common';
-import { EventEmitter, Injectable, inject, signal } from '@angular/core';
+import { EventEmitter, Injectable, computed, inject, signal } from '@angular/core';
 import { getValue } from '@codinus/js-extensions';
 import { IGenericRecord, IStringRecord } from '@codinus/types';
 import { Observable, switchMap, take } from 'rxjs';
@@ -15,12 +15,12 @@ import {
 @Injectable({ providedIn: 'root' })
 export class CSDefaultLocalizer implements ICSLocalizer {
 
-  currentLang = signal(DEFAULT_LANGUAGE_EN.symbol);
+  readonly onChange = new EventEmitter<ILangChangeEvent>();
+  currentLang = computed(() => this._currentLang());
+
+  private _currentLang = signal(DEFAULT_LANGUAGE_EN.symbol);
   #_current?: ILanguage;
   #_cached: Map<string, IGenericRecord> = new Map();
-
-  readonly onChange = new EventEmitter<ILangChangeEvent>();
-
   private get current() { return this.#_current || DEFAULT_LANGUAGE_EN; }
   protected _translator = inject(TRANSLATE_SERVICE, { optional: true });
   protected _langStorage = inject(CURRENT_LANGUAGE_STORAGE, { optional: true });
@@ -79,7 +79,7 @@ export class CSDefaultLocalizer implements ICSLocalizer {
       (this._dir as { value: Direction }).value = direction;
       this._dir.change.emit(direction);
     }
-    this.currentLang.set(lang.symbol);
+    this._currentLang.set(lang.symbol);
     this.onChange.emit({ language: lang, translations: data });
   }
 

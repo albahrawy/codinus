@@ -1,0 +1,9 @@
+<div role="group" class="cs-flex-property-container" [formGroup]="parts" (focusin)="onFocusIn()"
+    (focusout)="onFocusOut($event)">
+    @for (prop of properties; track prop.key) {
+    <div class="cs-flex-property">
+        <span class="cs-flex-property-label">{{prop.label}}</span>
+        <input class="cs-flex-property-element" [formControlName]="prop.key" [attr.aria-label]="prop.label"/>
+    </div>
+    }
+</div>

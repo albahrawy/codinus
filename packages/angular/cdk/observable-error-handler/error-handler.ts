@@ -3,7 +3,7 @@ import { Injectable, inject } from "@angular/core";
 import { IGenericRecord } from "@codinus/types";
 import { CODINUS_LOCALIZER } from "@ngx-codinus/cdk/localization";
 import { CODINUS_LOGGER_SERVICE } from "@ngx-codinus/cdk/logger";
-import { EMPTY, Observable, OperatorFunction, catchError, switchMap, throwError } from "rxjs";
+import { EMPTY, Observable, OperatorFunction, catchError, of, switchMap, throwError } from "rxjs";
 import { ErrorHandleType, ICSObservableErrorHandler } from "./types";
 
 @Injectable({ providedIn: 'root' })
@@ -18,7 +18,7 @@ export class ObservableErrorHandler implements ICSObservableErrorHandler {
         return catchError(e => {
             switch (type) {
                 case 'ignore':
-                    return EMPTY;
+                    return of(null);
                 case 'original':
                     return throwError(() => e);
                 default: {

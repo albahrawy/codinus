@@ -1,13 +1,15 @@
 import { CdkTable } from '@angular/cdk/table';
-import { Directive, OnInit, inject, output } from '@angular/core';
+import { Directive, OnInit, inject, input, output } from '@angular/core';
 import { CSTableApi } from './cdk-api';
 import { CSTableApiKey } from './internal';
 import {
     CODINUS_TABLE_API_REGISTRAR, ICSTableApi, ICSTableApiDataSourceDirective,
-    ICSTableApiEditable, ICSTableApiKeyboardNavigation, ICSTableApiMetaRowVisibility, ICSTableApiRegistrar,
+    ICSTableApiEditable, ICSTableApiMetaRowVisibility, ICSTableApiRegistrar,
     ICSTableApiReorderColumns, ICSTableApiResponsive, ICSTableApiResponsiveStrategy, ICSTableApiScrollable,
-    ICSTableApiSelectModel, ICSTableApiSortable
+    ICSTableApiSelectModel, ICSTableApiSortable,
+    ICSTableEvents
 } from './types';
+import { Nullable } from '@codinus/types';
 
 @Directive({
     selector: 'mat-table,cdk-table',
@@ -20,9 +22,17 @@ export class CSTableApiIRegistrar<TRow> implements ICSTableApiRegistrar<TRow>, O
     getApi() { return this._api; }
 
     initialized = output<ICSTableApi<TRow>>();
+    events = input<Nullable<ICSTableEvents<TRow>>>();
+    prefix = input<Nullable<string>>();
+
 
     ngOnInit(): void {
         this.initialized.emit(this.getApi());
+        const events = this.events();
+        if (events) {
+            events.tableInitialized?.(this.getApi());
+            events.tableApi = this.getApi();
+        }
     }
 
     readonly metaRowDirective?: ICSTableApiMetaRowVisibility;
@@ -30,7 +40,6 @@ export class CSTableApiIRegistrar<TRow> implements ICSTableApiRegistrar<TRow>, O
     readonly sortableDirective?: ICSTableApiSortable;
     readonly dataSourceDirective?: ICSTableApiDataSourceDirective<TRow>;
     readonly editableDirective?: ICSTableApiEditable;
-    readonly keyboardNavigationDirective?: ICSTableApiKeyboardNavigation;
     readonly tableApiResponsive?: ICSTableApiResponsive;
     readonly tableApiSelectModel?: ICSTableApiSelectModel;
     readonly tableApiScrollable?: ICSTableApiScrollable;

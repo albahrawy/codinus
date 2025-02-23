@@ -4,7 +4,7 @@ import { setMonacoEditorExLib } from './_fucntions';
 import { IMonaco } from './monaco-interfaces';
 import { ICSMonacoEditorLoader, CODINUS_MONACO_EDITOR_TS_LIB_LOADER } from './types';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class MonacoEditorLoaderService implements ICSMonacoEditorLoader {
 
     private static loadPromise: Promise<IMonaco> | undefined;
@@ -19,16 +19,18 @@ export class MonacoEditorLoaderService implements ICSMonacoEditorLoader {
             return MonacoEditorLoaderService.loadPromise;
 
         MonacoEditorLoaderService.loadPromise = new Promise<IMonaco>((resolve, reject) => {
-            baseUrl = baseUrl || './assets/monaco/vs';
+            const fixedBaseUrl = baseUrl || './assets/monaco/vs';
             const loadEditor = () => {
                 if (!window.require?.config)
                     return reject("Failed to load Monaco Editor");
-
-                window.require.config({ baseUrl: '/', paths: { vs: baseUrl } });
+                const documentBaseURI = document.baseURI.endsWith('/') ? document.baseURI : `${document.baseURI}/`;
+                const absoluteUrl = new URL(fixedBaseUrl, documentBaseURI).href
+                window.require.config({ paths: { vs: absoluteUrl } });
                 window.require(['vs/editor/editor.main'], () => {
                     const monaco = window.monaco;
                     if (monaco) {
                         this.loadExtraLib(monaco);
+                        this.setDefaultTheme(monaco);
                         resolve(monaco);
                     }
                     reject("Failed to load Monaco Editor");
@@ -40,13 +42,29 @@ export class MonacoEditorLoaderService implements ICSMonacoEditorLoader {
 
             const scriptElement = document.createElement('script');
             scriptElement.type = 'text/javascript';
-            scriptElement.src = `${baseUrl}/loader.js`;
+            scriptElement.src = `${fixedBaseUrl}/loader.js`;
             scriptElement.onload = loadEditor;
             document.body.appendChild(scriptElement);
 
         });
 
         return MonacoEditorLoaderService.loadPromise;
+    }
+    setDefaultTheme(monaco: IMonaco) {
+        monaco.editor.defineTheme('csVSCodeDrakTheme', {
+            base: 'vs-dark', // Keep the base theme as VS Code dark
+            inherit: true,
+            rules: [
+                { token: 'function', foreground: 'FFD700', fontStyle: 'bold' }, // Function names in yellow
+                { token: 'identifier', foreground: 'FFD700' }, // Ensure variables don't override
+                { token: 'keyword', foreground: '569CD6' }, // Keep keywords blue
+                { token: 'type', foreground: '4EC9B0' }, // 
+            ],
+            colors: {},
+        });
+
+        // Apply the theme
+        // monaco.editor.setTheme('myCustomVSCodeTheme');
     }
 
     private loadExtraLib(monaco: IMonaco) {

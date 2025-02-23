@@ -1,0 +1,64 @@
+.cs-split-button-container {
+    padding: 0;
+    display: flex;
+    --mat-filled-button-horizontal-padding: 0;
+
+    .mdc-button__label {
+        display: flex;
+    }
+
+    &.mat-mdc-button:has(.material-icons, mat-icon, [matButtonIcon]) {
+        padding: 0;
+    }
+
+    &.mat-mdc-unelevated-button:not(:disabled) {
+
+        .cs-split-arrow-button,
+        .cs-split-active-button {
+            color: var(--mdc-filled-button-label-text-color, var(--mat-sys-on-primary));
+            background-color: var(--mdc-filled-button-container-color, var(--mat-sys-primary));
+        }
+    }
+
+    .cs-split-active-button {
+        border-start-end-radius: 0;
+        border-end-end-radius: 0;
+        padding-right: 5px;
+
+        [dir='rtl'] & {
+            padding-right: 12px;
+            padding-left: 5px;
+        }
+    }
+
+    .cs-split-arrow-button {
+        border-end-start-radius: 0;
+        border-start-start-radius: 0;
+        border-left: var(--cs-split-button-divider, 1px solid);
+        border-left-color: var(--mat-sys-outline-variant);
+        width: 28px;
+        //padding-left: 0;
+        min-width: unset;
+
+        &.mat-mdc-button:has(.material-icons, mat-icon, [matButtonIcon]) {
+            padding: 0;
+
+            mat-icon {
+                margin: 0;
+            }
+        }
+
+        [dir='rtl'] & {
+            padding-right: 0px;
+            padding-left: 8px;
+            border-left: var(--cs-split-button-divider, 1px solid);
+            border-right-color: var(--mat-sys-outline-variant);
+            border-left: none;
+        }
+
+        .mat-mdc-button-persistent-ripple.mdc-icon-button__ripple {
+            border-end-start-radius: 0;
+            border-start-start-radius: 0;
+        }
+    }
+}

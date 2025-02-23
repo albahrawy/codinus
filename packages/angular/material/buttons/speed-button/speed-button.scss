@@ -9,7 +9,6 @@
 }
 
 @mixin cs-transform($transform) {
-
     -webkit-transform: $transform;
     transform: $transform;
 }
@@ -44,7 +43,7 @@
 
     .cs-speed-button-trigger {
         pointer-events: auto;
-        z-index: 24;
+        z-index: 1000;
 
         .mini-trigger-button{
             width: 30px;

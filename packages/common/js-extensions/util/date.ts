@@ -6,12 +6,12 @@
  * found in the LICENSE file at the root.
  */
 // import { arrays } from "./array";
-import { enumerableRange } from "./array";
+import { arrayRange } from "./array";
 import { isDate, isNumber, isString } from "./is";
 import { numberBetween } from "./number";
 
 
-
+//TODO:fix a bug relted to the time zone
 //#region types
 
 type DateParts = { year?: number, month?: number, day?: number, hour?: number, minutes?: number, seconds?: number, milliseconds?: number };
@@ -141,7 +141,7 @@ function _parseExactCore(stringValue: string, formatString: string): Date | null
             milliseconds: _parseTimePart(dateMap.get('f'), 999),
         };
         if (parts.year && parts.month != null && parts.day)
-            return new Date(parts.year, parts.month, parts.day, parts.hour, parts.minutes, parts.seconds, parts.milliseconds);
+            return new Date(Date.UTC(parts.year, parts.month, parts.day, parts.hour, parts.minutes, parts.seconds, parts.milliseconds));
     }
 
     return null;
@@ -301,35 +301,44 @@ export function registerDateLocale(code: string, info: IDateLocale): void {
 
 //#region parse and format
 
+
 /**
- * Parses a date string according to a specific format.
- * @param {string} value - The date string to parse.
- * @param {string} parseFormat - The format string used for parsing the date.
- * @param {boolean} [preserveTime=false] - If true, preserves the time portion of the resulting date.
- * @returns {Date | null} - The parsed date, or null if parsing fails.
+ * Parses a date string according to the specified format.
+ *
+ * @param value - The date string to parse.
+ * @param parseFormat - The format to use for parsing the date string.
+ * @param preserveTime - Optional. If true, preserves the time component of the date. Defaults to false.
+ * @returns The parsed Date object if the input is valid, otherwise null.
  */
 export function parseDateExact(value: string, parseFormat: string, preserveTime?: boolean): Date | null {
     const dateValue = _parseExactCore(value, parseFormat);
-    if (!!dateValue && isValidDate(dateValue))
+    if (isValidDate(dateValue))
         return preserveTime ? dateValue : new Date(dateValue.toDateString());
 
     return null;
 }
 
+
 /**
- * Parses a value into a Date object.
- * @param {any} value - The value to parse into a Date object.
- * @param {string | string[]} [parseFormat] - The format string or an array of format strings used for parsing the date. If not provided, default formats will be used.
- * @param {boolean} [preserveTime=false] - If true, preserves the time portion of the resulting date.
- * @returns {Date | null} - The parsed date, or null if parsing fails.
+ * Parses a given value into a Date object based on the provided format(s).
+ *
+ * @param value - The value to be parsed. It can be a string, number, or Date object.
+ * @param parseFormat - Optional. The format(s) to use for parsing the string value. It can be a single format string or an array of format strings.
+ * @param preserveTime - Optional. A boolean indicating whether to preserve the time component of the parsed date. Defaults to true.
+ * @returns A Date object if the value can be parsed successfully; otherwise, null.
  */
 export function parseDate(value: unknown, parseFormat?: string | string[], preserveTime = true): Date | null {
     if (!value)
         return null;
     let dateValue: Date | null = null;
+    let _isISo = false;
     if (isString(value)) {
-        dateValue = _parseFromJson(value);
-        if (!dateValue || !isValidDate(dateValue)) {
+        dateValue = new Date(value);
+        const _isValid = isValidDate(dateValue);
+        _isISo = _isValid && value.endsWith('Z');
+        if (!_isValid)
+            dateValue = _parseFromJson(value);
+        if (!isValidDate(dateValue)) {
             const parseFormats = parseFormat ? (Array.isArray(parseFormat) ? parseFormat : [parseFormat]) : defaultFormats;
             for (const currentFormat of parseFormats) {
                 dateValue = parseDateExact(value, currentFormat);
@@ -337,26 +346,35 @@ export function parseDate(value: unknown, parseFormat?: string | string[], prese
                     break;
             }
         }
-        //TODO: think about it
-        if (!dateValue || !isValidDate(dateValue))
-            dateValue = new Date(value);
     } else if (isNumber(value)) {
         dateValue = new Date(value);
     } else if (isDate(value)) {
         dateValue = value;
     }
-    if (!!dateValue && isValidDate(dateValue))
-        return preserveTime ? dateValue : new Date(dateValue.toDateString());
+    if (isValidDate(dateValue)) {
+        if (_isISo) {
+            if (preserveTime)
+                return dateValue;
+            else
+                return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
+        } else {
+            if (preserveTime)
+                return new Date(dateValue.getUTCFullYear(), dateValue.getUTCMonth(), dateValue.getUTCDate(), dateValue.getUTCHours(), dateValue.getUTCMinutes(), dateValue.getUTCSeconds(), dateValue.getUTCMilliseconds());
+            else
+                return new Date(dateValue.getUTCFullYear(), dateValue.getUTCMonth(), dateValue.getUTCDate());
+        }
+    }
 
     return null;
 }
 
 /**
- * Formats a Date object as a string according to the specified format.
- * @param {Date} dateValue - The Date object to format.
- * @param {string} [formatString] - The format string used for formatting the date. If not provided, a default format will be used.
- * @param {string} [locale] - The locale code used for formatting. If not provided, the default locale will be used.
- * @returns {string | null} - The formatted date string, or null if dateValue is invalid.
+ * Formats a given date according to the specified format string and locale.
+ *
+ * @param dateValue - The date to be formatted.
+ * @param formatString - An optional string specifying the format. If not provided, a default format will be used.
+ * @param locale - An optional string specifying the locale to be used for formatting.
+ * @returns The formatted date string, or null if the input date is invalid.
  */
 export function formatDate(dateValue: Date, formatString?: string, locale?: string): string | null {
     if (!dateValue || !isValidDate(dateValue))
@@ -369,13 +387,14 @@ export function formatDate(dateValue: Date, formatString?: string, locale?: stri
 }
 
 /**
- * Converts a Date object to an ISO date string.
- * @param {Date} dateValue - The Date object to convert to an ISO date string.
- * @param {boolean} [onlyDate=false] - If true, includes only the date portion in the resulting ISO string.
- * @returns {string} - The ISO date string representation of the Date object.
- * @throws {RangeError} - If the provided Date object is invalid.
+ * Formats a given Date object to an ISO string.
+ *
+ * @param dateValue - The Date object to format.
+ * @param onlyDate - Optional boolean indicating whether to format only the date part (without time).
+ * @returns The formatted ISO string.
+ * @throws RangeError - If the provided dateValue is invalid.
  */
-export function toISOString(dateValue: Date, onlyDate?: boolean): string {
+export function formatToISOString(dateValue: Date, onlyDate?: boolean): string {
     if (isNaN(dateValue.getTime()))
         throw new RangeError('Invalid time value');
     if (onlyDate)
@@ -389,11 +408,11 @@ export function toISOString(dateValue: Date, onlyDate?: boolean): string {
 
 /**
  * Checks if the provided value is a valid Date object.
- * @param {any} value - The value to check for validity as a Date object.
- * @returns {boolean} - True if the value is a valid Date object, otherwise false.
+ * @param value - The value to check.
+ * @returns True if the value is a valid Date object, otherwise false.
  */
-export function isValidDate(value: unknown): boolean {
-    return isDate(value) && !isNaN(value.valueOf());
+export function isValidDate(value: unknown): value is Date {
+    return value != null && isDate(value) && !isNaN(value.valueOf());
 }
 
 /**
@@ -407,34 +426,35 @@ export function getMonthNames(style: 'long' | 'short' | 'narrow' = 'long', local
     if (registered)
         return registered;
     const formatter = new Intl.DateTimeFormat(locale, { month: style, timeZone: 'utc' });
-    return enumerableRange(0, 11).map(m => formatter.format(new Date(2017, m, 1)));
+    return arrayRange(0, 11).map(m => formatter.format(new Date(2017, m, 1)));
 }
 
 /**
- * Gets an array of date names (day of the month) in the specified locale.
- * @param {string} [locale] - The locale code used for getting the date names. If not provided, the default locale will be used.
- * @returns {string[]} - An array of date names (day of the month) in the specified locale.
+ * Returns an array of date names for the specified locale.
+ *
+ * @param locale - Optional. A string with a BCP 47 language tag, or an array of such strings. If not provided, the default locale will be used.
+ * @returns An array of date names for the specified locale.
  */
 export function getDateNames(locale?: string): string[] {
     const registered = _getLocalInfoCore('dateNames', locale);
     if (registered)
         return registered;
     const formatter = new Intl.DateTimeFormat(locale, { day: 'numeric', timeZone: 'utc' });
-    return enumerableRange(1, 31).map(d => formatter.format(new Date(2017, 0, d)));
+    return arrayRange(1, 31).map(d => formatter.format(new Date(2017, 0, d)));
 }
 
 /**
- * Gets an array of day of the week names in the specified style and locale.
- * @param {'long' | 'short' | 'narrow'} [style='long'] - The style of day of the week names to return (long, short, or narrow).
- * @param {string} [locale] - The locale code used for getting the day of the week names. If not provided, the default locale will be used.
- * @returns {string[]} - An array of day of the week names based on the specified style and locale.
+ * Gets an array of day names in the specified style and locale.
+ * @param {'long' | 'short' | 'narrow'} [style='long'] - The style of day names to return (long, short, or narrow).
+ * @param {string} [locale] - The locale code used for getting the day names. If not provided, the default locale will be used.
+ * @returns {string[]} - An array of day names based on the specified style and locale.
  */
 export function getDayOfWeekNames(style: 'long' | 'short' | 'narrow' = 'long', locale?: string): string[] {
     const registered = _getLocalInfo('dayNames', style, locale);
     if (registered)
         return registered;
     const formatter = new Intl.DateTimeFormat(locale, { weekday: style, timeZone: 'utc' });
-    return enumerableRange(0, 7).map(d => formatter.format(new Date(2017, 0, d)));
+    return arrayRange(1, 7).map(d => formatter.format(new Date(2017, 0, d)));
 }
 
 /**
@@ -448,26 +468,26 @@ export function getYearName(date: Date, locale?: string): string | null {
 }
 
 /**
- * Gets the first day of the week in the current locale.
- * @returns {number} - The index of the first day of the week (0 for Sunday, 1 for Monday, and so on).
+ * Gets the first day of the week based on the locale.
+ * @returns {number} - The first day of the week (0 for Sunday, 1 for Monday, etc.).
  */
 export function getFirstDayOfWeek(): number {
     return _getLocalInfoCore('weekStartsOn') ?? 0;
 }
 
 /**
- * Gets the number of days in the specified month of a year.
- * @param {number} month - The month (1 to 12) for which to get the number of days.
- * @param {number} [year] - The year of the month. If not provided, the current year will be used.
- * @returns {number} - The number of days in the specified month of the year. Returns NaN if the month is invalid.
+ * Gets the number of days in the specified month.
+ * @param {number} month - The month number (1-12) to get the days for.
+ * @param {number} [year] - The year to get the days for. If not provided, the current year will be used.
+ * @returns {number} - The number of days in the specified month.
  */
 export function daysInMonth(month: number, year?: number): number {
     return numberBetween(month, 1, 12) ? (daysInMonths[month - 1] ?? (isLeapYear(year) ? 29 : 28)) : NaN;
 }
 
 /**
- * Checks if the provided year is a leap year.
- * @param {number} [year] - The year to check for leap year. If not provided, the current year will be used.
+ * Checks if the specified year is a leap year.
+ * @param {number} year - The year to check.
  * @returns {boolean} - True if the year is a leap year, otherwise false.
  */
 export function isLeapYear(year?: number): boolean {
@@ -527,10 +547,10 @@ export function addDays(date: Date, days: number): Date {
 //#region comparison
 
 /**
- * Finds the closest date from the given array of dates to the specified date.
- * @param {Date} date - The date for which the closest date will be found.
- * @param {Array<Date>} datesArray - An array of dates to search for the closest date.
- * @returns {Date | null} - The closest Date object from the array, or null if the input date is not valid.
+ * Returns the closest date to the provided date from an array of dates.
+ * @param {Date} date - The date to compare.
+ * @param {Date[]} datesArray - The array of dates to compare against.
+ * @returns {Date | null} - The closest date from the array, or null if the input date is invalid.
  */
 export function dateClosest(date: Date, datesArray: Array<Date>): Date | null {
     if (!isValidDate(date))
@@ -555,10 +575,10 @@ export function dateClosest(date: Date, datesArray: Array<Date>): Date | null {
 }
 
 /**
- * Compares two dates and returns 1 if the first date is greater, -1 if the second date is greater, or 0 if both dates are equal.
+ * Compares two dates and returns 1 if the first date is greater, -1 if the second date is greater, or 0 if they are equal.
  * @param {Date} first - The first date to compare.
  * @param {Date} second - The second date to compare.
- * @returns {1 | -1 | 0} - 1 if the first date is greater, -1 if the second date is greater, or 0 if both dates are equal.
+ * @returns {1 | -1 | 0} - The result of the comparison.
  * @throws {Error} - If either of the input dates is invalid.
  */
 export function dateCompare(first: Date, second: Date): 1 | -1 | 0 {
@@ -570,12 +590,12 @@ export function dateCompare(first: Date, second: Date): 1 | -1 | 0 {
 }
 
 /**
- * Calculates the difference between two dates in the specified interval.
- * @param {Date} first - The first date for the calculation.
- * @param {Date} second - The second date for the calculation.
- * @param {'d' | 'M' | 'y' | 'h' | 'm' | 's' | 'ms'} [interval='d'] - The interval to calculate the difference in (days, months, years, hours, minutes, seconds, or milliseconds).
+ * Returns the difference between two dates in the specified interval.
+ * @param {Date} first - The first date.
+ * @param {Date} second - The second date.
+ * @param {'d' | 'M' | 'y' | 'h' | 'm' | 's' | 'ms'} [interval='d'] - The interval to calculate the difference in.
  * @returns {number} - The difference between the two dates in the specified interval.
- * @throws {Error} - If either of the input dates is invalid or an invalid interval is provided.
+ * @throws {Error} - If either of the input dates is invalid.
  */
 export function dateDifferent(first: Date, second: Date, interval: 'd' | 'M' | 'y' | 'h' | 'm' | 's' | 'ms' = 'd'): number {
     if (!isValidDate(first) || !isValidDate(second))
@@ -584,7 +604,8 @@ export function dateDifferent(first: Date, second: Date, interval: 'd' | 'M' | '
     const intervalInMS = intervalInMillisSeconds.get(interval);
     if (!intervalInMS)
         throw new Error("Invalid interval selector, \n Allowed intervals: 'd' , 'M' , 'y' , 'h' , 'm' , 's' , 'ms'");
-    return Math.round((first.getTime() - second.getTime()) / intervalInMS);
+    const diff = Math.round((first.getTime() - second.getTime()) / intervalInMS);
+    return Math.abs(diff) === 0 ? 0 : diff;
 }
 
 //#endregion

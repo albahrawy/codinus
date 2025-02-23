@@ -1,0 +1,32 @@
+<!-- <mat-button-toggle-group [hideMultipleSelectionIndicator]="true" multiple>
+    <mat-button-toggle #mainButton (click)="_onClick()">{{(currentButton()?.text|csTranslate)()}}</mat-button-toggle>
+    <mat-button-toggle #arrowButton class="arrow-button" [matMenuTriggerFor]="dropdownMenuOne">
+        <mat-icon>arrow_drop_down</mat-icon>
+    </mat-button-toggle>
+</mat-button-toggle-group> -->
+
+<button [mat-button]="buttonStyle()" class="cs-split-button-container">
+    @let _currentBtn = currentButton();
+    <button mat-button class="cs-split-active-button" (click)="_onClick()">
+        <span>{{(_currentBtn?.text|csTranslate)()}}</span>
+        @if(_currentBtn?.icon){
+        <mat-icon>{{_currentBtn?.icon}}</mat-icon>
+        }
+    </button>
+    <button mat-button class="cs-split-arrow-button" [matMenuTriggerFor]="dropdownMenuOne">
+        <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+</button>
+
+<mat-menu #dropdownMenuOne="matMenu">
+    @for(btn of _renderedItems(); track btn){
+    <button mat-menu-item (click)="currentButton.set(btn); _onClick();">
+        @if(btn.icon){
+        <mat-icon>{{btn.icon}}</mat-icon>
+        }
+        <span>{{(btn.text|csTranslate)()}}</span>
+    </button>
+    }
+</mat-menu>
+
+<ng-content select="cs-split-button-item"></ng-content>

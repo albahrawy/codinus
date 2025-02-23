@@ -1,0 +1,8 @@
+<div class="cs-icon-selector-icon" (dblclick)="openDialog($event)">
+    <mat-icon [class]="iconCssClass()">{{value}}</mat-icon>
+</div>
+@if(showButton()){
+<button mat-icon-button (click)="openDialog($event)">
+    <mat-icon>{{buttonIcon()}}</mat-icon>
+</button>
+}

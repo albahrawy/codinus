@@ -1,0 +1,40 @@
+.cs-node-bar-button {
+    --mdc-icon-button-state-layer-size: 30px;
+
+    .cs-node-bar-icon {
+        opacity: .7;
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+    }
+
+    &:hover {
+        .cs-node-bar-icon {
+            opacity: 1;
+
+            &.cs-node-bar-icon-delete {
+                --mat-icon-color: red;
+            }
+
+            &.cs-node-bar-icon-add {
+                --mat-icon-color: var(--mat-sys-primary)
+            }
+        }
+    }
+}
+
+.cs-tree-add-menu-item {
+    min-height: var(--cs-tree-add-menu-item-height, 35px);
+
+    &:hover {
+        .cs-tree-add-menu-item-icon {
+            color: var(--cs-tree-add-menu-item-icon-hover-color, var(--mat-sys-primary));
+            opacity: 1;
+        }
+    }
+
+    .cs-tree-add-menu-item-icon {
+        color: var(--cs-tree-add-menu-item-icon-color, var(--mat-sys-primary));
+        opacity: .5;
+    }
+}

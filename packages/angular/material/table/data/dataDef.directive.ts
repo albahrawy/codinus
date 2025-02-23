@@ -1,63 +1,33 @@
 import { CdkColumnDef } from '@angular/cdk/table';
-import { Directive, booleanAttribute, computed, inject, input } from '@angular/core';
+import { Directive, booleanAttribute, computed, inject, input, signal } from '@angular/core';
 import { getValue, setValue } from '@codinus/js-extensions';
 import { Nullable } from '@codinus/types';
 import { CSAggregation } from '@ngx-codinus/core/data';
 import { CODINUS_VALUE_FORMATTER } from '@ngx-codinus/core/format';
-import { CSTableDataSourceDirective } from './datasource.directive';
-import { CSAggregationFn, CSFormatterFn, ICSColumnDataDef } from './types';
+import {
+    CODINUS_DATA_SOURCE_DIRECTIVE, CSAggregationFn, CSFormatterFn, ICSColumnDataAccessor,
+    ICSColumnDataDef, ICSTableDataSourceDirective
+} from './types';
 
 const DefaultFormatter = (value: unknown) => value != null ? String(value) : null;
 
+@Directive()
+export abstract class CSTableColumnDataDefBase<TRow = unknown, TValue = unknown> implements ICSColumnDataDef<TRow, TValue> {
 
-export class CSDefaultColumnDataDef<TRow, TValue> implements ICSColumnDataDef<TRow, TValue> {
+    readonly columnDef = inject(CdkColumnDef, { self: true });
 
-    constructor(public columnDef: CdkColumnDef) {
-        const key = this.columnDef.name;
-        this.cellValueAccessor = () => ({
-            getValue: (data: TRow | null) => getValue<Nullable<TValue>>(data, key),
-            setValue: (data: TRow, value: Nullable<TValue>) => setValue(data, key, value, true),
-            getFooterValue: () => null,
-            formatValue: DefaultFormatter,
-            formatFooter: DefaultFormatter
-        });
-    }
-
-    dataKey() { return this.columnDef.name; }
-    readOnly() { return false; }
-    cellValueAccessor;
+    abstract dataKey(): string;
+    abstract readOnly(): boolean;
+    abstract cellValueAccessor: () => ICSColumnDataAccessor<TRow, TValue>;
 }
 
 @Directive({
-    selector: `[matColumnDef][cellFormatter],
-               [matColumnDef][footerFormatter],
-               [matColumnDef][cellValueGetter],
-               [matColumnDef][cellValueSetter],
-               [matColumnDef][footerAggregation],
-               [matColumnDef][cellDefaultValue],
-               [matColumnDef][footerDefaultValue],
-               [matColumnDef][dataKey],
-               [matColumnDef][readOnly],
-               [matColumnDef][label],
-               [cdkColumnDef][cellFormatter],
-               [cdkColumnDef][footerFormatter],
-               [cdkColumnDef][cellValueGetter],
-               [cdkColumnDef][cellValueSetter],
-               [cdkColumnDef][footerAggregation],
-               [cdkColumnDef][cellDefaultValue],
-               [cdkColumnDef][footerDefaultValue],
-               [cdkColumnDef][dataKey],
-               [cdkColumnDef][readOnly],
-               [cdkColumnDef][label]
-               `
+    selector: `[matColumnDef][csColumnDataDef], [cdkColumnDef][csColumnDataDef]`
 })
-export class CSTableColumnDataDef<TRow = unknown, TValue = unknown> implements ICSColumnDataDef<TRow, TValue> {
+export class CSTableColumnDataDef<TRow = unknown, TValue = unknown> extends CSTableColumnDataDefBase<TRow, TValue> {
 
-    private _dateKey: Nullable<string>;
-    protected readonly dataSourceDirective = inject(CSTableDataSourceDirective, { optional: true });
+    protected readonly dataSourceDirective = inject<ICSTableDataSourceDirective<TRow>>(CODINUS_DATA_SOURCE_DIRECTIVE, { optional: true });
     protected readonly formatProvider = inject(CODINUS_VALUE_FORMATTER, { optional: true });
-    readonly columnDef = inject(CdkColumnDef, { self: true });
-
 
     cellValueGetter = input<(data: TRow | null, key?: string) => Nullable<TValue>>();
     cellValueSetter = input<(data: TRow, value?: Nullable<TValue>, key?: string) => void>();
@@ -66,15 +36,19 @@ export class CSTableColumnDataDef<TRow = unknown, TValue = unknown> implements I
     footerAggregation = input<CSAggregation | CSAggregationFn<TRow>>();
     footerDefaultValue = input<Nullable<TValue>>();
     footerFormatter = input<Nullable<string | CSFormatterFn<TValue>>>();
+    userDataKey = input<Nullable<string>>(undefined, { alias: 'dataKey' });
+
     // using for responsive label 
     label = input<string | null>();
-
-
-    userDataKey = input<Nullable<string>>(undefined, { alias: 'dataKey' });
     readOnly = input(false, { transform: booleanAttribute });
-
-
     dataKey = computed(() => this.userDataKey() || this.columnDef.name);
+    cellValueAccessor = computed(() => ({
+        getValue: this.getValueFN(),
+        setValue: this.setValueFN(),
+        getFooterValue: this.getFooterValueFN(),
+        formatValue: this.formatValueFN(),
+        formatFooter: this.formatFooterFN()
+    }));
 
     private getValueFN = computed(() => {
         const fn = this.cellValueGetter();
@@ -129,12 +103,27 @@ export class CSTableColumnDataDef<TRow = unknown, TValue = unknown> implements I
                 ? (value: Nullable<TValue>, lang?: string) => provider.format(value, fn, lang)
                 : this.formatValueFN()
     });
+}
 
-    cellValueAccessor = computed(() => ({
-        getValue: this.getValueFN(),
-        setValue: this.setValueFN(),
-        getFooterValue: this.getFooterValueFN(),
-        formatValue: this.formatValueFN(),
-        formatFooter: this.formatFooterFN()
-    }));
+@Directive({
+    selector: `[matColumnDef]:not([csColumnDataDef]),
+               [cdkColumnDef]:not([csColumnDataDef])`,
+    providers: [{ provide: CSTableColumnDataDef, useExisting: CSDefaultColumnDataDef }]
+})
+export class CSDefaultColumnDataDef<TRow, TValue> extends CSTableColumnDataDefBase<TRow, TValue> {
+    constructor() {
+        super();
+        const key = this.columnDef.name;
+        this.cellValueAccessor = () => ({
+            getValue: (data: TRow | null) => getValue<Nullable<TValue>>(data, key),
+            setValue: (data: TRow, value: Nullable<TValue>) => setValue(data, key, value, true),
+            getFooterValue: () => null,
+            formatValue: DefaultFormatter,
+            formatFooter: DefaultFormatter
+        });
+    }
+    label = signal(this.columnDef.name);
+    dataKey() { return this.columnDef.name; }
+    readOnly() { return false; }
+    cellValueAccessor;
 }

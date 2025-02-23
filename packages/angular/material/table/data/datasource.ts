@@ -5,7 +5,7 @@ import { arraySort, getValue } from "@codinus/js-extensions";
 import {
     CSAggregation, CSDataAggregator, ICSSupportAggregation, ICSSupportDataChangedNotifier
 } from "@ngx-codinus/core/data";
-import { EMPTY, Observable, ReplaySubject, Subscription, distinctUntilChanged, isObservable, tap } from "rxjs";
+import { Observable, ReplaySubject, Subscription, distinctUntilChanged, isObservable, tap } from "rxjs";
 
 export class CSTableDataSource<T, P extends MatPaginator = MatPaginator>
     extends MatTableDataSource<T, P> implements ICSSupportAggregation, ICSSupportDataChangedNotifier {
@@ -19,13 +19,17 @@ export class CSTableDataSource<T, P extends MatPaginator = MatPaginator>
 
     dataAggregator = new CSDataAggregator<T>();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    override sortingDataAccessor: (data: T, sortHeaderId: string) => any
+        = (data, sortHeaderId) => getValue(data, sortHeaderId);
+
     override sortData: (data: T[], sort: MatSort) => T[] = (data, sort) => {
         const active = sort.active;
         const direction = sort.direction === 'asc' ? 1 : sort.direction === 'desc' ? -1 : 0;
         if (!active || !direction) {
             return data;
         }
-        return arraySort(data, d => getValue(d, active), direction);
+        return arraySort(data, d => this.sortingDataAccessor(d, active), direction);
     }
 
     override get data(): T[] { return super.data; }

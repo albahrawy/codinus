@@ -9,5 +9,9 @@ export abstract class CSRunTimeFormValidableElementBase<TConfig extends ICSRunti
 
     asyncValidator = this.signalFunctionOf<AsyncValidatorFn>("AsyncValidator");
     validator = this.signalFunctionOf<ValidatorFn>("Validator");
-    defaultValue = computed(() => this.config().defaultValue);
+    defaultValue = computed(() => this.getDefaultValue());
+
+    protected getDefaultValue() {
+        return this.config().defaultValue;
+    }
 }

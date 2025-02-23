@@ -1,0 +1,55 @@
+.cs-tree-search-field {
+    width: 100%;
+
+    ::ng-deep .mat-mdc-form-field-icon-suffix {
+        display: flex;
+    }
+
+    --mdc-icon-button-state-layer-size: 30px;
+
+    .cs-tree-bar-icon {
+        opacity: .7;
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+    }
+
+    .cs-tree-bar-icon-search {
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+
+    .cs-tree-bar-button {
+        --mdc-icon-button-state-layer-size: 30px;
+
+        &:hover {
+            .cs-tree-bar-icon {
+                opacity: 1;
+
+                &.cs-tree-bar-icon-delete {
+                    --mat-icon-color: red;
+                }
+
+                &.cs-tree-bar-icon-add {
+                    --mat-icon-color: var(--mat-sys-primary)
+                }
+            }
+        }
+    }
+}
+
+.cs-tree-add-menu-item {
+    min-height: var(--cs-tree-add-menu-item-height, 35px);
+
+    &:hover {
+        .cs-tree-add-menu-item-icon {
+            color: var(--cs-tree-add-menu-item-icon-hover-color, var(--mat-sys-primary));
+            opacity: 1;
+        }
+    }
+
+    .cs-tree-add-menu-item-icon {
+        color: var(--cs-tree-add-menu-item-icon-color, var(--mat-sys-primary));
+        opacity: .5;
+    }
+}

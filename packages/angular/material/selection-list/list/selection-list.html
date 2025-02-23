@@ -1,12 +1,15 @@
 @if (showSearch()) {
-<mat-form-field #searchContainer class="search-input" color="primary" [ariaDisabled]="!enabled()">
+<mat-form-field #searchContainer subscriptSizing="dynamic" class="cs-list-search-input" color="primary"
+  [ariaDisabled]="!enabled()">
   <mat-icon matSuffix>search</mat-icon>
-  <input matInput (input)="_onFilterInput($event)" #searchInput autocomplete="off" [disabled]="!enabled()" tabindex="0" />
+  <input matInput (input)="_onFilterInput($event)" #searchInput autocomplete="off" [disabled]="!enabled()"
+    tabindex="0" />
 </mat-form-field>
 }
 
-<cdk-virtual-scroll-viewport cdkDropList (cdkDropListDropped)="drop($event,_data())"
-  [cdkDropListDisabled]="!enableDrag()" [itemSize]="_optionHeight()" class="cs-list-virtual-scroll-wrapper">
+<cdk-virtual-scroll-viewport cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListDisabled]="isNotDraggable()"
+  [minBufferPx]="_minBufferPx()" [maxBufferPx]="_maxBufferPx()" [itemSize]="_optionHeight()"
+  class="cs-list-virtual-scroll-wrapper">
   <cs-list-option cdkDrag
     *cdkVirtualFor="let item of _data(); let i=index; let odd = odd; let even = even; trackBy:_trackBy"
     class="cs-list-option" [class.cs-list-option-odd]="odd" [class.cs-list-option-even]="even" [index]="i+1"

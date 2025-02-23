@@ -1,8 +1,9 @@
-import { InjectionToken, WritableSignal } from "@angular/core";
+import { InjectionToken } from "@angular/core";
 
-import { Nullable, ObjectGetter } from "@codinus/types";
+import { Nullable, ValueGetter } from "@codinus/types";
 import { CSAggregation } from "@ngx-codinus/core/data";
 import { CSTableApiKey } from "./internal";
+import { ListRange } from "@angular/cdk/collections";
 
 export declare type KeyboardNavigationType = 'row' | 'cell' | 'cell-round' | 'none';
 export declare type SelectionType = 'none' | 'multiple' | 'single';
@@ -45,18 +46,11 @@ export interface ICSTableApiDataSourceDirective<TRecord = unknown> {
 }
 
 export interface ICSTableApiEditable {
-    editable: WritableSignal<boolean>;
+    editable: boolean;
     commitOnDestroy: boolean;
     editWithF2: boolean;
     editWithEnter: boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    editablePredicate: ((columnName: string, data: any | null) => boolean) | undefined | null;
-}
-
-export interface ICSTableApiKeyboardNavigation {
-    navigationMode: 'row' | 'cell' | 'cell-round' | 'none';
-    readonly stickyTopHeight: number | null;
-    readonly stickyBottomHeight: number | null;
+    editablePredicate: EditablePredicate;
 }
 
 export interface ICSTableApiResponsive {
@@ -71,28 +65,33 @@ export interface ICSTableApiResponsiveStrategy {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ICSTableApiSelectModel<TRow = any, TValue = any> {
-    selectionType: SelectionType;
-    selectableKey: ObjectGetter<TRow, TValue>;
+    selectable: SelectionType;
+    selectableKey: ValueGetter<TRow, TValue>;
+    selectionPredicate: Nullable<SelectPredicate<TRow, TValue>>;
 
-    selectionPredicate?: SelectPredicate<TRow, TValue>;
-    selectRow(row: TRow): boolean;
-    selectByValue(value: TValue, raiseEvent?: boolean): boolean;
-    deselectRow(row: TRow): boolean;
+    select(row: TRow, setFocus?: boolean): boolean;
+    selectByValue(value: TValue, raiseEvent?: boolean, setFocus?: boolean): boolean;
+    deselect(row: TRow): boolean;
     deselectByValue(value: TValue, raiseEvent?: boolean): boolean;
     setSelection(keys: TValue[] | null): boolean;
     getSelection(): TValue[];
-    getSelectedRows(): TRow[];
-    toggleRow(row: TRow): boolean;
+    getSelectedRows(): TRow[] | null;
+    toggle(row: TRow): boolean;
     toggleByValue(value: TValue, raiseEvent?: boolean): boolean;
     isAllSelected(): boolean;
     isSelected(row?: TRow): boolean;
     isSelectedByValue(value: TValue): boolean;
-    toggleAllRows(): void;
-    isAllowed(rowData: TRow | null, keyValue: TValue, type: 'select' | 'deselect'): boolean;
+    toggleAll(): void;
+    isSelectableAllowed(rowData: TRow | null, keyValue: TValue, type: 'select' | 'deselect'): boolean;
+    readonly hasSelection: boolean;
+
+    navigationMode: KeyboardNavigationType;
+    readonly stickyTopHeight: number | null;
+    readonly stickyBottomHeight: number | null;
 }
 
 export interface ICSTableApiScrollable {
-    startIndex: number;
+    readonly renderedRange: ListRange;
     scrollToOffset(offset: number, behavior?: ScrollBehavior): void;
     scrollToIndex(index: number, behavior?: ScrollBehavior): void;
     scrollToStart(behavior?: ScrollBehavior): void;
@@ -103,12 +102,14 @@ export const CODINUS_TABLE_API_REGISTRAR = new InjectionToken<ICSTableApiRegistr
 
 export interface ICSTableApiRegistrar<TRow> {
     getApi(): ICSTableApi<TRow>;
+    events: () => Nullable<ICSTableEvents<TRow>>;
+    prefix: () => Nullable<string>;
+
     readonly metaRowDirective?: ICSTableApiMetaRowVisibility;
     readonly reorderDirective?: ICSTableApiReorderColumns;
     readonly sortableDirective?: ICSTableApiSortable;
     readonly dataSourceDirective?: ICSTableApiDataSourceDirective<TRow>;
     readonly editableDirective?: ICSTableApiEditable;
-    readonly keyboardNavigationDirective?: ICSTableApiKeyboardNavigation;
     readonly tableApiResponsive?: ICSTableApiResponsive;
     readonly tableApiSelectModel?: ICSTableApiSelectModel;
     readonly tableApiScrollable?: ICSTableApiScrollable;
@@ -129,12 +130,9 @@ export interface ICSTableApi<TRow = unknown> {
     editWithEnter: boolean;
     editablePredicate: EditablePredicate;
     responsive: CSTableResponsive;
-    keyboardNavigation: KeyboardNavigationType;
-    readonly stickyTopHeight: number;
-    readonly stickyBottomHeight: number;
 
     readonly selectionModel: ICSTableApiSelectModel<TRow> | undefined;
-    readonly startVisibleIndex: number;
+    readonly renderedRange?: ListRange;
 
     getData(): TRow[] | null;
     // getRenderedData(): TRow[] | null;
@@ -152,6 +150,11 @@ export interface ICSTableApi<TRow = unknown> {
     scrollToEnd(behavior?: ScrollBehavior): void;
     getMetRowsHeight(): number;
     getResponsiveHeight(): number;
+}
+
+export interface ICSTableEvents<TRow> {
+    tableInitialized?: (tableApi: ICSTableApi<TRow>) => void;
+    tableApi?: Nullable<ICSTableApi<TRow>>;
 }
 
 interface CSTableSelectionChangeBase<TValue> {

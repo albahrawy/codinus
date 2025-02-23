@@ -16,44 +16,50 @@ const MAX_SAFE_INTEGER = 9007199254740991;
  */
 
 /**
- * Returns a new array containing only the unique elements from the input array.
- * 
- * @template T - The type of array elements.
- * @param {Array<T>} array - The input array.
- * @returns {Array<T>} - The array with unique elements.
+ * Returns a new array with only unique elements from the original array.
+ *
+ * @template T - The type of elements in the array.
+ * @param {Array<T>} array - The array from which to remove duplicate elements.
+ * @returns {Array<T>} A new array containing only unique elements from the original array.
  */
-export function uniqueArray<T>(array: Array<T>): Array<T> {
+export function arrayUnique<T>(array: Array<T>): Array<T> {
     return array ? [... new Set(array)] : array;
-}
-/**
- * Creates an array of numbers in a specified range, including both endpoints.
- * 
- * @param {number} start - The starting number of the range.
- * @param {number} end - The ending number of the range.
- * @returns {number[]} - The array of numbers within the specified range.
- */
-export function enumerableRange(start: number, end: number): number[] {
-    return Array.from(Array(end + 1 - start), (_, index) => index + start);
 }
 
 /**
- * Removes items from the array where predicate is true, and returns true if any of them exists.
- * If there is no any items exists, returns false.
- * 
- * @template T - The type of array elements.
- * @param {Array<T>} source - The source array.
- * @param predicate find calls predicate once for each element of the array.
- * @returns {number} - The index of the removed item, or -1 if not found.
+ * Generates an array of numbers within a specified range.
+ *
+ * @param start - The starting number of the range (inclusive).
+ * @param end - The ending number of the range (inclusive).
+ * @returns An array of numbers from start to end, inclusive.
+ *
+ * @example
+ * ```typescript
+ * const range = arrayRange(1, 5);
+ * console.log(range); // Output: [1, 2, 3, 4, 5]
+ * ```
+ */
+export function arrayRange(start: number, end: number): number[] {
+    return Array.from(Array(end + 1 - start), (_, index) => index + start);
+}
+
+
+/**
+ * Removes elements from an array based on a predicate function.
+ *
+ * @template T - The type of elements in the array.
+ * @param {Array<T>} source - The array from which to remove elements.
+ * @param {(value: T, index: number) => boolean} predicate - The function to test each element.
+ * @returns {boolean} True if any elements were removed, otherwise false.
  */
 export function removeFromArray<T>(source: Array<T>, predicate: (value: T, index: number) => boolean): boolean;
 /**
- * Removes the specified item from the array and returns its index.
- * If the item is not found, returns -1.
- * 
- * @template T - The type of array elements.
- * @param {Array<T>} source - The source array.
+ * Removes the first occurrence of a specific item from an array.
+ *
+ * @template T - The type of elements in the array.
+ * @param {Array<T>} source - The array from which to remove the item.
  * @param {T} item - The item to remove.
- * @returns {number} - The index of the removed item, or -1 if not found.
+ * @returns {number} The index of the removed item, or -1 if the item was not found.
  */
 export function removeFromArray<T>(source: Array<T>, item: T): number;
 export function removeFromArray<T>(source: Array<T>, predicate: T | ((value: T, index: number) => boolean)): number | boolean {
@@ -82,102 +88,152 @@ export function removeFromArray<T>(source: Array<T>, predicate: T | ((value: T, 
         return response;
     }
 }
+
+
 /**
- * Add items to array when it has value and match the condition.
- * @param source the input array.
- * @param items the array of tuples represents the value and condition.
- * @returns the array contains the matched values.
+ * Adds items to the source array based on a condition.
+ *
+ * @template T - The type of elements in the array.
+ * @param {Array<T>} source - The source array to which items will be added.
+ * @param {...[value: T, condition?: boolean][]} items - The items to be added, each item is a tuple where the first element is the value to add and the second element is an optional condition.
+ * @returns {Array<T>} The updated source array.
+ *
+ * @example
+ * const source = [1, 2, 3];
+ * addToArray(source, [4, true], [5, false], [6]);
+ * // source is now [1, 2, 3, 4, 6]
  */
-export function addToArray<T>(source: Array<T>, ...items: [value: T, condition?: boolean][]) {
+export function addToArray<T>(source: Array<T>, ...items: [value: T, condition?: boolean][]): Array<T> {
     if (!source || !items)
         return source;
     source.push(...items.filter(i => i[0] && i[1] !== false).map(i => i[0]));
     return source;
 }
 
+
 /**
- * populate array from tuple items with conditions.
- * @param items the array of tuples represents the value and condition.
- * @returns the array contains the matched values.
+ * Populates an array with the provided items based on their conditions.
+ *
+ * @template T - The type of the items in the array.
+ * @param {...[value: T, condition?: boolean][]} items - The items to populate the array with. Each item is a tuple where the first element is the value and the second element is an optional condition. If the condition is `false`, the item will be excluded from the resulting array.
+ * @returns {T[]} An array containing the values of the items that meet the condition.
  */
-export function populateArray<T>(...items: [value: T, condition?: boolean][]): T[] {
+export function arrayPopulate<T>(...items: [value: T, condition?: boolean][]): T[] {
     if (!items)
         return [];
     return items.filter(i => i[0] && i[1] !== false).map(i => i[0]);
 }
 
+
 /**
- * Converts an array to a Map using the specified key getter function.
+ * Converts an array or readonly array into a Map.
  *
- * @template TItem - The type of array elements.
- * @template TKey - The type of Map keys.
- * @template TValue - The type of Map value.
- * @param {Array<TItem>} array - The input array.
- * @param {IFunc<TItem, TKey>} keyGetter - The function to extract keys from array elements.
- * @param {IFunc<TItem, TValue>} valueGetter - The function to extract Value from array elements.
- * @returns {Map<TKey, TValue>} - The Map with keys and array elements.
+ * @template TItem - The type of the items in the array.
+ * @template TKey - The type of the keys in the resulting Map. Defaults to string.
+ * @template TValue - The type of the values in the resulting Map. Defaults to TItem.
+ * 
+ * @param {Array<TItem> | ReadonlyArray<TItem>} array - The array to convert into a Map.
+ * @param {IFunc<TItem, TKey>} keySelector - A function that extracts the key for each item in the array.
+ * @param {IFunc<TItem, TValue>} [valueSelector] - An optional function that extracts the value for each item in the array. If not provided, the item itself is used as the value.
+ * 
+ * @returns {Map<TKey, TValue>} A Map where the keys are generated by the keyGetter function and the values are generated by the valueGetter function.
  */
 export function arrayToMap<TItem, TKey = string, TValue = TItem>(array: Array<TItem> | ReadonlyArray<TItem>,
-    keyGetter: IFunc<TItem, TKey>, valueGetter?: IFunc<TItem, TValue>): Map<TKey, TValue> {
+    keySelector: (item: TItem, index: number) => TKey,
+    valueSelector?: (item: TItem, index: number) => TValue): Map<TKey, TValue> {
     const map = new Map<TKey, TValue>();
-    if (!valueGetter)
-        valueGetter = t => t as unknown as TValue;
-    array.forEach(item => map.set(keyGetter(item), valueGetter(item)));
+    if (!valueSelector)
+        valueSelector = t => t as unknown as TValue;
+    array.forEach((item, index) => map.set(keySelector(item, index), valueSelector(item, index)));
     return map;
 }
 
 /**
- * Converts an array to a Map using the specified key getter function.
+ * Converts a Map to an array using an optional getter function.
  *
- * @template TItem - The type of return array elements.
- * @template TValue - The type of Map keys. 
- * @template TKey - The type of Map keys.
- * @param {Map<TKey, TValue>} map - The Map to populate array from.
- * @param {(key: TKey, value: TValue) => TItem} getter - The function to extract item from map entries.
- * @returns {Array<TItem>} - The array from map.
+ * @template TItem - The type of the items in the resulting array.
+ * @template TValue - The type of the values in the map.
+ * @template TKey - The type of the keys in the map. Defaults to string.
+ * 
+ * @param {Map<TKey, TValue>} map - The map to convert to an array.
+ * @param {(key: TKey, value: TValue) => TItem} [transform] - An optional function to transform each key-value pair into an item for the array.
+ * @returns {Array<TItem>} An array containing the items generated from the map.
  */
 export function arrayFromMap<TItem, TValue, TKey = string>(map: Map<TKey, TValue>,
-    getter?: (key: TKey, value: TValue) => TItem): Array<TItem> {
-    if (!getter)
-        getter = (k, v) => v as unknown as TItem;
-    const resArray: TItem[] = [];
-    map.forEach((v, k) => resArray.push(getter(k, v)));
-    return resArray;
+    transform?: (key: TKey, value: TValue) => TItem): Array<TItem> {
+    if (!transform)
+        transform = (k, v) => v as unknown as TItem;
+    const resultArray: TItem[] = [];
+    map.forEach((v, k) => resultArray.push(transform(k, v)));
+    return resultArray;
 }
 
 /**
- * Get the intersection of two arrays which are common to both arrays. 
- * The order of the elements in the intersection are same as order in first array.
- * @param arr1 first array to check
- * @param arr2 second array to check
- * @returns  The array of items which are common to both arrays.
+ * Converts an object to an array using an optional getter function.
+ *
+ * @template TItem - The type of the items in the resulting array.
+ * @template TValue - The type of the values in the object.
+  * 
+ * @param {IRecord<TItem>} source - The object to convert to an array.
+ * @param {(key: string, value: TItem) => TResult} [transform] - An optional function to transform each key-value pair into an item for the array.
+ * @returns {Array<TResult>} An array containing the items generated from the map.
  */
-export function arrayIntersect<T>(arr1: T[], arr2: T[]): T[] {
+export function arrayFromObject<TItem, TResult>(source: IRecord<TItem>,
+    transform?: (key: string, value: TItem) => TResult): Array<TResult> {
+    if (!transform)
+        transform = (k, v) => v as unknown as TResult;
+    const resultArray: TResult[] = [];
+    for (const key in source)
+        resultArray.push(transform(key, source[key]));
+    return resultArray;
+}
+
+
+/**
+ * Returns an array containing the intersection of two arrays.
+ * The intersection of two arrays is a new array that contains all of the elements that are present in both arrays.
+ *
+ * @template T - The type of elements in the arrays.
+ * @param arr1 - The first array.
+ * @param arr2 - The second array.
+ * @returns An array containing the elements that are present in both `arr1` and `arr2`.
+ *
+ * @example
+ * ```typescript
+ * const array1 = [1, 2, 3, 4];
+ * const array2 = [3, 4, 5, 6];
+ * const result = arrayIntersection(array1, array2);
+ * console.log(result); // Output: [3, 4]
+ * ```
+ */
+export function arrayIntersection<T>(arr1: T[], arr2: T[]): T[] {
     const set1 = new Set(arr1);
     const set2 = new Set(arr2);
     return [...new Set([...set1].filter((item) => set2.has(item)))];
 }
 
 /**
- * Computes the sum of the sequence of number values that are obtained by invoking a transform function on each element of the input array.
- * if transform is not exist assums that array is a number array. 
- * @param array An array of values that are used to calculate a sum.
- * @param transform A transform function to apply to each element.
- * @returns The sum of the projected values.
- * @summary if value is not a number it will be eliminated
+ * Calculates the sum of the elements in an array. Optionally, a transform function can be provided
+ * to convert each element to a number before summing.
+ *
+ * @template T - The type of elements in the array.
+ * @param {T[]} array - The array of elements to sum.
+ * @param {IFunc<T, number>} [transform] - An optional transform function to convert each element to a number.
+ * @returns {number} The sum of the elements in the array.
  */
 export function arraySum<T>(array: T[], transform?: IFunc<T, number>): number {
-    const getter = transform ?? (v => v);
-    return array.reduce((acc, value) => acc + toNumber(getter(value), 0), 0) ?? 0;
+    const getter = transform ?? (v => toNumber(v, 0));
+    return array.reduce((acc, value) => acc + getter(value), 0) ?? 0;
 }
 
+
 /**
- * Computes the average of the sequence of number values that are obtained by invoking a transform function on each element of the input array.
- * if transform is not exist assums that array is a number array. 
- * @param array An array of values that are used to calculate an average.
- * @param transform A transform function to apply to each element.
- * @returns The average of the projected values.
- * @summary if value is not a number it will be eliminated
+ * Calculates the average of the elements in an array.
+ * 
+ * @template T - The type of elements in the array.
+ * @param {T[]} array - The array of elements to calculate the average from.
+ * @param {IFunc<T, number>} [transform] - An optional transform function to apply to each element before averaging.
+ * @returns {number} The average of the elements in the array. Returns 0 if the array is empty or not an array.
  */
 export function arrayAvg<T>(array: T[], transform?: IFunc<T, number>): number {
     if (!Array.isArray(array) || array.length == 0)
@@ -185,26 +241,31 @@ export function arrayAvg<T>(array: T[], transform?: IFunc<T, number>): number {
     return arraySum(array, transform) / array.length;
 }
 
+
 /**
-* Sorts ascending an array in place and providing a transform function to obtain specific value from element if it is an object.
-* this function handles the correct type of the elements.
-* @param array An array of values that are used to calculate a sum.
-* @param transform A transform function to apply to each element.
-* @param direction 1 for ascending sort and -1 for descending. default is 1.
-* @param locale a string represnet a locale to used when comparing string in a local language. defaule is undefined
-* @returns a reference to the same array.
-*/
+ * Sorts an array based on a transformation function and direction.
+ *
+ * @template T - The type of elements in the array.
+ * @param {T[]} array - The array to be sorted.
+ * @param {IFunc<T, unknown>} [transform] - An optional transformation function to apply to each element before sorting.
+ * @param {1 | -1} [direction=1] - The direction of the sort: 1 for ascending, -1 for descending.
+ * @param {string} [locale] - An optional locale string to use for locale-sensitive string comparisons.
+ * @returns {T[]} - The sorted array.
+ */
 export function arraySort<T>(array: T[], transform: IFunc<T, unknown> | undefined = undefined, direction: 1 | -1 = 1, locale?: string): T[] {
     return sortCore(array, direction, transform, locale);
 }
 
+
 /**
- * An iterative method. It calls a provided callback function once for each element in an array and constructs a new Object from the results.
- * @param source an array.
- * @param callback A function to execute for each element in the array. Its return value is a tuple of key and value.
- * The function is called with array element parameter.
- * @param ignoreNull true to eliminate values with null or undefined value from the new object. default is false.
- * @returns A new Object contains each key value pair being the result of the callback function.
+ * Converts an array or readonly array into an object using a callback function to generate key-value pairs.
+ *
+ * @template T - The type of elements in the source array.
+ * @template O - The type of values in the resulting object.
+ * @param {Array<T> | ReadonlyArray<T>} source - The source array to convert.
+ * @param {(value: T, index: number) => [string, O]} callback - A function that takes an element and its index and returns a tuple containing the key and value for the object.
+ * @param {boolean} [ignoreNull=false] - Whether to ignore null values in the resulting object.
+ * @returns {IRecord<O>} The resulting object with keys and values generated by the callback function.
  */
 export function arrayToObject<T, O>(source: Array<T> | ReadonlyArray<T>, callback: (value: T, index: number) => [string, O], ignoreNull = false): IRecord<O> {
     return (source as T[]).reduce((ob, currentValue, index) => {
@@ -215,16 +276,19 @@ export function arrayToObject<T, O>(source: Array<T> | ReadonlyArray<T>, callbac
     }, {} as IRecord<O>);
 }
 
-// /**
-// * Sorts descending an array in place and providing a transform function to obtain specific value from element if it is an object.
-// * this function handles the correct type of the elements.
-// * @param array An array of values that are used to calculate a sum.
-// * @param transform A transform function to apply to each element.
-// * @returns a reference to the same array.
-// */
-// export function arraySortDescending<T>(array: T[], transform?: IFunc<T, unknown>): T[] {
-//     return sortCore(array, -1, transform);
-// }
+export function arrayGroupBy<T>(source: Array<T>, callback: (value: T, index: number) => string): IRecord<T[]> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nativeGroupBy = (Object as any).groupBy;
+    if (typeof nativeGroupBy === 'function') {
+        return nativeGroupBy(source, callback);
+    }
+    return source.reduce((acc, value, index) => {
+        const key = callback(value, index);
+        acc[key] ??= []
+        acc[key].push(value);
+        return acc;
+    }, {} as IRecord<T[]>);
+}
 
 // export const arrays = {
 //     unique,
@@ -304,16 +368,16 @@ function performSort(valueA: unknown, valueB: unknown, direction: 1 | -1, collat
 
 
 // Declaration merging for Array prototype extensions
-declare global {
+//declare global {
 
-    // interface Array<T> {
-    //     unique(): Array<T>;
-    //     joinAsPath(): string;
-    //     remove<T>(source: Array<T>, item: T): number;
-    //     toMap<V, K = string>(array: Array<V>, keyGetter: IFunc<V, K>): Map<K, V>;
-    // }
+// interface Array<T> {
+//     unique(): Array<T>;
+//     joinAsPath(): string;
+//     remove<T>(source: Array<T>, item: T): number;
+//     toMap<V, K = string>(array: Array<V>, keyGetter: IFunc<V, K>): Map<K, V>;
+// }
 
-    // interface ArrayConstructor {
-    //     enumerableRange(start: number, end: number): number[];
-    // }
-}
+// interface ArrayConstructor {
+//     enumerableRange(start: number, end: number): number[];
+// }
+//}

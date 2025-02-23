@@ -18,8 +18,7 @@ export function isSupportMatSort(value: unknown | null): value is Exclude<ICSSup
 }
 
 export function isSupportFilter(value: unknown | null): value is Exclude<ICSSupportFilter, null> {
-    return !!value;
-    // && (value instanceof MatTableDataSource || (Object.hasOwn(value, 'filter') && Object.hasOwn(value, 'filterPredicate')))
+    return !!value && (value instanceof MatTableDataSource || (Object.hasOwn(value, 'filter') && Object.hasOwn(value, 'filterPredicate')))
 }
 
 export function isSupportAggregation(value: any | null): value is ICSSupportAggregation {

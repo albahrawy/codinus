@@ -1,9 +1,10 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, effect, inject } from "@angular/core";
 import { DateAdapter, MAT_DATE_LOCALE } from "@angular/material/core";
 import {
     addDays, addMonths, addYears, daysInMonth, formatDate, getDateNames, getDayOfWeekNames,
-    getFirstDayOfWeek, getMonthNames, isDate, isValidDate, parseDate, toISOString
+    getFirstDayOfWeek, getMonthNames, isDate, isValidDate, parseDate, formatToISOString
 } from "@codinus/js-extensions";
+import { CODINUS_LOCALIZER } from "@ngx-codinus/cdk/localization";
 
 /** Adds codinus-date support to Angular Material. */
 
@@ -16,10 +17,15 @@ export class CSDateAdapter extends DateAdapter<Date, string> {
     #_dateNames: string[] | null = null;
     #_dayOfWeekNames: string[] | null = null;
 
+    private localizer = inject(CODINUS_LOCALIZER, { optional: true });
+
     constructor() {
         super();
-        const matDateLocale = inject(MAT_DATE_LOCALE, {optional: true});
+        const matDateLocale = inject(MAT_DATE_LOCALE, { optional: true });
         super.setLocale(matDateLocale as string);
+        effect(() => {
+            this.setLocale(this.localizer?.currentLang() ?? 'en');
+        });
     }
 
     getYear(date: Date): number {
@@ -47,6 +53,8 @@ export class CSDateAdapter extends DateAdapter<Date, string> {
     }
 
     getDayOfWeekNames(style: 'long' | 'short' | 'narrow'): string[] {
+        if (style === 'narrow' && this.locale === 'ar')
+            style = 'short';
         return this.#_dayOfWeekNames ?? (this.#_dayOfWeekNames = getDayOfWeekNames(style, this.locale));
     }
 
@@ -115,7 +123,7 @@ export class CSDateAdapter extends DateAdapter<Date, string> {
     }
 
     toIso8601(date: Date): string {
-        return toISOString(date);
+        return formatToISOString(date);
     }
 
     override deserialize(value: unknown): Date | null {

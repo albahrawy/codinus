@@ -4,9 +4,13 @@ import { Component } from '@angular/core';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { TableButtonsComponent } from './table-buttons/table-buttons';
-import { CODINUS_TABLE_RESPONSIVE, CODINUS_TABLE_COLUMNS, CODINUS_TABLE_VIRTUAL_SCROLL, CSAggregationFn, CSTableApiIRegistrar, CSTableMetaRowsVisiblity, CODINUS_TABLE_API_REGISTRAR, CODINUS_TABLE_DATA_DIRECTIVES, CODINUS_TABLE_CELLS, CODINUS_TABLE_SELECTION_NAVIGATION, CSTableSelectionChange } from '@ngx-codinus/material/table';
+import {
+  CSAggregationFn, CSTableApiIRegistrar, CSTableMetaRowsVisiblity, CSTableSelectionChange,
+  CSTableDisplayedColumns, CodinusTableModule
+} from '@ngx-codinus/material/table';
 import { CSTranslatePipe } from '@ngx-codinus/cdk/localization';
 import { CSAggregation } from '@ngx-codinus/core/data';
+import { of, tap } from 'rxjs';
 
 
 export interface PeriodicElement {
@@ -61,16 +65,10 @@ const BaseData = {
   selector: 'mat-table-virtual-scroll',
   templateUrl: './mat-table.component.html',
   styleUrls: ['./mat-table.component.scss'],
-  standalone: true,
   imports: [
     CommonModule, TableButtonsComponent, MatTableModule,
-    CODINUS_TABLE_VIRTUAL_SCROLL,
-    CODINUS_TABLE_CELLS,
-    CODINUS_TABLE_SELECTION_NAVIGATION,
-    CODINUS_TABLE_COLUMNS,
-    //NOVA_TABLE_FILTER_CORE, NOVA_TABLE_EDIT_CORE,
-    CODINUS_TABLE_RESPONSIVE,
-    CODINUS_TABLE_DATA_DIRECTIVES,
+    CodinusTableModule,
+    CSTableDisplayedColumns,
     MatSortModule,
     CSTableMetaRowsVisiblity,
     //FilterTextCustom, 
@@ -79,9 +77,9 @@ const BaseData = {
 })
 export class TestMatTableComponent {
   onSelectChange(arg: CSTableSelectionChange) {
-    console.log(arg);
+    // console.log(arg);
   }
-
+  gridEvents = new TestGridEvents();
   // // filters: TableFilters = { 'position': { type: 'string', dataKey: 'abbass' } };
   //filterType: FilterType = 'string';
   nameKey = { ar: 'name_ar', en: 'name_en' };
@@ -123,7 +121,7 @@ export class TestMatTableComponent {
     {
       optionHeight: 30,
       multiple: true,
-      dataSource: this.createDataForGrid(20),
+      dataSource: this.createDataForGrid(10),
       displayMember: "name_en",
       valueMember: "position",
       iconMember: "icon",
@@ -211,6 +209,13 @@ export class TestMatTableComponent {
   changeAggregation() {
     //this.footerAggregation = (k, d, r) => d?.length && r?.length ? d.length / r.length : 0;
   }
+}
 
-
+class TestGridEvents {
+  type_DataSource() {
+    return of(Array(10).fill(0).map((v, i) => ({
+      name: 'item' + (i + 1), value: i + 1, icon: 'home', disable: (i + 1) % 15 == 0
+    }))).pipe(tap(x => console.log(x)));
+  }
+  tableApi = null;
 }

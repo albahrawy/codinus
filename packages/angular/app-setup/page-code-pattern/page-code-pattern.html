@@ -1,0 +1,17 @@
+<cs-splitter unit="percent" class="cs-code-pattern-sections-splitter">
+    <cs-splitter-pane class="cs-code-pattern-sections-pane" [size]="40">
+        <mat-tree csTree class="cs-code-pattern-sections-tree" displayMember="name" showIcon="true"
+            [iconMember]="_handler.iconMember" [csChildrenAccessor]="_handler.childAccessor" [csDataSource]="_sections"
+            (currentChanged)="_onCurrentChanged($event)">
+
+            <cs-tree-action-top-bar></cs-tree-action-top-bar>
+            <cs-tree-node *matTreeNodeDef [indent]="10"></cs-tree-node>
+        </mat-tree>
+    </cs-splitter-pane>
+    <cs-splitter-pane [size]="60" class="cs-code-pattern-events-pane">
+        <cs-selection-list-panel class="cs-code-pattern-evetns-list" [dataSource]="elementEvents()"
+            (selectionChange)="_onEventSelected($event)" displayMember="name" valueMember="name" [multiple]="true"
+            [showIndex]="false" [showTitle]="true" [selectOnlyByCheckBox]="true" [value]="selectedEvents()">
+        </cs-selection-list-panel>
+    </cs-splitter-pane>
+</cs-splitter>

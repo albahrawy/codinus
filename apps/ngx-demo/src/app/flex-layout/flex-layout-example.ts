@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { enumerableRange } from '@codinus/js-extensions';
+import { arrayRange } from '@codinus/js-extensions';
 import { CODINUS_CDK_FLEX_DIRECTIVES } from '@ngx-codinus/core/layout';
 import { CSMatButtonStyle } from '@ngx-codinus/material/buttons';
 import { CSContextMenuDirective, IContextMenuItem } from '@ngx-codinus/material/context-menu';
@@ -11,6 +11,7 @@ type FlexExampleItem = {
     base: string,
     order: number
     index: number
+    span: string
 }
 
 
@@ -52,10 +53,12 @@ export class FlexLayoutExampleComponent {
         item.order = Math.floor(Math.random() * (10 - 0) + 0);
     }
     flexGap: string | null = '5px,1px,1px,2px';
-    config: FlexExampleItem[] = enumerableRange(0, 10).map(v => {
+    gridColumns = '3,1,4,2,2,2';
+    config: FlexExampleItem[] = arrayRange(0, 4).map(v => {
         return {
             mdBase: 50,
             base: `33.33,100,33.33,33.33`,
+            span: `3,1,4,2`,
             order: v,
             index: v + 1
         }

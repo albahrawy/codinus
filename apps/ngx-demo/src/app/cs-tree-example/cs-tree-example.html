@@ -1,0 +1,95 @@
+<!-- <mat-tree #csTree="csTree" csTree [parentKey]="'pIkey'" [displayMember]="'name'" [csDataSource]="testDataSource"
+    [nodeKey]="'iKey'" showIcon="true" [iconMember]="iconGetter" activateFirstItem="true">
+    <cs-tree-action-area>
+        <ng-container *csTreeHandler="let handler">
+            <input #inp (input)="handler.setFilter(inp.value)">
+        </ng-container>
+    </cs-tree-action-area>
+
+    <mat-tree-node *matTreeNodeDef defaultNode="30">
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef expandable="30">
+    </mat-tree-node>
+</mat-tree>
+
+<button (click)="addNewRoot(csTree)">Add New Root Node</button>
+<button (click)="addNewChild(csTree)">Add New child Node</button>
+<button (click)="setCurrent(csTree)">SetCurrent</button>
+<button (click)="remove(csTree)">Remove Current</button>
+{{testDataSource|json}} -->
+<!-- <mat-tree #csTree2="csTree" csTree [csDataSource]="dataSourceWithChildren" [childrenAccessor]="childrenAccessor"
+    [displayMember]="'name'" showIcon="true" [iconMember]="iconGetter" activateFirstItem="true">
+    <mat-tree-node *matTreeNodeDef defaultNode="30">
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef expandable="30">
+    </mat-tree-node>
+
+    <cs-tree-action-area>
+        <ng-container *csTreeHandler="let handler">
+            <input #inp (input)="handler.setFilter(inp.value)">
+        </ng-container>
+    </cs-tree-action-area>
+</mat-tree>
+
+<button (click)="addNewRoot2(csTree2)">Add New Root Node</button>
+<button (click)="addNewChild2(csTree2)">Add New child Node</button>
+<button (click)="setCurrent2(csTree2)">SetCurrent</button>
+<button (click)="remove(csTree2)">Remove Current</button>
+
+{{dataSourceWithChildren|json}} -->
+
+<mat-tree #csTree3="csTree" csTreeInput [csChildrenAccessor]="childrenAccessor" (cdkDropListDropped)="handleDrag($event)" cdkDropList [displayMember]="'name'"
+    showIcon="true" [iconMember]="iconGetter" activateFirstItem="true" [formControl]="treeFormControl">
+    <!-- <cs-tree-action-area>
+        <ng-container *csTreeHandler="let handler">
+            <input #inp (input)="handler.setFilter(inp.value)">
+        </ng-container>
+    </cs-tree-action-area> -->
+    <cs-tree-action-top-bar></cs-tree-action-top-bar>
+    <cs-node-action-bar></cs-node-action-bar>
+    <cs-tree-node cdkDrag *matTreeNodeDef></cs-tree-node>
+    <!-- <ng-container *csNodeToolBar="let handler; let nodeData=nodeData">
+        <div>
+            <button (click)="log(handler,nodeData)">Add New Root Node</button>
+            <button>Option 2</button>
+            <button>Option 3</button>
+        </div>
+    </ng-container>> -->
+
+    <!-- <mat-tree-node *matTreeNodeDef defaultNode="30">
+    </mat-tree-node>
+
+    <mat-tree-node *matTreeNodeDef expandable="30">
+    </mat-tree-node> -->
+</mat-tree>
+<button (click)="addNewRoot2($any(csTree3))">Add New Root Node</button>
+<button (click)="addNewChild2($any(csTree3))">Add New child Node</button>
+<button (click)="setCurrent2($any(csTree3))">SetCurrent</button>
+<button (click)="remove($any(csTree3))">Remove Current</button>
+
+{{treeFormControl.value|json}}
+
+<!-- <div class="hover-container" [csHoverOverlay]="toolbarTemplate">
+    Hover over me!
+</div> -->
+
+<ng-template #toolbarTemplate>
+    <div>
+        <button>Option 1</button>
+        <button>Option 2</button>
+        <button>Option 3</button>
+    </div>
+</ng-template>
+
+<!-- 
+
+
+<mat-tree [dataSource]="dataSourceWithChildren" csTreeFeatures [childrenAccessor]="childrenAccessor"
+    [displayMember]="'name'" [iconMember]="iconGetter" [showIcon]="true">
+    <mat-tree-node *matTreeNodeDef defaultNode="30">
+    </mat-tree-node>
+    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" expandable="30">
+    </mat-tree-node>
+</mat-tree> -->

@@ -1,12 +1,13 @@
 import { CdkFooterRowDef, CdkHeaderRowDef, CdkTable } from '@angular/cdk/table';
-import { AfterViewInit, Directive, booleanAttribute, effect, inject, input, untracked } from '@angular/core';
+import { AfterViewInit, Directive, booleanAttribute, effect, inject, input } from '@angular/core';
+import { booleanTrueAttribute } from '@ngx-codinus/core/shared';
+import { StandardMetaRowModel } from './meta-row-model';
 import { CODINUS_TABLE_API_REGISTRAR } from './types';
-import { forceInputSet } from '@ngx-codinus/core/shared';
 
 @Directive({
-    selector: `mat-table[showHeader],cdk-table[showHeader],
-               mat-table[showFooter],cdk-table[showFooter],
-               mat-table[showFilter],cdk-table[showFilter]`,
+    selector: `mat-table:not([cs-table])[showHeader],cdk-table:not([cs-table])[showHeader],
+               mat-table:not([cs-table])[showFooter],cdk-table:not([cs-table])[showFooter],
+               mat-table:not([cs-table])[showFilter],cdk-table:not([cs-table])[showFilter]`,
 })
 export class CSTableMetaRowsVisiblity implements AfterViewInit {
 
@@ -18,48 +19,24 @@ export class CSTableMetaRowsVisiblity implements AfterViewInit {
     private _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
 
     constructor() {
-        this._apiRegistrar?.register('metaRowDirective', this);
+        this._apiRegistrar?.register('metaRowDirective', new StandardMetaRowModel(this));
         effect(() => this._updateHeaderState(this.showHeader(), this.showFilter()));
         effect(() => this._updateFooterState(this.showFooter()));
     }
 
     //#region inputs
 
-    showHeader = input(true, { transform: booleanAttribute })
-    showFilter = input(true, { transform: booleanAttribute })
-    showFooter = input(false, { transform: booleanAttribute })
+    showHeader = input(true, { transform: booleanTrueAttribute });
+    showFilter = input(true, { transform: booleanTrueAttribute });
+    showFooter = input(false, { transform: booleanAttribute });
 
     //#endregion
-
-    getVisibility(key: 'header' | 'filter' | 'footer') {
-        const propKey = this.getPropKey(key);
-        if (!propKey)
-            return false;
-        return untracked(() => this[propKey]());
-    }
-
-    setVisibility(key: 'header' | 'filter' | 'footer', value: boolean) {
-        const propKey = this.getPropKey(key);
-        if (!propKey)
-            return;
-        forceInputSet(this[propKey], value);
-    }
 
     ngAfterViewInit() {
         this._allHeaderRowDefs = this._table._contentHeaderRowDefs.toArray();
         this._realHeaderRowDefs = this._allHeaderRowDefs.filter(v => v.constructor.name !== '_CdkFilterRowDef');
         this._filterRowDefs = this._allHeaderRowDefs.filter(v => v.constructor.name === '_CdkFilterRowDef');
         this._contentFooterRowDefs = this._table._contentFooterRowDefs.toArray();
-    }
-
-    private getPropKey(key: string) {
-        return key === 'header'
-            ? 'showHeader'
-            : key === 'filter'
-                ? 'showFilter'
-                : key === 'footer'
-                    ? 'showFooter'
-                    : null;
     }
 
     private _updateHeaderState(header: boolean, filter: boolean) {
@@ -77,8 +54,8 @@ export class CSTableMetaRowsVisiblity implements AfterViewInit {
             this._table._contentHeaderRowDefs.reset([]);
         }
 
-        //@ts-expect-error call private member
-        this._table._headerRowDefChanged = true;
+        this._table.removeHeaderRowDef(null as unknown as CdkHeaderRowDef);
+        // _headerRowDefChanged = true;
     }
 
     private _updateFooterState(footer: boolean) {
@@ -93,7 +70,6 @@ export class CSTableMetaRowsVisiblity implements AfterViewInit {
             changed = true;
         }
         if (changed)
-            //@ts-expect-error call private member
-            this._table._footerRowDefChanged = true;
+            this._table.removeFooterRowDef(null as unknown as CdkFooterRowDef);
     }
 }

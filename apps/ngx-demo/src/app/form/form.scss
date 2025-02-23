@@ -23,12 +23,12 @@
 ::ng-deep mat-filter-cell,
 ::ng-deep mat-footer-cell {
     flex: 1;
-    border-right: var(--table-inner-vertical-border);
+    border-right: var(--cs-table-inner-vertical-border);
     min-width: 400px;
 
     [dir='rtl'] & {
         border-right: unset;
-        border-left: var(--table-inner-vertical-border);
+        border-left: var(--cs-table-inner-vertical-border);
     }
 
 

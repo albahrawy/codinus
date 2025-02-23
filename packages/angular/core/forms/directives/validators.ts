@@ -245,23 +245,11 @@ export abstract class CSFormValidator implements Validator {
 }
 
 @Directive({
-    selector: 'cs-form-section-array[csFormControlName],cs-form-section-array[formControlName],cs-form-section-array[formControl],cs-form-section-array[ngModel]',
+    selector: `cs-form-section-array[csFormControlName],
+               cs-form-section-array[formControlName],
+               cs-form-section-array[formControl],
+               cs-form-section-array[ngModel]`,
     providers: [Array_VALIDATOR],
 })
 export class CSSectionArrayValidator extends CSFormValidator {
 }
-
-export const CODINUS_FORM_VALIDATOR_DIRECTIVES = [
-    CSMaxValidator,
-    CSMinValidator,
-    CSRequiredValidator,
-    CSCheckboxRequiredValidator,
-    CSEmailValidator,
-    CSMinLengthValidator,
-    CSMaxLengthValidator,
-    CSPatternValidator,
-    CSGroupValidator,
-    CSSectionArrayValidator,
-    csFormControlNameValidator,
-    csFormControlNameAsyncValidator
-] as const;

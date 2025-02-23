@@ -4,40 +4,32 @@ export function preventEvent(event: Event) {
     return false;
 }
 
-export function focusElement(element: Element | null) {
+export function scrollIntoViewIfNeeded(element: Element | null, root?: Element | null, rootMargin?: string)
+    : Promise<void> | null {
     if (!element)
-        return;
-    scrollIntoViewIfNeeded(element, false);
-    (element as HTMLElement).focus?.({ preventScroll: true });
+        return null;
+    return new Promise((resolve) => {
+        new IntersectionObserver(([entry], self) => {
+            const ratio = entry.intersectionRatio;
+            if (ratio < 1) {
+                const { bottom: eBottom, top: eTop } = entry.boundingClientRect;
+                const { bottom: rBottom, top: rTop } = entry.rootBounds ?? { top: 0, bottom: 0 };
+
+                const block = eBottom > rBottom ? 'end'
+                    : eTop < rTop ? 'start' : 'nearest';
+
+                element.scrollIntoView({ block, inline: 'nearest' });
+            }
+            self.disconnect();
+            resolve();
+        }, { root, rootMargin }).observe(element);
+    });
 }
 
-export function scrollIntoViewIfNeeded(element: Element | null, centerIfNeeded = true) {
-    if (!element)
-        return;
-    verifyScrollIntoViewIfNeeded();
-    element.scrollIntoViewIfNeeded(centerIfNeeded);
+export function focusElement(element: Element | null, preventScroll = true) {
+    (element as HTMLElement)?.focus?.({ preventScroll });
 }
 
-declare global {
-    interface Element {
-        scrollIntoViewIfNeeded: (bool?: boolean) => void;
-    }
-}
-
-verifyScrollIntoViewIfNeeded();
-function verifyScrollIntoViewIfNeeded() {
-    if (!Element.prototype.scrollIntoViewIfNeeded) {
-        Element.prototype.scrollIntoViewIfNeeded = function (centerIfNeeded = true) {
-            // eslint-disable-next-line @typescript-eslint/no-this-alias
-            const el = this;
-            new IntersectionObserver(([entry], self) => {
-                const ratio = entry.intersectionRatio;
-                if (ratio < 1) {
-                    const place = ratio <= 0 && centerIfNeeded ? 'center' : 'nearest';
-                    el.scrollIntoView({ block: place, inline: place });
-                }
-                self.disconnect();
-            }).observe(this);
-        };
-    }
+export function scrollIntoViewAndFocus(element: Element | null, root?: Element | null, rootMargin?: string) {
+    scrollIntoViewIfNeeded(element, root, rootMargin)?.then(() => focusElement(element));
 }

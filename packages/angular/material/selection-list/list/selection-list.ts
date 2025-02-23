@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 import { ScrollingModule, ViewportRuler } from '@angular/cdk/scrolling';
 import {
-    AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
+    AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component,
     OnDestroy, ViewEncapsulation, forwardRef, inject
 } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
@@ -15,13 +15,14 @@ import { CSListOption } from '../option/list-option';
 import { CSSelectionListPanel } from './selection-list-panel';
 import { CODINUS_SELECTION_LIST } from './types';
 
-
 @Component({
     selector: 'cs-selection-list',
     exportAs: 'csSelectionList',
     templateUrl: './selection-list.html',
     styleUrls: ['./selection-list.scss'],
-    host: { '[id]': 'id' },
+    host: {
+        '[id]': 'id',
+    },
     encapsulation: ViewEncapsulation.None,
     imports: [MatInputModule, MatDividerModule, CSListOption, CSNamedTemplate,
         MatIconModule, MatListModule, ScrollingModule, CdkDropList, CdkDrag,],
@@ -40,7 +41,7 @@ import { CODINUS_SELECTION_LIST } from './types';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CSSelectionList<TRow = unknown, TValue = unknown> extends CSSelectionListPanel<TRow, TValue>
-    implements IMatFormFieldSupport<TValue | TValue[] | null>, AfterViewInit, AfterViewChecked, OnDestroy {
+    implements IMatFormFieldSupport<TValue | TValue[] | null>, AfterViewInit, OnDestroy {
 
     private readonly _changeDetectorRef = inject(ChangeDetectorRef);
     private readonly _mfc = inject(CSMatFormFieldControl, { self: true }).setComponent(this);
@@ -63,7 +64,7 @@ export class CSSelectionList<TRow = unknown, TValue = unknown> extends CSSelecti
     }
 
     writeValue(value: TValue[] | TValue | null): void {
-        this._setValue(value);
+        this._setValue(value, 'accessor');
     }
 
     setDisabledState(isDisabled: boolean): void {

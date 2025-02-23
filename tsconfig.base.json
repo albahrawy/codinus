@@ -20,54 +20,42 @@
       "@codinus/js-extensions": ["packages/common/js-extensions/index.ts"],
       "@codinus/ts-parser": ["packages/common/ts-parser/index.ts"],
       "@codinus/types": ["packages/common/types/index.ts"],
+      "@ngx-codinus/app-migrate": ["packages/angular/app-migrate/src/index.ts"],
+      "@ngx-codinus/app-setup": ["packages/angular/app-setup/index.ts"],
       "@ngx-codinus/cdk": ["packages/angular/cdk/index.ts"],
-      "@ngx-codinus/cdk/authorization": [
-        "packages/angular/cdk/authorization/index.ts"
-      ],
+      "@ngx-codinus/cdk/authorization": ["packages/angular/cdk/authorization/index.ts"],
       "@ngx-codinus/cdk/data": ["packages/angular/cdk/data/index.ts"],
       "@ngx-codinus/cdk/http": ["packages/angular/cdk/http/index.ts"],
-      "@ngx-codinus/cdk/localization": [
-        "packages/angular/cdk/localization/index.ts"
-      ],
+      "@ngx-codinus/cdk/localization": ["packages/angular/cdk/localization/index.ts"],
       "@ngx-codinus/cdk/logger": ["packages/angular/cdk/logger/index.ts"],
-      "@ngx-codinus/cdk/observable-error-handler": [
-        "packages/angular/cdk/observable-error-handler/index.ts"
-      ],
-      "@ngx-codinus/cdk/observer": ["packages/angular/cdk/observer/index.ts"],
+      "@ngx-codinus/cdk/observable-error-handler": ["packages/angular/cdk/observable-error-handler/index.ts"],
       "@ngx-codinus/cdk/overlays": ["packages/angular/cdk/overlays/index.ts"],
       "@ngx-codinus/cdk/storage": ["packages/angular/cdk/storage/index.ts"],
+      "@ngx-codinus/cdk/virtual-scroll": ["packages/angular/cdk/virtual-scroll/index.ts"],
       "@ngx-codinus/core": ["packages/angular/core/index.ts"],
       "@ngx-codinus/core/data": ["packages/angular/core/data/index.ts"],
       "@ngx-codinus/core/events": ["packages/angular/core/events/index.ts"],
       "@ngx-codinus/core/format": ["packages/angular/core/format/index.ts"],
       "@ngx-codinus/core/forms": ["packages/angular/core/forms/index.ts"],
       "@ngx-codinus/core/layout": ["packages/angular/core/layout/index.ts"],
+      "@ngx-codinus/core/observer": ["packages/angular/core/observer/index.ts"],
       "@ngx-codinus/core/outlet": ["packages/angular/core/outlet/index.ts"],
       "@ngx-codinus/core/shared": ["packages/angular/core/shared/index.ts"],
       "@ngx-codinus/material": ["packages/angular/material/index.ts"],
-      "@ngx-codinus/material/buttons": [
-        "packages/angular/material/buttons/index.ts"
-      ],
-      "@ngx-codinus/material/context-menu": [
-        "packages/angular/material/context-menu/index.ts"
-      ],
-      "@ngx-codinus/material/date-adapter": [
-        "packages/angular/material/date-adapter/index.ts"
-      ],
-      "@ngx-codinus/material/forms": [
-        "packages/angular/material/forms/index.ts"
-      ],
-      "@ngx-codinus/material/inputs": [
-        "packages/angular/material/inputs/index.ts"
-      ],
-      "@ngx-codinus/material/overlays": [
-        "packages/angular/material/overlays/index.ts"
-      ],
-      "@ngx-codinus/material/selection-list": [
-        "packages/angular/material/selection-list/index.ts"
-      ],
+      "@ngx-codinus/material/buttons": ["packages/angular/material/buttons/index.ts"],
+      "@ngx-codinus/material/context-menu": ["packages/angular/material/context-menu/index.ts"],
+      "@ngx-codinus/material/date-adapter": ["packages/angular/material/date-adapter/index.ts"],
+      "@ngx-codinus/material/drop-down": ["packages/angular/material/drop-down/index.ts"],
+      "@ngx-codinus/material/forms": ["packages/angular/material/forms/index.ts"],
+      "@ngx-codinus/material/icon-selector": ["packages/angular/material/icon-selector/index.ts"],
+      "@ngx-codinus/material/inputs": ["packages/angular/material/inputs/index.ts"],
+      "@ngx-codinus/material/overlays": ["packages/angular/material/overlays/index.ts"],
+      "@ngx-codinus/material/selection-list": ["packages/angular/material/selection-list/index.ts"],
+      "@ngx-codinus/material/splitter": ["packages/angular/material/splitter/index.ts"],
       "@ngx-codinus/material/table": ["packages/angular/material/table/index.ts"],
+      "@ngx-codinus/material/table-editors": ["packages/angular/material/table-editors/index.ts"],
       "@ngx-codinus/material/tabs": ["packages/angular/material/tabs/index.ts"],
+      "@ngx-codinus/material/tree": ["packages/angular/material/tree/index.ts"],
       "@ngx-codinus/monaco-editor": ["packages/angular/monaco-editor/index.ts"]
     }
   },

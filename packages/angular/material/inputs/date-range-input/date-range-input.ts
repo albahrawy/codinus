@@ -23,9 +23,6 @@ import { CSDateFormatDirective } from '../directives/date-format.directive';
 import { CSDateMaskInput } from '../directives/date-mask.directive';
 import { enforceFormFieldSuffix } from '../internal';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MAT_DATE_RANGE_INPUT_PARENT = (MatDateRangeInput as any).decorators[0].args[0].providers[1].provide;
-
 @Component({
     selector: 'cs-date-range-input',
     templateUrl: 'date-range-input.html',
@@ -40,7 +37,7 @@ const MAT_DATE_RANGE_INPUT_PARENT = (MatDateRangeInput as any).decorators[0].arg
     encapsulation: ViewEncapsulation.None,
     providers: [
         { provide: MatFormFieldControl, useExisting: CSDateRangeInput },
-        { provide: MAT_DATE_RANGE_INPUT_PARENT, useExisting: CSDateRangeInput },
+        { provide: MatDateRangeInput, useExisting: CSDateRangeInput },
         { provide: NG_VALUE_ACCESSOR, useExisting: CSDateRangeInput, multi: true },
         { provide: NG_VALIDATORS, useExisting: forwardRef(() => CSDateRangeInput), multi: true },
     ],
@@ -70,8 +67,8 @@ export class CSDateRangeInput<D> extends MatDateRangeInput<D>
     private _toggle = viewChild(MatDatepickerToggle, { read: ElementRef });
     private _datePicker = viewChild.required(MatDateRangePicker);
 
-    protected startReq = computed(() => this._rangeRequired() === true || this._rangeRequired() === 'start');
-    protected endReq = computed(() => this._rangeRequired() === true || this._rangeRequired() === 'end');
+    protected startReq = computed(() => this._rangeRequired() === true || this._rangeRequired() === 'true' || this._rangeRequired() === 'start');
+    protected endReq = computed(() => this._rangeRequired() === true || this._rangeRequired() === 'true' || this._rangeRequired() === 'end');
 
     /**
      *

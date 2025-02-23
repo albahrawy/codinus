@@ -1,6 +1,6 @@
 import { CommonModule, JsonPipe } from '@angular/common';
-import { AfterViewInit, Component, ComponentRef, computed, inject, INJECTOR, Injector, signal, viewChild } from '@angular/core';
-import { AbstractControl, ControlContainer, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { AfterViewInit, Component, ComponentRef, computed, Directive, forwardRef, inject, INJECTOR, Injector, OnInit, Provider, signal, viewChild } from '@angular/core';
+import { AbstractControl, ControlContainer, FormControl, FormControlName, FormGroup, NgControl, ValidationErrors, Validators } from '@angular/forms';
 import { MatFormField, MatFormFieldControl, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 // import { TableConfig } from '@ngx-nova/table/nova-table';
@@ -8,17 +8,18 @@ import { MatInputModule } from '@angular/material/input';
 // import { PeriodicElement, createSampleData } from '../helper/data-provider';
 import { MatIconModule } from '@angular/material/icon';
 import { CdkPortalOutletAttachedRef, ComponentPortal } from '@angular/cdk/portal';
-import { CODINUS_REACTIVE_FORMS, CSFormControlName, CSFormGroup, CSFormGroupDirectiveBase } from '@ngx-codinus/core/forms';
+import { CodinusFormsModule, CSFormControlName, CSFormGroup, CSFormGroupDirectiveBase } from '@ngx-codinus/core/forms';
 import { CODINUS_MATERIAL_INPUTS } from '@ngx-codinus/material/inputs';
 import { CODINUS_CDK_FLEX_DIRECTIVES } from '@ngx-codinus/core/layout';
 import { CODINUS_FORM_SECTIONS, CSForm, CSFormSection, ICSFormValueChangedArgs } from '@ngx-codinus/material/forms';
 import { IGenericRecord } from '@codinus/types';
+import { createSampleData } from '../helper/data-provider';
 // import { NovaFormSection, NovaLocalizableInput } from '@ngx-nova/forms/sections';
 
 @Component({
     selector: 'test-Component',
     template: '<div csAutoForm (initialized)="x=$event"><input matInput csFormControlName="control"></div> {{x?.value|json}}',
-    imports: [MatInputModule, ReactiveFormsModule, CODINUS_REACTIVE_FORMS, JsonPipe]
+    imports: [MatInputModule, CodinusFormsModule, JsonPipe]
 }) export class XTestComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         console.log(this.autoFormControl());
@@ -28,21 +29,41 @@ import { IGenericRecord } from '@codinus/types';
     x?: CSFormGroup;
 }
 
+const controlNameBinding: Provider = {
+    provide: NgControl,
+    useExisting: forwardRef(() => FormControlName),
+};
+
+@Directive({
+    selector: '[xxformControlName]',
+    providers: [controlNameBinding],
+})
+export class FormNameTest extends FormControlName implements OnInit {
+    private xx = inject(ControlContainer, { host: true, optional: true, skipSelf: false });
+    private injector = inject(INJECTOR);
+
+    ngOnInit(): void {
+        console.log('parent-formgroup', this.xx);
+    }
+}
+
 @Component({
     selector: 'cs-form-example',
     templateUrl: 'form.html',
     styleUrl: './form.scss',
     imports: [
-    ReactiveFormsModule, CODINUS_REACTIVE_FORMS, CODINUS_MATERIAL_INPUTS,
-    CODINUS_FORM_SECTIONS,
-    MatInputModule, CommonModule, MatFormFieldModule, MatIconModule,
-    CODINUS_CDK_FLEX_DIRECTIVES, CSFormSection,
-    //NovaTableFormControl, , NovaFormContainer,
-    CSForm
-]
+        CodinusFormsModule, CODINUS_MATERIAL_INPUTS,
+        CODINUS_FORM_SECTIONS, FormNameTest,
+        MatInputModule, CommonModule, MatFormFieldModule, MatIconModule,
+        CODINUS_CDK_FLEX_DIRECTIVES, CSFormSection,
+        //NovaTableFormControl, , NovaFormContainer,
+        CSForm
+    ]
 })
 
 export class CSTestFormComponent {
+
+    parts = new FormGroup({ XX: new FormControl() });
 
     valueInitialized($event: IGenericRecord) {
         console.log('valueInitialized', $event)
@@ -166,7 +187,7 @@ export class CSTestFormComponent {
     onCreated(form: CSForm) {
         console.log('form-created');
         this.form = form;
-        form.formGroup.reset({ MS: { C1: "AR1" }, X4: { C2: "AR2" }, password1: 'ax', SS: { password2: 'ahmed' } });
+        form.formGroup.reset({ arrayControl: createSampleData(1), MS: { C1: "AR1" }, X4: { C2: "AR2" }, password1: 'ax', SS: { password2: 'ahmed' } });
         this.formGroup = form.formGroup;
         this.formGroup.valueChanges.subscribe(v => this._groupValue.set(v));
         // this.formGroup.events.pipe(

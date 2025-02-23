@@ -1,19 +1,20 @@
 <mat-nav-list role="list" class="list-area">
-    <!-- <button mat-stroked-button (click)="changeLang()">{{reqtLang.name}}</button> -->
+    <button mat-stroked-button (click)="changeLang()">{{reqtLang.name}}</button>
     <a mat-list-item role="listitem" routerLink="/function-test" routerLinkActive="active"
         ariaCurrentWhenActive="page">Function Test</a>
     <div matSubheader class="group-header">Component Extensions</div>
     <a mat-list-item role="listitem" routerLink="/buttons" routerLinkActive="active"
         ariaCurrentWhenActive="page">Buttons</a>
+        <a mat-list-item role="listitem" routerLink="/icon-selector" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Icon Selector</a>
     <a mat-list-item role="listitem" routerLink="/inputs-extensions" routerLinkActive="active"
         ariaCurrentWhenActive="page">Inputs</a>
-    <a mat-list-item role="listitem" routerLink="/tabs" routerLinkActive="active"
-        ariaCurrentWhenActive="page">Tabs</a>
+    <a mat-list-item role="listitem" routerLink="/tabs" routerLinkActive="active" ariaCurrentWhenActive="page">Tabs</a>
     <a mat-list-item role="listitem" routerLink="/select-example" routerLinkActive="active"
         ariaCurrentWhenActive="page">Select</a>
     <a mat-list-item role="listitem" routerLink="/progress-overlay" routerLinkActive="active"
         ariaCurrentWhenActive="page">Progress Overlay</a>
-        <a mat-list-item role="listitem" routerLink="/snack-bar" routerLinkActive="active"
+    <a mat-list-item role="listitem" routerLink="/snack-bar" routerLinkActive="active"
         ariaCurrentWhenActive="page">Relative Snack-Bar</a>
     <a mat-list-item role="listitem" routerLink="/selection-list" routerLinkActive="active"
         ariaCurrentWhenActive="page">Virtual Selection List</a>
@@ -23,8 +24,12 @@
         ariaCurrentWhenActive="page">Cdk Table</a>
     <a mat-list-item role="listitem" routerLink="/cs-mat-table" routerLinkActive="active"
         ariaCurrentWhenActive="page">Mat Table</a>
-    <a mat-list-item role="listitem" routerLink="/nova-table" routerLinkActive="active"
-        ariaCurrentWhenActive="page">Nova Table</a>
+    <a mat-list-item role="listitem" routerLink="/codinus-table" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Codinus Table</a>
+    <a mat-list-item role="listitem" routerLink="/table-form-control" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Form Control Table</a>
+    <a mat-list-item role="listitem" routerLink="/tree" routerLinkActive="active" ariaCurrentWhenActive="page">Codinus
+        Tree</a>
     <mat-divider></mat-divider>
     <div matSubheader class="group-header">More</div>
     <a mat-list-item role="listitem" routerLink="/flex-layout" routerLinkActive="active"
@@ -47,10 +52,13 @@
         ariaCurrentWhenActive="page">Runtime Data Page</a>
     <a mat-list-item role="form" routerLink="/form-array" routerLinkActive="active" ariaCurrentWhenActive="page">Form
         Array View</a>
+    <a mat-list-item role="form" routerLink="/form-array-tree" routerLinkActive="active"
+        ariaCurrentWhenActive="page">Form
+        Array Tree View</a>
 
     <mat-divider></mat-divider>
     <div matSubheader class="group-header">Others</div>
-    <a mat-list-item role="listitem" routerLink="/admin-page-example" routerLinkActive="active"
+    <a mat-list-item role="listitem" routerLink="/page-setup" routerLinkActive="active"
         ariaCurrentWhenActive="page">Admin Page Setup</a>
     <a mat-list-item role="listitem" routerLink="/fast-report-view" routerLinkActive="active"
         ariaCurrentWhenActive="page">View</a>
@@ -58,4 +66,5 @@
 <div class="separator-area"></div>
 <div class="view-area">
     <router-outlet></router-outlet>
+    <!-- <span role="img" class="notranslate material-icons" aria-hidden="true" data-mat-icon-type="font">domain_add</span> -->
 </div>

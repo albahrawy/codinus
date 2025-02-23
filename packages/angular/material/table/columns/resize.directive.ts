@@ -1,16 +1,16 @@
 import { Directionality } from "@angular/cdk/bidi";
 import { CdkColumnDef } from "@angular/cdk/table";
 import {
-    AfterViewInit, booleanAttribute, Directive, effect, ElementRef,
+    AfterViewInit, Directive, effect, ElementRef,
     inject, input, NgZone, OnDestroy, OnInit, Renderer2, RendererStyleFlags2
 } from "@angular/core";
 import { addStyleSectionToDocument, findElementAttributeByPrefix, HTMLStyleElementScope } from "@codinus/dom";
 import { Nullable } from "@codinus/types";
 
-import { animationFrameScheduler, asapScheduler, auditTime, fromEvent } from "rxjs";
+import { createEventManager } from "@ngx-codinus/core/events";
+import { booleanTrueAttribute, SMOOTH_SCHEDULER } from "@ngx-codinus/core/shared";
+import { auditTime } from "rxjs";
 import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
-
-const RESIZE_SCHEDULER = typeof requestAnimationFrame !== 'undefined' ? animationFrameScheduler : asapScheduler;
 
 @Directive({
     selector: `mat-header-cell[resizable],
@@ -26,8 +26,6 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     private _cssWidthVariable!: string;
     private _cssBorderVariable!: string;
     private _cellWidthCssElement?: HTMLStyleElementScope;
-    private _resizerUnsubscriber?: () => void;
-    private _resizingUnsubscriber?: () => void;
     private pressed = false;
     private startX = 0;
     private startWidth = 0;
@@ -38,6 +36,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef, { self: true });
     private readonly _dir = inject(Directionality, { optional: true });
     private readonly ngZone = inject(NgZone);
+    private readonly eventManager = createEventManager();
 
     //#endregion
 
@@ -51,7 +50,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
 
     //#region inputs
 
-    resizable = input(true, { transform: booleanAttribute });
+    resizable = input(true, { transform: booleanTrueAttribute });
     columnWidth = input<Nullable<string | number>>();
     resizbleBorderStyle = input('1px dashed blue');
 
@@ -76,8 +75,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
 
     ngOnDestroy(): void {
         this._cellWidthCssElement?.remove?.();
-        this._resizerUnsubscriber?.();
-        this._resizingUnsubscriber?.();
+        this.eventManager.unRegisterAll();
     }
 
     //#endregion
@@ -101,7 +99,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
             max-width: var(${this._cssWidthVariable},unset);
             transition: width 0.3s;
           }
-          ${_isolationId}.cs-table.resizing .${columnClass}{
+          ${_isolationId}.cdk-table.cs-table-resizing .${columnClass}{
             border-right: var(${this._cssBorderVariable},var(--cs-table-inner-vertical-border));
             [dir='rtl'] & {
                 border-right: unset;
@@ -112,8 +110,8 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
         this._cellWidthCssElement = addStyleSectionToDocument(`${columnClass}-style-size`, columnStyles);
     }
 
-    private handleResizerEvents(enter: boolean) {
-        if (enter) {
+    private handleResizerEvents(event: Event) {
+        if (event.type === 'mousemove') {
             if (this.resizbleBorderStyle())
                 this.renderer.setStyle(this._tableElement, this._cssBorderVariable, this.resizbleBorderStyle(), RendererStyleFlags2.DashCase);
             this.renderer.addClass(this._tableElement, "cs-table-resizing");
@@ -125,24 +123,16 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
 
     private setupResizable(enabled: boolean) {
         this.ngZone.runOutsideAngular(() => {
-            if (enabled && !this._resizerUnsubscriber) {
+            const registered = this.eventManager.has('enable-resize');
+            if (enabled && !registered) {
                 const resizer = this.renderer.createElement("span");
                 this.renderer.addClass(resizer, "resize-holder");
                 this.renderer.appendChild(this.elementRef.nativeElement, resizer);
-                const mouseDown = this.renderer.listen(resizer, "mousedown", this.onMouseDown);
-                const resizerMove = this.renderer.listen(resizer, "mousemove", () => this.handleResizerEvents(true));
-                const resizerout = this.renderer.listen(resizer, "mouseout", () => this.handleResizerEvents(false));
-                this._resizerUnsubscriber = () => {
-                    mouseDown();
-                    resizerMove();
-                    resizerout();
-                    this.renderer.removeChild(this.elementRef.nativeElement, resizer);
-                };
-            } else if (!enabled && this._resizerUnsubscriber) {
-                this._resizerUnsubscriber?.();
-                this._resizingUnsubscriber?.();
-                this._resizerUnsubscriber = undefined;
-                this._resizingUnsubscriber = undefined;
+                this.eventManager.register('enable-resize', () => this.renderer.removeChild(this.elementRef.nativeElement, resizer));
+                this.eventManager.listenAndRegister('enable-resize', resizer, ['mousemove', 'mouseout'], e => this.handleResizerEvents(e));
+                this.eventManager.listenAndRegister<MouseEvent>('enable-resize', resizer, 'mousedown', e => this.onMouseDown(e));
+            } else if (!enabled && registered) {
+                this.eventManager.unRegisterAll();
             }
         });
     }
@@ -165,13 +155,8 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     private onMouseDown = (event: MouseEvent) => {
         event.stopPropagation();
         event.preventDefault();
-        const tableMove = fromEvent<MouseEvent>(document, 'mousemove').pipe(auditTime(0, RESIZE_SCHEDULER)).subscribe(this.onMouseMove)
-        const mouseUp = this.renderer.listen("document", "mouseup", this.onMouseUp);
-        this._resizingUnsubscriber = () => {
-            tableMove.unsubscribe();
-            mouseUp();
-            this._resizingUnsubscriber = undefined;
-        };
+        this.eventManager.listenAndRegisterFrom('resizing', document, 'mousemove', this.onMouseMove, auditTime(0, SMOOTH_SCHEDULER));
+        this.eventManager.listenAndRegister('resizing', "document", "mouseup", this.onMouseUp);
         this.pressed = true;
         this.startX = event.pageX;
         this.startWidth = this.elementRef.nativeElement.offsetWidth;
@@ -193,10 +178,11 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
     private onMouseUp = (event: MouseEvent) => {
         event.stopPropagation();
         event.preventDefault();
-        this._resizingUnsubscriber?.();
+        this.eventManager.unRegister('resizing');
+        //this._resizingUnsubscriber?.();
         if (this.pressed) {
             this.pressed = false;
-            this.renderer.removeClass(this._tableElement, "resizing");
+            this.renderer.removeClass(this._tableElement, "cs-table-resizing");
             this.renderer.removeStyle(this._tableElement, this._cssBorderVariable, RendererStyleFlags2.DashCase);
         }
     };

@@ -99,7 +99,7 @@ export class CSDialogHostComponent<TResult, TData> implements ICSDialogHost<TRes
     }
 
     private _proceedAccept(event: ICSButtonArgs) {
-        const resultFn = this.config.getResult ?? this._csInstance?.getResult;
+        const resultFn = this.config.getResult ?? this._csInstance?.getResult?.bind(this._csInstance);
         if (resultFn) {
             const result = resultFn(event.button.progress);
             if (isObservable(result)) {

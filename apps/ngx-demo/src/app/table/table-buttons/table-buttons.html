@@ -53,6 +53,14 @@
         }
         <span>Show Symbol Column</span>
     </button>
+    <button mat-menu-item (click)="isResizable=!isResizable">
+        @if(isResizable){
+        <mat-icon>done</mat-icon>
+        }@else {
+        <mat-icon></mat-icon>
+        }
+        <span>Toggle Resizable</span>
+    </button>
 </mat-menu>
 <button mat-button (click)="select3rdRow()">Select 3rd Row</button>
 
@@ -60,3 +68,4 @@
 <mat-slider [max]="200" [min]="20" [step]="5" discrete>
     <input matSliderThumb (valueChange)="rowHeight= rowHeight=$event">
 </mat-slider>
+<ng-content></ng-content>

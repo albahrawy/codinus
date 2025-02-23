@@ -1,0 +1,65 @@
+/* @import './_theme.scss'; */
+
+:host {
+  --_cs-gutter-background-color: var(--cs-gutter-background-color, #eeeeee);
+  --_cs-gutter-icon-horizontal: var(--cs-gutter-icon-horizontal,
+      url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='));
+  --_cs-gutter-icon-vertical: var(--cs-gutter-icon-vertical,
+      url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFCAMAAABl/6zIAAAABlBMVEUAAADMzMzIT8AyAAAAAXRSTlMAQObYZgAAABRJREFUeAFjYGRkwIMJSeMHlBkOABP7AEGzSuPKAAAAAElFTkSuQmCC'));
+  --_cs-gutter-icon-disabled: var(--cs-gutter-icon-disabled,
+      url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg=='));
+    --_cs-gutter-disabled-cursor: var(--cs-gutter-disabled-cursor, default);
+}
+
+:host {
+  display: grid;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+:host(.cs-splitter-transition) {
+  transition: grid-template var(--cs-transition-duration, 0.3s);
+}
+
+.cs-splitter-gutter {
+  background-color: var(--_cs-gutter-background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+
+  :host(.cs-splitter-horizontal)>& {
+    cursor: col-resize;
+    height: 100%;
+  }
+
+  :host(.cs-splitter-vertical)>& {
+    cursor: row-resize;
+    width: 100%;
+  }
+
+  :host(.cs-splitter-disabled)>& {
+    cursor: var(--cs-gutter-disabled-cursor, default);
+  }
+}
+
+.cs-splitter-gutter-handle {
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+
+  :host(.cs-splitter-horizontal)>.cs-splitter-gutter>& {
+    background-image: var(--_cs-gutter-icon-horizontal);
+  }
+
+  :host(.cs-splitter-vertical)>.cs-splitter-gutter>& {
+    background-image: var(--_cs-gutter-icon-vertical);
+  }
+
+  :host(.cs-splitter-disabled)>.cs-splitter-gutter>& {
+    background-image: var(--_cs-gutter-icon-disabled);
+  }
+}

@@ -1,0 +1,16 @@
+<cs-splitter unit="percent" class="cs-form-section-array-splitter">
+    <cs-splitter-pane class="cs-form-section-array-list-pane" [size]="listWidth()">
+        <cs-selection-list-panel class="cs-form-section-array-list-control" [dataSource]="value"
+            [activateFirstItem]="true" [optionHeight]="optionHeight()" [displayMember]="displayMember()"
+            [iconMember]="iconMember()" [multiple]="multiple()" [togglePosition]="_togglePosition()"
+            [disableMember]="disableMember()" [iconType]="iconType()" [showIndex]="showIndex()"
+            [showTitle]="showTitle()" [readOnly]="readOnly()" [enableDrag]="enableDrag()" [selectOnlyByCheckBox]="true"
+            (currentChanged)="_onCurrentChanged($event)" (conextMenuOpening)="conextMenuOpening.emit($event)">
+        </cs-selection-list-panel>
+    </cs-splitter-pane>
+    <cs-splitter-pane [size]="contentWidth()" class="cs-form-section-array-form-view"
+        [class.cs-form-section-array-form-view-hasItems]="value?.length">
+        <ng-container #contentOutlet="csOutlet" cs-outlet></ng-container>
+        <ng-container #conditionalOutlet="csOutlet" cs-outlet></ng-container>
+    </cs-splitter-pane>
+</cs-splitter>

@@ -4,7 +4,8 @@
     <cs-button-container [buttons]="options.titleButtons" [disabled]="busy()" (buttonClicked)="buttonClicked($event)"
         class="cs-dialog-title-buttons small-mini-fab"></cs-button-container>
 </div>
-<mat-dialog-content class="cs-dialog-content-area" [style.overflow]="options.overflow">
+<mat-dialog-content class="cs-dialog-content-area" [class.cs-dialog-content-area-no-padding]="options.noPadding"
+    [style.overflow]="options.overflow">
     @if(message){
     <div class="cs-dialog-message" [innerHTML]="message|safeHtml">{{message}}</div>
     }@else if(message$){
@@ -16,7 +17,7 @@
 
 @if (hasActionBar) {
 <mat-dialog-actions align="end" class="cs-dialog-actions">
-    <cs-button-container [buttons]="options.actionBar?.buttons" [disabled]="busy()" (buttonClicked)="buttonClicked($event)"
-        class="cs-dialog-bar-buttons"></cs-button-container>
+    <cs-button-container [buttons]="options.actionBar?.buttons" [disabled]="busy()"
+        (buttonClicked)="buttonClicked($event)" class="cs-dialog-bar-buttons"></cs-button-container>
 </mat-dialog-actions>
 }

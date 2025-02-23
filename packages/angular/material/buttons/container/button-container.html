@@ -8,7 +8,7 @@
     <mat-icon [fontIcon]="btn.args.icon??''" />
 </button>
 }@else {
-<button [mat-button]="btn.args.type" [class]="btn.args.cssClass" [disabled]="btn.args.disabled||disabled"
+<button [mat-button]="btn.args.type" [class]="btn.args.cssClass" [disabled]="btn.args.disabled||disabled()"
     [class]="btn.args.cssClass" [addOnProgress]="btn.args.progress.type" [cssClass]="btn.args.progress.cssClass"
     [hidden]="btn.args.hidden" [progressMode]="btn.args.progress.mode" [progressValue]="btn.args.progress.value"
     [style.order]="btn.args.order" [progressPosition]="btn.args.progress.position" [matTooltip]="btn.args.tooltip"

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @license
  * Copyright albahrawy All Rights Reserved.
@@ -21,10 +22,14 @@ const imageExtensions = ['jpg', 'png', 'gif', 'bmp', 'jpeg', 'jpe', 'tif', 'tiff
 
 const getType = (value: unknown) => Object.prototype.toString.call(value).slice(8, -1);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isType = <T>(value: unknown, type: string, instance: T): value is T => typeof value === type || value instanceof (instance as any);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * Checks if the given value is an instance of HTMLElement.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is an HTMLElement, otherwise false.
+ */
 export const isHTMLElement = (value: any): value is HTMLElement => {
     return value != null && (
         (window.HTMLElement && value instanceof HTMLElement) ||
@@ -32,156 +37,200 @@ export const isHTMLElement = (value: any): value is HTMLElement => {
     );
 }
 
-/**
- * Type-checking utility function to determine if the given value is an object.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is an object, false otherwise.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isObject = (value: unknown): value is Record<string, any> => typeof value === 'object' && value?.constructor === Object;
 
 /**
- * Type-checking utility function to determine if the given value is a class.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a class, false otherwise.
+ * Checks if a value is a plain object.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a plain object, otherwise false.
+ */
+export const isObject = (value: unknown): value is Record<string, any> => typeof value === 'object' && value?.constructor === Object;
+
+
+/**
+ * Checks if the given value is a class.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a class, otherwise `false`.
  */
 export const isClass = (value: unknown): boolean => !!value && typeof value === 'object' && classReqx.test(value.constructor.toString());
 
+
 /**
- * Type-checking utility function to determine if the given value is a string.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a string, false otherwise.
+ * Checks if the given value is of type string.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a string, otherwise false.
  */
 export const isString = (value: unknown): value is string => isType(value, 'string', String);
 
+
 /**
- * Type-checking utility function to determine if the given value is a boolean.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a boolean, false otherwise.
+ * Checks if the given value is of type boolean.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a boolean, otherwise false.
  */
 export const isBoolean = (value: unknown): value is boolean => isType(value, 'boolean', Boolean);
 
+
 /**
- * Type-checking utility function to determine if the given value is a number.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a number, false otherwise.
+ * Checks if the given value is a finite number and not NaN.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a finite number and not NaN, otherwise false.
  */
 export const isNumber = (value: unknown): value is number => isType(value, 'number', Number) && Number.isFinite(value) && !Number.isNaN(value);
 
+
 /**
- * Type-checking utility function to determine if the given value is a bigInt.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a bigInt, false otherwise.
+ * Checks if the provided value is of type `bigint`.
+ *
+ * @param value - The value to check.
+ * @returns A boolean indicating whether the value is a `bigint`.
  */
 export const isBigInt = (value: unknown): value is bigint => isType(value, 'bigint', BigInt);
 
+
 /**
- * Type-checking utility function to determine if the given value is a Hexdecimal number.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a Hexdecimal number, false otherwise.
+ * Checks if the given value is a hexadecimal number string.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a hexadecimal number string, false otherwise.
  */
 export const isNumberHex = (value: unknown): value is string => typeof value === 'string' && hexRegex.test(value);
 
+
 /**
- * Type-checking utility function to determine if the given value is a number in a string format.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a number in a string format, false otherwise.
+ * Checks if the given value is a string that represents a valid number.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a string that can be converted to a number and back to the same string, otherwise `false`.
  */
 export const isNumberString = (value: unknown): boolean => typeof value === 'string' && !!value && (+value).toString() === value;
 
+
 /**
- * Type-checking utility function to determine if the given value is a symbol.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a symbol, false otherwise.
+ * Checks if a value is of type symbol.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a symbol, otherwise false.
  */
 export const isSymbol = (value: unknown): value is symbol => typeof value == 'symbol' || getType(value) === 'Symbol';
 
-/**
- * Type-checking utility function to determine if the given value is a array.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a array, false otherwise.
- */
 
+/**
+ * Checks if the provided value is an array or a readonly array.
+ *
+ * @template T - The type of elements in the array.
+ * @param value - The value to check.
+ * @returns True if the value is an array or a readonly array, otherwise false.
+ */
 export function isArray<T>(value: T[] | readonly T[] | unknown): value is Array<T> | ReadonlyArray<T> {
     return Array.isArray?.(value) || value instanceof Array;
 }
+
 /**
- * Type-checking utility function to determine if the given value is a TypedArray.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a TypedArray, false otherwise.
- * @description TypedArray is one of  Float32Array | Float64Array | Int8Array | Int16Array | Int32Array
-    | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray
+ * Checks if the provided value is a typed array.
+ *
+ * This function verifies whether the given value is a typed array by
+ * checking if it is not null and matches the regular expression for
+ * typed arrays.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a typed array, false otherwise.
  */
 export const isTypedArray = (value: unknown): value is TypeArrayLike => value != null && typeArrayReqx.test(Object.prototype.toString.call(value));
 
 /**
- * Type-checking utility function to determine if the given value is a Arguments.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a Arguments, false otherwise.
+ * Checks if the provided value is an array-like object representing function arguments.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is an array-like object representing function arguments, otherwise false.
  */
 export const isArgumentsArray = (value: unknown): value is ArrayLike<unknown> => getType(value) === 'Arguments';
 
 /**
- * Type-checking utility function to determine if the given value is a function.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a function, false otherwise.
+ * Checks if the given value is a function.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a function, otherwise false.
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export const isFunction = (value: unknown): value is Function => typeof value === 'function';
 
 /**
- * Type-checking utility function to determine if the given value is a string represented JS function.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a string represented JS function, false otherwise.
+ * Checks if the given value is a string that matches the pattern of a function or an arrow function.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a string and matches the function or arrow function pattern, otherwise `false`.
  */
 export const isFunctionString = (value: unknown): boolean => typeof value === 'string' && (funcRegx.test(value) || arrowFuncRegx.test(value));
 
 /**
- * Type-checking utility function to determine if the given value is a JS date.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a JS date, false otherwise.
+ * Checks if the given value is a Date object.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a Date object, otherwise false.
  */
 export const isDate = (value: unknown): value is Date => value instanceof Date || getType(value) === 'Date';
 
 /**
- * Type-checking utility function to determine if the given value is a Map.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a Map, false otherwise.
+ * Checks if the provided value is a Map.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a Map, otherwise false.
  */
 export const isMap = (value: unknown): value is Map<unknown, unknown> => value instanceof Map || getType(value) === 'Map';
 
 /**
- * Type-checking utility function to determine if the given value is a Set.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is a Set, false otherwise.
+ * Checks if the provided value is a Set.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a Set, otherwise false.
  */
 export const isSet = (value: unknown): value is Set<unknown> => value instanceof Set || getType(value) === 'Set';
 
+
 /**
- * Type-checking utility function to determine if the given extension is an image file extension.
- * @param {string} extension - The extension to be checked.
- * @returns {boolean} - True if the extension is an image file extension, false otherwise.
+ * Checks if the given file extension corresponds to an image file.
+ *
+ * @param extension - The file extension to check.
+ * @returns `true` if the extension is an image file extension, otherwise `false`.
  */
 export const isImageFile = (extension: string): boolean => imageExtensions.includes(extension?.toLowerCase());
 
 /**
- * Type-checking utility function to determine if the given value is a primitive type.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is not an object and not a function, false otherwise.
+ * Checks if a value is a primitive type.
+ *
+ * A primitive type is `null`, `undefined`, `string`, `number`, `boolean`, `symbol`, or `bigint`.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a primitive type, otherwise `false`.
  */
 export const isPrimitive = (value: unknown): boolean => value == null || (typeof value != 'object' && typeof value != 'function');
 
 /**
- * Type-checking utility function to determine if the given value is a RegExp.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is RegExp, false otherwise.
+ * Checks if the given value is an instance of RegExp.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is a RegExp instance, otherwise false.
  */
 export const isRegExp = (value: unknown): value is RegExp => value instanceof RegExp;
 
+
 /**
- * Type-checking utility function to determine if the given value is an empty value.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is empty, false otherwise.
+ * Checks if a value is empty.
+ * 
+ * A value is considered empty if it is:
+ * - `null` or `undefined`
+ * - An array, string, typed array, or arguments array with a length of 0
+ * - A Map or Set with a size of 0
+ * - An object with no own enumerable properties
+ * - Any other value is considered empty
+ * 
+ * @param value - The value to check for emptiness.
+ * @returns `true` if the value is empty, otherwise `false`.
  */
 export function isEmpty(value: unknown): boolean {
     if (value == null)
@@ -193,15 +242,19 @@ export function isEmpty(value: unknown): boolean {
     if (isMap(value) || isSet(value))
         return !value.size;
     if (isObject(value))
-        return !Object.keys(value).length;
-    return true;
+        return !Object.values(value).some(v => v != null);
+    return !value;
 }
 
 /**
- * Type-checking utility function to determine if two values are equal.
- * @param {any} first - The first value to compare.
- * @param {any} second - The second value to compare.
- * @returns {boolean} - True if the values are equal, false otherwise.
+ * Compares two values to determine if they are equal.
+ * 
+ * This function performs a deep comparison between two values to determine if they are equivalent.
+ * It supports comparison of primitive values, objects, arrays, and dates.
+ * 
+ * @param first - The first value to compare.
+ * @param second - The second value to compare.
+ * @returns `true` if the values are equal, `false` otherwise.
  */
 export function isEqual(first: unknown, second: unknown): boolean {
     if (first == null && second == null || first === second)
@@ -242,11 +295,13 @@ export function isEqual(first: unknown, second: unknown): boolean {
     return first === second;
 }
 
+
 /**
- * Type-checking utility function to determine if the given value is an instance of a specific class.
- * @param {Constructor} Ctor - The constructor function of the class.
- * @param {any} value - The value to be checked.
- * @returns {boolean} - True if the value is an instance of the class or matches the specified conditions, false otherwise.
+ * Checks if a given value is an instance of a specified constructor.
+ *
+ * @param Ctor - The constructor function to check against.
+ * @param value - The value to check.
+ * @returns `true` if the value is an instance of the constructor or matches certain conditions for objects, otherwise `false`.
  */
 export function is(Ctor: Constructor, value: unknown): boolean {
     return value instanceof Ctor || value != null &&

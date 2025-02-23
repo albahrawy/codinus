@@ -1,0 +1,62 @@
+.cs-icon-browser {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    --cs-icon-browser-item-size: 100px;
+    flex: 1 1 auto;
+}
+
+.cdk-virtual-scroll-viewport.cs-icon-browser-container {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+
+    .cdk-virtual-scroll-content-wrapper {
+        max-width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, var(--cs-icon-browser-item-size));
+        gap: 4px;
+    }
+}
+
+.cs-icon-browser-icon-box {
+    border: 1px solid lightgray;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    gap: 0 4px;
+    width: var(--cs-icon-browser-item-size);
+    height: var(--cs-icon-browser-item-size);
+    cursor: pointer;
+    user-select: none;
+
+    &.selected {
+        border: 2px solid;
+        border-color: var(--mat-sys-primary);
+        background-color: var(--mat-sys-primary);
+        color: var(--mat-sys-on-primary);
+    }
+}
+
+.cs-icon-browser-icon-text {
+    text-overflow: ellipsis;
+    font-size: 0.7em;
+    max-width: var(--cs-icon-browser-item-size);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.cs-icon-browser-icon {
+    --cs-icon-browser-icon-size: calc(var(--cs-icon-browser-item-size) * 0.45);
+    width: var(--cs-icon-browser-icon-size);
+    height: var(--cs-icon-browser-icon-size);
+    line-height: var(--cs-icon-browser-icon-size);
+    font-size: var(--cs-icon-browser-icon-size);
+}

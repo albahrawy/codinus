@@ -21,9 +21,17 @@ export function hasFlag(value: number, flag: number): boolean {
 }
 
 /**
- * Converts a number to an array of its binary bit values.
- * @param {number} value - The number to convert to bit values.
- * @returns {number[]} - An array of binary bit values of the given number.
+ * Converts a given number into an array of bit values.
+ * Each bit value represents the power of 2 corresponding to the set bits in the binary representation of the input number.
+ *
+ * @param value - The number to be converted into bit values.
+ * @returns An array of numbers, each representing a power of 2 corresponding to the set bits in the input number.
+ *
+ * @example
+ * ```typescript
+ * toBitValues(5); // returns [1, 4] because 5 in binary is 101
+ * toBitValues(10); // returns [2, 8] because 10 in binary is 1010
+ * ```
  */
 export function toBitValues(value: number): number[] {
     const data: number[] = [];
@@ -60,9 +68,15 @@ export function numberBetween(value: number, min: number, max: number): boolean 
 }
 
 /**
- * Generates the options object for formatting a number based on the format string.
- * @param {string} [formatString] - The format string for the number formatting.
- * @returns {Intl.NumberFormatOptions | undefined} - The options object for formatting the number, or undefined if formatString is empty or invalid.
+ * Generates an `Intl.NumberFormatOptions` object based on the provided format string.
+ *
+ * @param formatString - An optional string that specifies the desired number format.
+ *                       - If the string includes '%', the style will be set to 'percent'.
+ *                       - If the string includes ',', grouping will be enabled.
+ *                       - The number of fraction digits will be determined by the position of '.' in the string.
+ *                         If '.' is present, the number of digits after it will be used as the fraction digits.
+ *                         If '.' is not present, the fraction digits will be set to 0.
+ * @returns An `Intl.NumberFormatOptions` object if any options are set, otherwise `undefined`.
  */
 export function generateFormatOption(formatString?: string): Intl.NumberFormatOptions | undefined {
     const options: Intl.NumberFormatOptions = {};
@@ -70,63 +84,45 @@ export function generateFormatOption(formatString?: string): Intl.NumberFormatOp
         if (formatString.includes('%')) { options.style = 'percent'; }
         if (formatString.includes(',')) { options.useGrouping = true; }
         const pointPosition = formatString.indexOf('.');
-        options.maximumFractionDigits = pointPosition > -1 ?
-            options.minimumFractionDigits = formatString.replace('%', '').length - pointPosition - 1
-            : options.maximumFractionDigits = 0;
+        if (pointPosition > -1) {
+            options.maximumFractionDigits = formatString.replace('%', '').length - pointPosition - 1;
+            options.minimumFractionDigits = options.maximumFractionDigits;
+        } else {
+            options.maximumFractionDigits = 0;
+        }
     }
 
     return Object.keys(options).length ? options : undefined;
 }
 
-// export function generateFormatOption(formatString?: string): Intl.NumberFormatOptions | undefined {
-//     const options: Intl.NumberFormatOptions = {};
-
-//     if (formatString) {
-//         if (formatString.includes(',')) {
-//             options.useGrouping = true;
-//         }
-
-//         const fractionDigitsMatch = formatString.match(/\.0*/);
-//         if (fractionDigitsMatch) {
-//             options.maximumFractionDigits = options.minimumFractionDigits = fractionDigitsMatch[0].length - 1;
-//         }
-
-//         if (formatString.includes('%')) {
-//             options.style = 'percent';
-//         }
-
-//         const padStartMatch = formatString.match(/P([.%#0,]*)/);
-//         if (padStartMatch) {
-//             const [, padChar, padLength] = padStartMatch;
-//             options.padStart = { padChar, padLength: parseInt(padLength) };
-//         }
-//     }
-
-//     return Object.keys(options).length ? Object.freeze(options) : undefined;
-// }
-
-
 
 /**
- * Formats a number based on the provided format string and locale.
- * @param {number} value - The number to format.
- * @param {string} [formatString] - The format string for formatting the number. 
- * if any litteral string used format should be in curly brackets {} 
- * @param {string} [locale] - The locale to use for formatting. If not provided, the default locale is used.
- * @example 
- * formatNumber(12345, "#,###.00")
- * formatNumber(12345, "Value is {#,###.00"})
- * @returns {string} - The formatted number as a string.
+ * Formats a number according to the specified format string and locale.
+ * 
+ * @param value - The number to format
+ * @param formatString - Optional format string that defines how the number should be formatted.
+ *                      If the format string contains a pattern like {n}, that section will be 
+ *                      replaced with the formatted number.
+ * @param locale - Optional locale string (e.g., 'en-US', 'de-DE') to determine the formatting rules
+ * @returns A string representation of the formatted number
+ * 
+ * @example
+ * // Returns "1,234.56"
+ * formatNumber(1234.56, undefined, "en-US")
+ * 
+ * @example
+ * // With format string containing pattern
+ * // Returns "The value is 1,234.56!"
+ * formatNumber(1234.56, "The value is {n}!", "en-US")
  */
 export function formatNumber(value: number, formatString?: string, locale?: string): string {
-    let options: Intl.NumberFormatOptions | undefined;
     if (formatString) {
         if (numberFormatRegex.test(formatString))
             return formatString.replace(numberFormatRegex, (match) => formatCore(value, match.slice(1, -1), locale));
         else
             return formatCore(value, formatString, locale);
     }
-    return value.toLocaleString(locale, options);
+    return value.toLocaleString(locale);
 }
 
 function formatCore(value: number, format: string, locale?: string) {
@@ -146,12 +142,13 @@ function formatCore(value: number, format: string, locale?: string) {
  */
 export function formatFileSize(size: number, locale?: string): string {
     if (!isFinite(size) || size <= 0) {
-        return '0';
+        return '0 bytes';
     }
     const unitDisplay = locale?.startsWith('ar') ? 'long' : 'short';
     const units = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte'];
     const sizeNumber = Math.floor(Math.log(size) / Math.log(1024));
-    const finalSize = +(size / Math.pow(1024, sizeNumber)).toFixed(2);
+    const finalSize = +(size / (1 << (10 * sizeNumber))).toFixed(2);
+    // The unitDisplay variable is set to 'long' for Arabic locales and 'short' for others.
     return new Intl.NumberFormat(locale, { style: 'unit', unitDisplay, unit: units[sizeNumber] }).format(finalSize);
 }
 

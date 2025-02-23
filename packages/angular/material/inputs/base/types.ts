@@ -4,7 +4,7 @@ export type PasswordRevealMode = 'click' | 'hover';
 export type PasswordRevealButtonMode = Nullable<'always' | 'value' | 'none' | ''>;
 
 export type CSCalendarView = 'month' | 'year' | 'multi-year';
-export type CSDateRangeRequired = Nullable<"start" | "end" | boolean | ''>;
+export type CSDateRangeRequired = Nullable<"start" | "end" | "true" | "false" | boolean | ''>;
 export interface ICSDateRange<D> {
     start?: D | string | null,
     end?: D | string | null;
@@ -17,7 +17,7 @@ export interface IMatFormFieldSupport<TValue> {
     readonly empty: boolean;
     readonly autofilled?: boolean;
     readonly specialFocusState?: boolean;
-    focus(): void;
+    focus?(): void;
     writeValue(value: TValue): void;
     setDisabledState(isDisabled: boolean): void;
     onContainerClick?: (event: MouseEvent) => void;

@@ -2,7 +2,7 @@ import { Directive, ElementRef, effect, inject, input } from '@angular/core';
 import { CSButtonStyle } from './types/types';
 
 const HOST_SELECTOR_MDC_CLASS_PAIR: { [key: string]: string[]; } = {
-    'button': ['mdc-button', 'mat-mdc-button'],
+    'basic': ['mdc-button', 'mat-mdc-button'],
     'flat': ['mdc-button', 'mdc-button--unelevated', 'mat-mdc-unelevated-button'],
     'raised': ['mdc-button', 'mdc-button--raised', 'mat-mdc-raised-button'],
     'stroked': ['mdc-button', 'mdc-button--outlined', 'mat-mdc-outlined-button']
@@ -18,7 +18,7 @@ export class CSMatButtonStyle {
     private elementRef: ElementRef<HTMLElement> = inject(ElementRef);
     private _currentStyle = '';
     private _styleEffect = effect(() => {
-        const style = this.buttonStyle() || 'button';
+        const style = this.buttonStyle() || 'basic';
         const _classList = this.elementRef.nativeElement.classList;
         if (this._currentStyle) {
             const _oldList = HOST_SELECTOR_MDC_CLASS_PAIR[this._currentStyle];

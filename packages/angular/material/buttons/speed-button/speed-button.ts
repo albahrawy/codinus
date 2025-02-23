@@ -1,17 +1,19 @@
 import { ConnectedPosition, Overlay, OverlayConfig, OverlayModule, OverlayRef } from '@angular/cdk/overlay';
 import { CdkPortal, PortalModule } from '@angular/cdk/portal';
 import {
-    Component, ElementRef, EventEmitter, Output, ViewEncapsulation, booleanAttribute,
-    computed, effect, inject, input, signal, viewChild, viewChildren
+    Component, ElementRef, EventEmitter, Output, ViewEncapsulation, computed, effect, inject,
+    input, signal, viewChild, viewChildren
 } from '@angular/core';
 import { MatButtonModule, MatMiniFabButton } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { booleanTrueAttribute } from '@ngx-codinus/core/shared';
 import { Subscription, forkJoin, fromEvent, take } from 'rxjs';
 import { CSButtonContainerBase } from '../base/button-container-base';
 import {
-    ICSFabButton, ICSSpeedButtonArgs, ICSSpeedButtonConfig, CSSpeedButtonAnimation,
-    CSSpeedButtonDirection, CSSpeedButtonMode
+    CSSpeedButtonAnimation,
+    CSSpeedButtonDirection, CSSpeedButtonMode,
+    ICSFabButton, ICSSpeedButtonArgs, ICSSpeedButtonConfig
 } from '../types/types';
 
 
@@ -57,8 +59,8 @@ export class CSSpeedButton
     @Output() readonly stateChanged = new EventEmitter<boolean>();
 
     mode = input<CSSpeedButtonMode, CSSpeedButtonMode | undefined>('hover', { transform: v => v ?? 'hover' });
-    mini = input(true, { transform: booleanAttribute });
-    lazyEvent = input(true, { transform: booleanAttribute });
+    mini = input(true, { transform: booleanTrueAttribute });
+    lazyEvent = input(true, { transform: booleanTrueAttribute });
     triggerIcon = input('more_vert');
     spin = input<false | number>(90);
     direction = input<CSSpeedButtonDirection>('down');

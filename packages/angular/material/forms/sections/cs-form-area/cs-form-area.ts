@@ -8,9 +8,7 @@ import { MatAccordionDisplayMode, MatAccordionTogglePosition, MatExpansionModule
 import { MatIconModule } from "@angular/material/icon";
 import { MatTabsModule } from '@angular/material/tabs';
 import { Nullable } from "@codinus/types";
-import {
-    CODINUS_CDK_FLEX_DIRECTIVES, LayoutFlexContainerBaseDirective, createFlexPropertyFromColumns
-} from "@ngx-codinus/core/layout";
+import { CODINUS_CDK_FLEX_DIRECTIVES, GridFlexContainerBase } from "@ngx-codinus/core/layout";
 import { CSTabGroup, CSTabHeaderPosition } from "@ngx-codinus/material/tabs";
 import { CSFormAreaType } from "../types";
 import { CSFormAreaPanel } from "./cs-form-area-panel";
@@ -27,14 +25,12 @@ import { CSFormAreaPanel } from "./cs-form-area-panel";
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None,
 })
-export class CSFormArea extends LayoutFlexContainerBaseDirective {
-
+export class CSFormArea extends GridFlexContainerBase {
+    //TODO: implement disable proeprty for all display types
     displayType = input<CSFormAreaType>();
+
     cardWhensingle = input(false, { transform: booleanAttribute });
-
-    flexColumns = input<Nullable<string>>(null, { alias: 'flex-columns' });
-
-    tabsAnimationDuration = input('', { transform: (v: Nullable<string | number>) => v ?? '500ms' });
+    tabsAnimationDuration = input('500ms', { transform: (v: Nullable<string | number>) => v ?? '500ms' });
     tabsPosition = input('above', { transform: (v: Nullable<CSTabHeaderPosition>) => v ?? 'above' });
     tabsDynamicHeight = input(false, { transform: booleanAttribute });
     tabsPreserveContent = input(false, { transform: booleanAttribute });
@@ -47,7 +43,6 @@ export class CSFormArea extends LayoutFlexContainerBaseDirective {
     accordionTogglePosition = input('after', { transform: (v: Nullable<MatAccordionTogglePosition>) => v ?? 'after' });
     cardAppearance = input('outlined', { transform: (v: Nullable<MatCardAppearance>) => v ?? 'outlined' });
 
-    protected flexBasis = computed(() => createFlexPropertyFromColumns(this.flexColumns()));
     protected _panels = contentChildren(CSFormAreaPanel);
 
     protected _hasAccordionIcon = computed(() =>

@@ -1,6 +1,6 @@
 import {
-    AfterViewChecked, Component, ComponentRef, DestroyRef, Directive, ElementRef, OnDestroy, OnInit,
-    Renderer2, ViewContainerRef, booleanAttribute, forwardRef, inject, input, output, viewChild
+    AfterViewChecked, Component, ComponentRef, Directive, ElementRef, OnDestroy, Renderer2,
+    ViewContainerRef, booleanAttribute, forwardRef, inject, input, output, viewChild
 } from "@angular/core";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -11,13 +11,12 @@ import {
 import { MAT_FORM_FIELD, MatFormField } from "@angular/material/form-field";
 import { MAT_INPUT_VALUE_ACCESSOR } from "@angular/material/input";
 import { Nullable } from "@codinus/types";
-import { CSElementStateObserverService } from "@ngx-codinus/cdk/observer";
-import { CODINUS_ELEMENT_STATE_OBSERVER } from "@ngx-codinus/core/layout";
+import { CODINUS_ELEMENT_STATE_OBSERVER, CSElementStateObserverService } from "@ngx-codinus/core/observer";
 import { RUNTIME_MAT_FORM_FIELD } from "@ngx-codinus/core/shared";
 import { CSCalendarView } from "../base/types";
 import { enforceFormFieldSuffix } from "../internal";
 
-
+//TODO: Add MatDatepickerActions
 @Component({
     selector: 'cs-datepicker-control',
     host: { 'class': 'cs-datepicker-control' },
@@ -25,7 +24,12 @@ import { enforceFormFieldSuffix } from "../internal";
     template: `<mat-datepicker-toggle [for]="picker" [class.cs-datePicker-toggle-read-only]="readonly()"
     [disabled]="disabled()||readonly()||datePickerInput?.popupDisabled()"></mat-datepicker-toggle>
     <mat-datepicker [restoreFocus]="true" #picker [startView]="datePickerInput?.startView()!"
-    [dateClass]="datePickerInput?.dateClass()!"></mat-datepicker>`
+    [dateClass]="datePickerInput?.dateClass()!">
+    <!-- <mat-datepicker-actions>
+      <button mat-button matDatepickerCancel>Cancel</button>
+      <button mat-raised-button matDatepickerApply>Apply</button>
+    </mat-datepicker-actions> -->
+    </mat-datepicker>`
 })
 class InternalMatDatePickerComponent<D> implements AfterViewChecked {
 
@@ -78,11 +82,12 @@ class InternalMatDatePickerComponent<D> implements AfterViewChecked {
 }
 
 @Directive({
-    selector: 'input:[type=text][inputType="date"], input:not([type])[inputType="date"]',
+    selector: `input:not([matDatepicker]):[type=text][inputType="date"], 
+               input:not([matDatepicker]):not([type])[inputType="date"]`,
     exportAs: 'csDateInput',
     host: {
         'class': 'cs-input-button',
-        '(blur)': '_handleBlur($event)'
+        // '(blur)': '_handleBlur($event)'
     },
     providers: [
         { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => CSDateInput), multi: true },
@@ -91,27 +96,29 @@ class InternalMatDatePickerComponent<D> implements AfterViewChecked {
         { provide: MatDatepickerInput, useExisting: CSDateInput }
     ]
 })
-export class CSDateInput<D> extends MatDatepickerInput<D> implements OnInit, OnDestroy {
+export class CSDateInput<D> extends MatDatepickerInput<D> implements OnDestroy {
 
     private _viewContainerRef = inject(ViewContainerRef);
     private _stateObserverService = inject(CODINUS_ELEMENT_STATE_OBSERVER, { optional: true }) ?? inject(CSElementStateObserverService);
-    private _destroyRef = inject(DestroyRef);
     private formField = inject(MAT_FORM_FIELD, { optional: true, host: true }) ?? inject(RUNTIME_MAT_FORM_FIELD, { optional: true });
-    private __ = enforceFormFieldSuffix(this.formField);
 
-    pickerControl?: ComponentRef<InternalMatDatePickerComponent<D>>;
+    pickerControl: ComponentRef<InternalMatDatePickerComponent<D>>;
     leave = output<FocusEvent>();
     popupDisabled = input(false, { transform: booleanAttribute });
     inputDisabled = input(false, { transform: booleanAttribute });
     startView = input('month', { transform: (v: Nullable<CSCalendarView>) => v ?? 'month' });
     dateClass = input<Nullable<MatCalendarCellClassFunction<Date>>>();
 
-
-    ngOnInit(): void {
+    /**
+     *
+     */
+    constructor() {
+        super();
+        enforceFormFieldSuffix(this.formField);
         const pickerControl = this._viewContainerRef.createComponent(InternalMatDatePickerComponent<D>);
         pickerControl.instance.attach(this, this._elementRef.nativeElement, this.formField);
-        this._stateObserverService.stateObservable(this._elementRef.nativeElement)
-            .pipe(takeUntilDestroyed(this._destroyRef))
+        this._stateObserverService.watchState(this._elementRef.nativeElement)
+            .pipe(takeUntilDestroyed())
             .subscribe(e => {
                 pickerControl.setInput('disabled', e.disabled);
                 pickerControl.setInput('readonly', e.readonly);
@@ -122,6 +129,10 @@ export class CSDateInput<D> extends MatDatepickerInput<D> implements OnInit, OnD
     override ngOnDestroy(): void {
         super.ngOnDestroy();
         this.pickerControl?.destroy();
+    }
+
+    open() {
+        this._openPopup();
     }
 
     protected _handleBlur(event: FocusEvent) {

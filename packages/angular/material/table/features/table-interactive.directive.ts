@@ -1,14 +1,21 @@
-import { CDK_TABLE, CdkTable, RowOutlet } from "@angular/cdk/table";
-import { booleanAttribute, computed, Directive, effect, inject, input, output } from "@angular/core";
+import { Directionality } from "@angular/cdk/bidi";
+import { CDK_TABLE, CdkCellOutletRowContext, CdkTable, RowOutlet } from "@angular/cdk/table";
+import {
+    AfterViewInit, booleanAttribute, computed, Directive, effect, ElementRef, EmbeddedViewRef, inject, input, output,
+    signal,
+    untracked
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { focusElement, preventEvent } from "@codinus/dom";
-import { Nullable, ObjectGetter } from "@codinus/types";
-import { CSSelectionModel, normalizeGetterMember } from "@ngx-codinus/core/data";
+import { focusElement, preventEvent, scrollIntoViewIfNeeded } from "@codinus/dom";
+import { Nullable, ValueGetter } from "@codinus/types";
+import { CSSelectionModel, DefaultMemberFn, normalizeGetterMember } from "@ngx-codinus/core/data";
 import { map } from "rxjs";
-import { CODINUS_TABLE_API_REGISTRAR, CSTableSelectionChange, KeyboardNavigationType, SelectionType, SelectPredicate } from "../api";
-import { CSTableDataSourceDirective } from "../data";
-
-const DefaultValueFn = <T, V>(record: T) => record as unknown as V;
+import {
+    CODINUS_TABLE_API_REGISTRAR, CSTableSelectionChange, KeyboardNavigationType,
+    SelectionType, SelectPredicate
+} from "../api";
+import { CODINUS_DATA_SOURCE_DIRECTIVE, ICSTableDataSourceDirective } from "../data";
+import { CSTableApiSelectModel } from "./table-api-select-model";
 
 @Directive({
     selector: `cdk-table[keyboard-navigation],
@@ -23,51 +30,86 @@ const DefaultValueFn = <T, V>(record: T) => record as unknown as V;
         '[style.--cs-table-sticky-bottom.px]': 'stickyBottomHeight()',
         '[style.--cs-table-sticky-top.px]': 'stickyTopHeight()'
     },
+    exportAs: 'csTableInteractive'
 })
-export class CSInteractiveTableDirective<TRecord, TSelectValue> {
+export class CSInteractiveTableDirective<TRecord, TSelectValue> implements AfterViewInit {
 
     private _cdkTable: CdkTable<TRecord> = inject(CDK_TABLE);
     //TODO: handle selection after data changed
-    private readonly dataSourceDirective = inject(CSTableDataSourceDirective<TRecord>, { optional: true });
+    private readonly dataSourceDirective = inject<ICSTableDataSourceDirective<TRecord>>(CODINUS_DATA_SOURCE_DIRECTIVE, { optional: true });
     private _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
+    private _elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+    private _dir = inject(Directionality, { optional: true });
 
-    // private _renderer = inject(Renderer2);
-    // private _dir = inject(Directionality, { optional: true });
     private _tableContentChanged = toSignal(this._cdkTable.contentChanged.pipe(map(() => Math.random())));
-
     private _selectionModel = new CSSelectionModel<TSelectValue>(false, []);
-    protected stickyTopHeight = computed(() => {
+    private _pendingValue: TSelectValue[] | null = null;
+    private _initialized = false;
+    private _rndSignal = signal(0);
+
+    changedSignal = this._selectionModel.changedSignal;
+
+    stickyTopHeight = computed(() => {
+        this._rndSignal();
         this._tableContentChanged();
-        return calculateCdkTableSticky(this._cdkTable, this._cdkTable._headerRowOutlet);
+        return calculateCdkTableMetaRowsHeight(this._cdkTable, this._cdkTable._headerRowOutlet);
     });
 
-    protected stickyBottomHeight = computed(() => {
+    stickyBottomHeight = computed(() => {
+        this._rndSignal();
         this._tableContentChanged();
-        return calculateCdkTableSticky(this._cdkTable, this._cdkTable._footerRowOutlet);
+        return calculateCdkTableMetaRowsHeight(this._cdkTable, this._cdkTable._footerRowOutlet);
     });
+
+    headerHeight = computed(() => {
+        this._rndSignal();
+        this._tableContentChanged();
+        return calculateCdkTableMetaRowsHeight(this._cdkTable, this._cdkTable._headerRowOutlet, false);
+    });
+
+    footerHeight = computed(() => {
+        this._rndSignal();
+        this._tableContentChanged();
+        return calculateCdkTableMetaRowsHeight(this._cdkTable, this._cdkTable._footerRowOutlet, false);
+    });
+
 
     constructor() {
-
-        //this._apiRegistrar?.register('keyboardNavigationDirective', this);
-
-        // effect(() => {
-        //     this._tableContentChanged();
-        //     //this.updateEvents(this.navigationMode());
-        //     console.log('changed from signal');
-        // });
-
+        this._apiRegistrar?.register('tableApiSelectModel', new CSTableApiSelectModel(this));
         effect(() => this._selectionModel.multiple = this.selectable() === 'multiple');
+        effect(() => {
+            const data = this.dataSourceDirective?.getData();
+            const selection = this.getSelection();
+            if (selection.length > 0) {
+                if (!data || data.length == 0) {
+                    this._selectionModel.clear();
+                    return;
+                }
+                const valueGetterFn = this.selectableKeyFn();
+                const availableKeys = new Set(data.map(valueGetterFn));
+                const verifiedSelected = selection.filter((key) => availableKeys.has(key));
+                untracked(() => this.setSelection(verifiedSelected));
+            }
+        });
+    }
+
+    ngAfterViewInit(): void {
+        this._initialized = true;
+        if (this._pendingValue) {
+            this.setSelection(this._pendingValue);
+            this._pendingValue = null;
+        }
     }
 
     readonly selectionChange = output<CSTableSelectionChange<TRecord, TSelectValue>>();
 
     selectable = input('single', { transform: (v: Nullable<SelectionType>) => v || 'single' });
     navigationMode = input('row', { alias: 'keyboard-navigation', transform: (v: Nullable<KeyboardNavigationType>) => v || 'row' });
-    selectableKey = input<ObjectGetter<TRecord, TSelectValue>>();
+    selectableKey = input<ValueGetter<TRecord, TSelectValue>>();
     selectionPredicate = input<SelectPredicate<TRecord, TSelectValue>>();
     readOnly = input(false, { transform: booleanAttribute });
 
-    selectableKeyFn = computed(() => normalizeGetterMember(this.selectableKey(), DefaultValueFn<TRecord, TSelectValue>));
+    private selectableKeyFn = computed(() => normalizeGetterMember(this.selectableKey(), DefaultMemberFn<TRecord, TSelectValue>));
 
     //#region selection public methods
 
@@ -79,6 +121,11 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
         const value = this.selectableKeyFn()(row);
         return this.isSelectedByValue(value);
     }
+
+    hasSelection = computed(() => {
+        this._selectionModel.changedSignal();
+        return this._selectionModel.selected?.length > 0;
+    });
 
     isSelectedByValue(value: TSelectValue): boolean {
         return this._selectionModel.isSelected(value);
@@ -98,6 +145,15 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
         return this._selectByValueCore(null, value, 'toggle', raiseEvent);
     }
 
+    recalculateMetaRowsHeight() {
+        this._rndSignal.set(Math.random());
+
+    }
+
+    get inEditMode(): boolean {
+        return this._elementRef.nativeElement.getAttribute('editing-mode') === 'true';
+    }
+
     /** Selects all rows if they are not all selected; otherwise clear selection. */
     toggleAll(): void {
         if (!this._selectionModel.multiple)
@@ -113,25 +169,24 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
             return;
 
         const _data = this.selectionPredicate()
-            ? rowsToSelect.filter(v => this._isSelectableCore(null, v, 'select').success)
+            ? rowsToSelect.filter(v => this._isSelectableAllowedCore(null, v, 'select').success)
             : rowsToSelect;
 
         this._selectionModel.select(..._data);
         this.selectionChange.emit({ api: this._apiRegistrar?.getApi(), reason: 'all', selectedData: _data, type: 'select' });
     }
 
-    isSelectable(rowData: TRecord | null, keyValue: TSelectValue, type: 'select' | 'deselect'): boolean {
-        return this._isSelectableCore(rowData, keyValue, type).success;
+    isSelectableAllowed(rowData: TRecord | null, keyValue: TSelectValue, type: 'select' | 'deselect'): boolean {
+        return this._isSelectableAllowedCore(rowData, keyValue, type).success;
     }
 
-    select(row: TRecord, raiseEvent = true): boolean {
+    select(row: TRecord, raiseEvent = true, setFocus = false): boolean {
         const value = this.selectableKeyFn()(row);
-        return this._selectByValueCore(row, value, 'select', raiseEvent);
-
+        return this._selectByValueCore(row, value, 'select', raiseEvent, setFocus);
     }
 
-    selectByValue(value: TSelectValue, raiseEvent = false): boolean {
-        return this._selectByValueCore(null, value, 'select', raiseEvent);
+    selectByValue(value: TSelectValue, raiseEvent = false, setFocus = false): boolean {
+        return this._selectByValueCore(null, value, 'select', raiseEvent, setFocus);
 
     }
 
@@ -152,8 +207,13 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
             return this._selectionModel.clear() ?? false;
         }
 
+        if (!this._initialized) {
+            this._pendingValue = keys;
+            return false;
+        }
+
         if (this.selectionPredicate())
-            keys = keys.filter(r => this._isSelectableCore(null, r, 'select').success);
+            keys = keys.filter(r => this._isSelectableAllowedCore(null, r, 'select').success);
 
         if (this.selectable() === 'single')
             keys = [keys[0]];
@@ -177,54 +237,30 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
 
     moveByRow(event: KeyboardEvent, rowElement: HTMLElement): boolean {
         if (rowElement !== event.target)
-            return false;
-        const responsiveColumns = this._apiRegistrar?.tableApiResponsive?.columnsInRow() ?? 0;
-        if (responsiveColumns > 1) {
-            switch (event.code) {
-                case 'ArrowDown':
-                    return this._moveByPage(rowElement, event, responsiveColumns);
-                case 'ArrowRight':
-                    return this._moveToNextRow(rowElement, event);
-                case 'ArrowUp':
-                    return this._moveByPage(rowElement, event, -responsiveColumns);
-                case 'ArrowLeft':
-                    return this._moveToPreviousRow(rowElement, event);
-                case 'PageDown':
-                    return this._moveByPage(rowElement, event, responsiveColumns * 8);
-                case 'PageUp':
-                    return this._moveByPage(rowElement, event, responsiveColumns * -8);
-            }
-        } else {
-            switch (event.code) {
-                case 'ArrowDown':
-                    return this._moveToNextRow(rowElement, event);
-                case 'ArrowUp':
-                    return this._moveToPreviousRow(rowElement, event);
-                case 'PageDown':
-                    return this._moveByPage(rowElement, event, 8);
-                case 'PageUp':
-                    return this._moveByPage(rowElement, event, -8);
-            }
+            return true;
+        const nextRow = this._getNextRow(event.code, rowElement);
+        if (nextRow) {
+            preventEvent(event);
+            this._focusElement(nextRow);
+            return true;
         }
         return false;
     }
 
-    private _moveToPreviousRow(element: HTMLElement, event: KeyboardEvent): boolean {
-        preventEvent(event);
-        focusElement(element.previousElementSibling);
-        return true;
-    }
+    moveByCell(event: KeyboardEvent, cellElement: HTMLElement): boolean {
+        if (cellElement !== event.target)
+            return true;
 
-    private _moveToNextRow(element: HTMLElement, event: KeyboardEvent): boolean {
-        preventEvent(event);
-        focusElement(element.nextElementSibling);
-        return true;
-    }
+        const nextCell = this._getNextCell(event.code, cellElement);
+        if (nextCell) {
+            preventEvent(event);
+            if (nextCell.parentElement == cellElement.parentElement)
+                focusElement(nextCell, false);
+            else
+                this._scrollToElement(nextCell.parentElement)?.then(() => focusElement(nextCell));
 
-    private _moveByPage(element: HTMLElement, event: KeyboardEvent, count: number): boolean {
-        preventEvent(event);
-        const nextRow = this._getExpectedRowWithPage(element, count);
-        focusElement(nextRow);
+            return false;
+        }
         return true;
     }
 
@@ -240,7 +276,7 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
         });
     }
 
-    private _isSelectableCore(rowData: TRecord | null, keyValue: TSelectValue, type: 'select' | 'deselect')
+    private _isSelectableAllowedCore(rowData: TRecord | null, keyValue: TSelectValue, type: 'select' | 'deselect')
         : { success: false, dataItem?: Nullable<TRecord> } | { success: true, dataItem: TRecord } {
         if (this.readOnly() || this.selectable() === 'none')
             return { success: false };
@@ -270,12 +306,12 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
         return { success: false }
     }
 
-    private _selectByValueCore(dataRow: TRecord | null, value: TSelectValue, type: 'select' | 'deselect' | 'toggle', raiseEvent = false): boolean {
+    private _selectByValueCore(dataRow: TRecord | null, value: TSelectValue, type: 'select' | 'deselect' | 'toggle', raiseEvent = false, setFocus = false): boolean {
         const isToggle = type === 'toggle';
         if (type === 'toggle')
             type = this._selectionModel.isSelected(value) ? 'deselect' : 'select';
 
-        const selectable = this._isSelectableCore(dataRow, value, type);
+        const selectable = this._isSelectableAllowedCore(dataRow, value, type);
         if (selectable.success) {
             const success =
                 isToggle
@@ -285,10 +321,35 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
                         : this._selectionModel.select(value);
             if (success && raiseEvent) {
                 this._raiseSingleEvent(type, selectable.dataItem, value);
+                if (setFocus)
+                    this._tryToSetFocus(selectable.dataItem);
                 return true;
             }
         }
         return false;
+    }
+
+    private _tryToSetFocus(dataRow: TRecord) {
+        const viewContainer = this._cdkTable._rowOutlet.viewContainer;
+        for (let i = 0; i < viewContainer.length; i++) {
+            const viewRef = viewContainer.get(i) as EmbeddedViewRef<CdkCellOutletRowContext<TRecord>>;
+            if (viewRef.context.$implicit === dataRow) {
+                this._setFocusBasedOnNavigationType(viewRef.rootNodes.at(0));
+                break;
+            }
+        }
+    }
+
+    private _setFocusBasedOnNavigationType(rowElement?: HTMLElement) {
+        if (!rowElement)
+            return;
+        const mode = this.navigationMode();
+        if (mode === 'row') {
+            rowElement.focus();
+            return;
+        }
+        if (mode.startsWith('cell'))
+            (rowElement.childNodes.item(0) as HTMLElement)?.focus();
     }
 
     private _getRowByValue(keyValue: TSelectValue, data?: TRecord[]) {
@@ -310,172 +371,121 @@ export class CSInteractiveTableDirective<TRecord, TSelectValue> {
         return renderedRows.at(requiredIndex) ?? null;
     }
 
-    //#endregion
+    private _scrollToElement(element: Element | null) {
+        const rootMargin = this._apiRegistrar?.tableApiResponsive?.columnsInRow()
+            ? undefined
+            : `-${this.stickyTopHeight() ?? 0}px 0px -${this.stickyBottomHeight() ?? 0}px 0px`;
+        return scrollIntoViewIfNeeded(element, this._elementRef.nativeElement, rootMargin);
+    }
 
-    // private updateEvents(navigationMode: KeyboardNavigationType) {
-    //     if (navigationMode === 'none')
-    //         return;
+    private _focusElement(element: Element | null) {
+        this._scrollToElement(element)?.then(() => focusElement(element));
+    }
 
-    //     const stickyHeight = {
-    //         top: calculateCdkTableSticky(this._cdkTable, this._cdkTable._headerRowOutlet),
-    //         bottom: calculateCdkTableSticky(this._cdkTable, this._cdkTable._footerRowOutlet)
-    //     }
-    //     this.stickyHeight.set(stickyHeight);
+    private _getNextRow(code: string, rowElement: Element | null): Element | null {
+        if (!rowElement)
+            return null;
+        const responsiveColumns = this._apiRegistrar?.tableApiResponsive?.columnsInRow() ?? 0;
+        if (responsiveColumns > 1) {
+            switch (code) {
+                case 'ArrowDown':
+                    return this._getExpectedRowWithPage(rowElement, responsiveColumns);
+                case 'ArrowUp':
+                    return this._getExpectedRowWithPage(rowElement, -responsiveColumns);
+                case 'ArrowRight':
+                    return this._dir?.value === 'rtl'
+                        ? rowElement.previousElementSibling
+                        : rowElement.nextElementSibling;
+                case 'ArrowLeft':
+                    return this._dir?.value === 'rtl'
+                        ? rowElement.nextElementSibling
+                        : rowElement.previousElementSibling;
+                case 'PageDown':
+                    return this._getExpectedRowWithPage(rowElement, responsiveColumns * 8);
+                case 'PageUp':
+                    return this._getExpectedRowWithPage(rowElement, responsiveColumns * -8);
+            }
+        } else {
+            switch (code) {
+                case 'ArrowDown':
+                    return rowElement.nextElementSibling;
+                case 'ArrowUp':
+                    return rowElement.previousElementSibling;
+                case 'PageDown':
+                    return this._getExpectedRowWithPage(rowElement, 8);
+                case 'PageUp':
+                    return this._getExpectedRowWithPage(rowElement, -8);
+            }
+        }
+        return null;
+    }
 
-    //     const rowOutlet = this._cdkTable._rowOutlet;
-    //     for (let i = 0; i < rowOutlet.viewContainer.length; i++) {
-    //         const rowElement = (rowOutlet.viewContainer.get(i) as EmbeddedViewRef<unknown>).rootNodes[0] as HTMLElement;
-    //         if (rowElement.getAttribute('keyboard-event-binded'))
-    //             continue;
+    private _getNextCell(code: string, cellElement: HTMLElement): Element | null {
+        const responsiveColumns = (this._apiRegistrar?.tableApiResponsive?.columnsInRow() ?? 0) > 1;
+        switch (code) {
+            case 'ArrowDown':
+                return responsiveColumns
+                    ? this._getCellHorizontally(cellElement, this._dir?.value === 'rtl')
+                    : this._getCellVertically(cellElement, code);
+            case 'ArrowUp':
+                return responsiveColumns
+                    ? this._getCellHorizontally(cellElement, this._dir?.value !== 'rtl')
+                    : this._getCellVertically(cellElement, code);
+            case 'ArrowRight':
+                return responsiveColumns
+                    ? this._getCellVertically(cellElement, code)
+                    : this._getCellHorizontally(cellElement, this._dir?.value === 'rtl');
+            case 'ArrowLeft':
+                return responsiveColumns
+                    ? this._getCellVertically(cellElement, code)
+                    : this._getCellHorizontally(cellElement, this._dir?.value !== 'rtl');
+            case 'PageDown':
+            case 'PageUp':
+                return this._getCellVertically(cellElement, code);
+        }
+        return null;
+    }
 
-    //         rowElement.setAttribute('keyboard-event-binded', 'true');
-    //         switch (this.navigationMode()) {
-    //             case 'row':
-    //                 rowElement.tabIndex = 0;
-    //                 this._renderer.listen(rowElement, 'keydown', e => this._onRowKeyDown(rowElement, e));
-    //                 break;
-    //             case 'cell':
-    //             case 'cell-round':
-    //                 this._renderer.listen(rowElement, 'keydown.space', e => {
-    //                     if (Array.from(rowElement.children).includes(e.target))
-    //                         preventEvent(e);
-    //                 });
-    //                 rowElement.querySelectorAll('.cdk-cell').forEach((cell, index) => {
-    //                     this._renderer.listen(cell, 'keydown', e => this._onCellKeyDown(rowElement, cell as HTMLElement, index, e));
-    //                     cell.setAttribute('tabIndex', '0');
-    //                 });
-    //                 break;
-    //         }
+    private _getCellHorizontally(cellElement: Element, previous: boolean) {
+        const nextCell = previous
+            ? cellElement.previousElementSibling
+            : cellElement.nextElementSibling;
+        if (nextCell)
+            return nextCell;
+        const nextRow = this._getNextRow(previous ? 'ArrowUp' : 'ArrowDown', cellElement.parentElement);
+        const children = nextRow?.children;
+        return children ? children.item(previous ? children.length - 1 : 0) : null;
+    }
 
-    //     }
-    // }
+    private _getCellVertically(cellElement: Element, code: string) {
+        const index = this._getCellIndex(cellElement);
+        if (index === -1)
+            return null;
+        const nextRow = this._getNextRow(code, cellElement.parentElement);
+        return nextRow?.children.item(index) ?? null;
+    }
 
-    //#region row events
-
-    // private _onRowKeyDown(rowElement: HTMLElement, event: KeyboardEvent): boolean | void {
-    //     if (rowElement !== event.target)
-    //         return;
-    //     switch (event.code) {
-    //         case 'ArrowDown':
-    //             this._moveDownRow(rowElement, event);
-    //             break;
-    //         case 'ArrowUp':
-    //             this._moveUpRow(rowElement, event);
-    //             break;
-    //         case 'PageDown':
-    //             this._proceedPageKeyRow(rowElement, event, 10);
-    //             break;
-    //         case 'PageUp':
-    //             this._proceedPageKeyRow(rowElement, event, -10);
-    //             break;
-    //         case 'Space':
-    //             preventEvent(event);
-    //             break;
-    //     }
-    // }
-
-    // private _moveDownRow(element: HTMLElement, event: Event) {
-    //     preventEvent(event);
-    //     focusElement(element.nextElementSibling);
-    // }
-
-    // private _moveUpRow(element: HTMLElement, event: Event) {
-    //     preventEvent(event);
-    //     focusElement(element.previousElementSibling);
-    // }
-
-    // private _proceedPageKeyRow(element: HTMLElement, event: Event, count: number) {
-    //     preventEvent(event);
-    //     const nextRow = this._getExpectedRowWithPage(element, count);
-    //     focusElement(nextRow);
-    // }
-
-    // private _getExpectedRowWithPage(currentRow: Element | null, count: number) {
-    //     if (!currentRow || !currentRow.parentElement)
-    //         return null;
-    //     const renderedRows = Array.from(currentRow.parentElement.children) as Element[];
-    //     const reqCount = renderedRows.indexOf(currentRow) + count;
-    //     const requiredIndex = Math.max(0, Math.min(reqCount, renderedRows.length - 1));
-    //     return renderedRows.at(requiredIndex) ?? null;
-    // }
-
-    // //#endregion
-
-    // //#region cell events
-
-    // private _onCellKeyDown(rowElement: HTMLElement, cell: HTMLElement, cellIndex: number, event: KeyboardEvent): boolean | void {
-    //     if (cell !== event.target)
-    //         return;
-    //     switch (event.code) {
-    //         case 'ArrowLeft':
-    //             this._dir?.value === 'rtl' ? this._moveRight(rowElement, cell, event) : this._moveLeft(rowElement, cell, event);
-    //             break;
-    //         case 'ArrowRight':
-    //             this._dir?.value === 'rtl' ? this._moveLeft(rowElement, cell, event) : this._moveRight(rowElement, cell, event);
-    //             break;
-    //         case 'ArrowDown':
-    //             this._moveDownCell(rowElement, cell, cellIndex, event);
-    //             break;
-    //         case 'ArrowUp':
-    //             this._moveUpCell(rowElement, cell, cellIndex, event);
-    //             break;
-    //         case 'PageDown':
-    //             this._proceedPageKeyCell(rowElement, cell, cellIndex, event, 10);
-    //             break;
-    //         case 'PageUp':
-    //             this._proceedPageKeyCell(rowElement, cell, cellIndex, event, -10);
-    //             break;
-    //     }
-    // }
-
-    // private _moveLeft(rowElement: HTMLElement, cellElement: HTMLElement, event: Event) {
-    //     preventEvent(event);
-    //     const reqCell = cellElement.previousElementSibling;
-    //     if (reqCell)
-    //         focusElement(reqCell);
-    //     else if (this.navigationMode === 'cell-round')
-    //         this._moveUpCell(rowElement, cellElement, rowElement.children.length - 1, event);
-    // }
-
-    // private _moveRight(rowElement: HTMLElement, cellElement: HTMLElement, event: Event) {
-    //     const reqCell = cellElement.nextElementSibling;
-    //     if (reqCell)
-    //         focusElement(reqCell);
-    //     else if (this.navigationMode === 'cell-round')
-    //         this._moveDownCell(rowElement, cellElement, 0, event);
-    // }
-
-    // private _moveDownCell(rowElement: HTMLElement, cellElement: HTMLElement, cellIndex: number, event: Event) {
-    //     preventEvent(event);
-    //     this._moveCellAndFocus(rowElement, rowElement.nextElementSibling, cellIndex);
-    // }
-
-    // private _moveUpCell(rowElement: HTMLElement, cellElement: HTMLElement, cellIndex: number, event: Event) {
-    //     preventEvent(event);
-    //     this._moveCellAndFocus(rowElement, rowElement.previousElementSibling, cellIndex);
-    // }
-
-    // private _proceedPageKeyCell(rowElement: HTMLElement, cellElement: HTMLElement, cellIndex: number, event: Event, count: number) {
-    //     preventEvent(event);
-    //     const nextRow = this._getExpectedRowWithPage(rowElement, count);
-    //     this._moveCellAndFocus(rowElement, nextRow, cellIndex);
-    // }
-
-    // private _moveCellAndFocus(currentRow: Element | null, reqRow: Element | null, cellIndex: number) {
-    //     if (!reqRow || !currentRow)
-    //         return;
-    //     scrollIntoViewIfNeeded(reqRow, false);
-    //     (reqRow.children.item(cellIndex) as HTMLElement)?.focus();
-    // }
+    private _getCellIndex(cellElement: Element) {
+        if (!cellElement.parentElement)
+            return -1;
+        for (let i = 0; i < cellElement.parentElement.children.length; i++) {
+            if (cellElement.parentElement.children[i] === cellElement) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     //#endregion
 }
 
-function calculateCdkTableSticky<TRow>(table: CdkTable<TRow>, rowOutlet?: RowOutlet) {
+function calculateCdkTableMetaRowsHeight<TRow>(table: CdkTable<TRow>, rowOutlet?: RowOutlet, onlySticky = true) {
     if (!rowOutlet?.viewContainer)
         return null;
-    const height = table._getRenderedRows(rowOutlet).filter(e => Array.from(e.classList)
-        .some(e => e.endsWith('table-sticky')))
-        .reduce((acc, o) => acc + o.clientHeight, 0);
+    let rows = table._getRenderedRows(rowOutlet);
+    if (onlySticky)
+        rows = rows.filter(e => Array.from(e.classList)
+            .some(e => e.endsWith('table-sticky')));
+    const height = rows.reduce((acc, o) => acc + o.clientHeight, 0);
     return height > 0 ? height : null;
 }

@@ -1,0 +1,34 @@
+<mat-form-field subscriptSizing="dynamic" class="cs-tree-search-field" color="primary" [ariaDisabled]="disabled">
+    <mat-icon class="cs-tree-bar-icon cs-tree-bar-icon-search" matPrefix>search</mat-icon>
+    <input matInput (input)="_onFilterInput($event)" #searchInput autocomplete="off" [disabled]="disabled"
+        tabindex="0" />
+    @switch (_addChildType()) {
+    @case ('default') {
+    <button class="cs-tree-bar-button" matIconSuffix mat-icon-button (click)="csTree.add()"><mat-icon
+            class="cs-tree-bar-icon cs-tree-bar-icon-add">add</mat-icon></button>
+    }@case ('list') {
+    <ng-container matIconSuffix>
+        <button class="cs-tree-bar-button" mat-icon-button [matMenuTriggerFor]="treeAddContextMenu"><mat-icon
+                class="cs-tree-bar-icon cs-tree-bar-icon-add">add</mat-icon></button>
+
+        <mat-menu #treeAddContextMenu="matMenu" [hasBackdrop]="true">
+            @for(item of _allowedTypes(); track item){
+            @if(item ==='separator'){
+            <mat-divider></mat-divider>
+            }@else {
+            <button mat-menu-item class="cs-tree-add-menu-item" (click)="csTree.add(_getChild(item.child))">
+                @if(item.icon){
+                <mat-icon class="cs-tree-add-menu-item-icon" [fontIcon]="item.icon" />
+                }
+                <span>{{item.text}}</span>
+            </button>
+            }
+            }
+        </mat-menu>
+    </ng-container>
+    }
+    }
+    <button class="cs-tree-bar-button" matIconSuffix mat-icon-button (click)="csTree.remove()"
+        [disabled]="!csTree.hasCurrent()"><mat-icon
+            class="cs-tree-bar-icon cs-tree-bar-icon-delete">delete</mat-icon></button>
+</mat-form-field>

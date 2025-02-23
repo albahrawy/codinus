@@ -1,0 +1,25 @@
+:host {
+    position: relative;
+    outline: none;
+    display: flex;
+}
+
+.cs-form-section-array-list-pane {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.cs-form-section-array-list-control {
+    overflow: auto;
+    height: 100%;
+    flex: 1 1 auto;
+}
+
+.cs-form-section-array-splitter {
+    border: 1px solid lightgray;
+
+    .cs-form-section-array-form-view:not(.cs-form-section-array-form-view-hasItems) {
+        display: none;
+    }
+}

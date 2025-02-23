@@ -1,22 +1,28 @@
-@let displayAppearance = appearance();
-@if(displayAppearance==='none'){
-@for (lang of _languages; track lang.symbol) {
-<div class="cs-localizable-input-wrapper cs-localizable-input-without-mat-field" layout-flex-element
-    [flex-basis]="flexBasis()">
-    <mat-label
-        class="cs-localizable-input-language-label mat-form-field-main-label">{{(lang.name|csTranslate)()}}</mat-label>
-    <input [id]="id+lang.symbol" matInput [csFormControlName]="lang.symbol|localizableKey:prefix():hasNgControl"
-        [required]="_requiredLangs().has(lang.symbol)">
-</div>
+<cs-flex-grid-container [flex-grid-columns]="flexColumns()" [flex-grid-gap]="flexGap()" [flex-grid-align]="flexAlign()">
+    @for (lang of _languages; track lang.symbol) {
+    <ng-template [ngTemplateOutlet]="langTemplate()!" [ngTemplateOutletInjector]="_localizeInjector"
+        [ngTemplateOutletContext]="{$implicit:lang}"></ng-template>
+    }
+</cs-flex-grid-container>
+
+@defer (when appearance()==='none') {
+<ng-template #nonFormField let-lang>
+    <div class="cs-localizable-input-without-mat-field">
+        <mat-label
+            class="cs-localizable-input-language-label mat-form-field-main-label">{{(lang.name|csTranslate)()}}</mat-label>
+        <input [id]="id+lang.symbol" matInput [csFormControlName]="lang.symbol|localizableKey:prefix():hasNgControl"
+            [required]="_requiredLangs().has(lang.symbol)">
+    </div>
+</ng-template>
 }
-}@else {
-@for (lang of _languages; track lang.symbol) {
-<mat-form-field [appearance]="displayAppearance" subscriptSizing="dynamic"
-    class="cs-localizable-input-wrapper --with-mat-field compact-mat-field" layout-flex-element
-    [flex-basis]="flexBasis()">
-    <mat-label class="cs-localizable-input-language-label">{{(lang.name|csTranslate)()}}</mat-label>
-    <input [id]="id+lang.symbol" matInput [csFormControlName]="lang.symbol|localizableKey:prefix():hasNgControl"
-        [required]="_requiredLangs().has(lang.symbol)">
-</mat-form-field>
-}
+
+@defer (when appearance()!=='none') {
+<ng-template #formField let-lang>
+    <mat-form-field [appearance]="formFieldAppearance()" subscriptSizing="dynamic"
+        class="--with-mat-field compact-mat-field">
+        <mat-label class="cs-localizable-input-language-label">{{(lang.name|csTranslate)()}}</mat-label>
+        <input [id]="id+lang.symbol" matInput [csFormControlName]="lang.symbol|localizableKey:prefix():hasNgControl"
+            [required]="_requiredLangs().has(lang.symbol)">
+    </mat-form-field>
+</ng-template>
 }

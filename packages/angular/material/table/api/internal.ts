@@ -1,5 +1,4 @@
 export type CSTableApiKey = 'metaRowDirective' | 'reorderDirective' |
     'sortableDirective' | 'dataSourceDirective' |
-    'editableDirective' | 'keyboardNavigationDirective' |
-    'tableApiResponsive' | 'tableApiSelectModel' |
+    'editableDirective' | 'tableApiResponsive' | 'tableApiSelectModel' |
     'tableApiScrollable' | 'tableApiResponsiveStrategy'

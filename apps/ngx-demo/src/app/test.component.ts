@@ -1,9 +1,15 @@
-import { AfterViewInit, booleanAttribute, Component, computed, Directive, effect, ElementRef, inject, Injector, input, OnInit, output, runInInjectionContext, signal, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { signalFunctionOf, signalPropertyOf } from '@ngx-codinus/core/shared';
-import { CdkDrag, DragDropModule } from '@angular/cdk/drag-drop';
-import { Subject } from 'rxjs';
+import { AfterViewInit, booleanAttribute, Component, computed, Directive, effect, ElementRef, inject, Injector, input, OnDestroy, OnInit, output, signal, ViewEncapsulation } from '@angular/core';
+import { AsyncPipe, JsonPipe } from '@angular/common';
+import { csLinkedSignal, signalFunctionOf, signalPropertyOf } from '@ngx-codinus/core/shared';
+import { CdkDrag } from '@angular/cdk/drag-drop';
+import { delay, Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { IArglessFunc } from '@codinus/types';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+
 
 class InternalEvent extends InputEvent { }
 
@@ -79,49 +85,156 @@ export class TestEventDirective implements AfterViewInit {
 
   private currentDataSource = computed(() => this.vsDataSource() ?? this.dataSource());
 }
+@Component({
+  selector: 'cs-option',
+  template: '<ng-content></ng-content>',
+  providers: [{ provide: MatOption, useExisting: CustomOptionComponent }]
+})
+
+export class CustomOptionComponent extends MatOption implements OnDestroy {
+  private x = inject(MatSelect);
+  constructor() {
+    super();
+    this.x._closedStream.pipe(delay(1000)).subscribe(() => console.log('close', this._getHostElement().parentElement?.parentElement));
+    this.x._openedStream.pipe(delay(1000)).subscribe(() => console.log('open', this._getHostElement().parentElement?.parentElement));
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    console.log('option destroyed');
+  }
+}
+
+
+@Component({
+  selector: 'app-nx-welcome-x',
+  imports: [MatFormFieldModule],
+  template: `
+<mat-form-field>
+  <mat-label>Toppings</mat-label>
+</mat-form-field>
+           
+   `,
+  styles: [],
+  encapsulation: ViewEncapsulation.None,
+})
+export class FnTestcomponent {
+
+  toppings = new FormControl('');
+
+  toppingList: string[] = ['Extra cheese', 'Mushroom', 'Onion', 'Pepperoni', 'Sausage', 'Tomato'];
+
+  showHeader = true;
+
+  private context: { value: Date | null | undefined } | null | undefined;
+
+  outerValue = signal(10);
+
+  myLinkedValue = csLinkedSignal(() => this.outerValue());
+
+  changeLinked() {
+    this.myLinkedValue.set(Math.random());
+  }
+
+  changeOuter() {
+    this.outerValue.set(this.outerValue() + 1);
+  }
+
+  reset() {
+    this.myLinkedValue.reset();
+  }
+
+
+  onCsClick($event: any) {
+    console.log('click', $event);
+  }
+
+  onOClick($event: any) {
+    console.log('o-click', $event);
+  }
+
+  onDragStarted($event: any) {
+    console.log('drag', $event);
+  }
+
+  onMouseDown($event: any) {
+    console.log('down', $event);
+  }
+
+
+  onDblClick($event: any) {
+    console.log('dblClick', $event);
+  }
+
+  onOMouseDown($event: any) {
+    console.log('o-down', $event);
+  }
+
+
+  onODblClick($event: any) {
+    console.log('o-dblClick', $event);
+  }
+
+  get bindingValue() { return this.context?.value; }
+  set bindingValue(value: Date | null | undefined) {
+    if (this.context)
+      this.context.value = value;
+    console.log(value);
+  }
+
+  createContext() {
+    this.context = { value: null };
+  }
+  changeContext() {
+    this.context = { value: new Date(2020, 1, 1) };
+  }
+  clearContext() {
+    this.context = null;
+  }
+
+  log(event: any) {
+    // console.log(event);
+  }
+
+
+}
 
 @Component({
   selector: 'app-nx-welcome',
-  imports: [CommonModule, TestEventDirective, DragDropModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    AsyncPipe,
+    JsonPipe,
+  ],
   template: `
-<!-- <B>Normal<B><BR/>
-  Name : {{nName()}}<BR/>
-  Age : {{nAge()}}
-  <BR/>
-  <B>Signal<B><BR/>
-  Name : {{sName()}}<BR/>
-  Age : {{sAge()}} -->
 
-  {{mytest()}}
-  <BR>
-  {{mytest2()}}
-  <BR>
-  {{xyz()}}
-
-  <br/>
-  <button (click)="nObj.name = 'Mohamed'">Set Normal Name </button>
-  <button (click)="nObj.age = 15">Set Normal Age </button>
-  <button (click)="nObj2.name = 'Adam'">Set Signal Name </button>
-  <button (click)="nObj2.age = 8">Set Signal Age </button>
-  <button (click)="setEvents()">Set Events </button>
-  <button (click)="setEventsFnName()">Set Events Fn Name</button>
-  <input #tInput dataSource="ahmed" (dataSourceChanged)="logString($event)" appTestEvents/>
-
-  <!-- <div style="height: 200px; background-color:red;" cdkDropList>
-  <div style="height: 20px; width:50px; background-color:yellow;" appTestEvents isDraggable="true">
-  </div>
-  <div style="height: 20px; width:50px; background-color:green;" appTestEvents isDraggable="true">
-  </div>
-  <div style="height: 20px; width:50px; background-color:white;" appTestEvents isDraggable="false">
-  </div>
-
-<div> -->
-
+<div [formGroup]="form">
+  <!-- <mat-form-field>
+    <mat-label>Phone number</mat-label>
+    <cs-flex-property-input formControlName="tel" required></cs-flex-property-input>
+    <mat-icon matSuffix>phone</mat-icon>
+    <mat-hint>Include area code</mat-hint>
+  </mat-form-field> -->
+  <p>Entered value: {{form.valueChanges | async | json}}</p>
+</div>
    `,
   styles: [],
   encapsulation: ViewEncapsulation.None,
 })
 export class FnTestComponent implements OnInit {
+
+  testFn = signal<IArglessFunc<null | number>>(() => null);
+
+  readonly form = new FormGroup({
+    tel: new FormControl(null),
+  });
+  testComputed = computed(() => this.testFn()());
+
+  registerFn() {
+    this.testFn.set(this.mytest2);
+  }
 
   logString(v?: string) {
     console.log('My-Events', v);

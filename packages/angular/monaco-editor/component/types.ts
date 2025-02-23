@@ -3,7 +3,6 @@ import { IEditorActionDescriptor, IEditorIExtraLibs } from "../core/monaco-inter
 import { CSEditorLanguage } from "../core/types";
 
 export interface ICSMonacoEditorPage {
-    modelName?: string;
     extraLibs?: IEditorIExtraLibs | null;
     actions?: IEditorActionDescriptor[] | null;
     language?: CSEditorLanguage;

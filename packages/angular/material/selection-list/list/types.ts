@@ -6,11 +6,8 @@ import { ConextMenuOpeningArgs } from "@ngx-codinus/material/context-menu";
 
 export type ListTogglePosition = 'after' | 'before' | 'none' | '' | undefined;
 export type ListIconType = 'icon' | 'avatar' | 'none' | '' | undefined;
-//export type ListCategorizedMode = 'none' | 'sticky' | 'split' | undefined;
-export type ListFilterPredicate<T> = (data: T, filter: string) => boolean;
 
 export const CODINUS_SELECTION_LIST = new InjectionToken<ICSSelectionList<unknown, unknown>>('cs_selection_list');
-//export const CODINUS_SELECTION_LIST = new InjectionToken<ICSSelectionList<unknown, unknown>>('cs_selection_list');
 
 export interface ICSListOption<TRow, TValue> {
     data: () => TRow;
@@ -20,7 +17,7 @@ export interface ICSListOption<TRow, TValue> {
 }
 
 export interface ICSSelectionList<TRow, TValue> {
-    _binder: ICSListBinder<TRow, TValue>;
+    _csDataManager: ICSListBinder<TRow, TValue>;
     _optionIconPosition: () => MatListOptionTogglePosition;
     _optionTogglePosition: () => MatListOptionTogglePosition;
     _optionToggleType: () => 'radio' | 'check' | null;

@@ -49,7 +49,7 @@ export function selectValidControlAccessor(valueAccessor: ControlValueAccessor |
 }
 
 function isDefaultAccessor(accessor: ControlValueAccessor) {
-    return accessor.constructor.name === "_DefaultValueAccessor" || accessor.constructor.name === "_CodinusValueAccessor";
+    return accessor.constructor.name === "_DefaultValueAccessor" || accessor.constructor.name === "_CSDefaultValueAccessor";
 }
 
 function isBuiltInAccessor(accessor: ControlValueAccessor) {

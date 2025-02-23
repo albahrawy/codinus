@@ -1,6 +1,6 @@
 import {
     computed, Directive, effect, inject, Injector, input, OnDestroy, OnInit,
-    Provider, Signal, signal, ViewContainerRef
+    Provider, runInInjectionContext, Signal, signal, ViewContainerRef
 } from "@angular/core";
 import { ControlContainer, FormGroupDirective } from "@angular/forms";
 import { MAT_FORM_FIELD, MatFormField } from "@angular/material/form-field";
@@ -15,13 +15,11 @@ import {
     RUNTIME_MAT_FORM_FIELD, signalActionFromFunctionOrConfig,
     signalConditionFromFunctionOrConfig, signalFunctionValueOf
 } from "@ngx-codinus/core/shared";
+import { FormErrorMessages, ICSRuntimeFormFieldBase, IHasRenderState } from "./cs-element-base/types";
 import { isCSRuntimeFormArea, isCSRuntimeFormFieldContainer } from "./functions";
-import {
-    CODINUS_RUNTIME_FORM, CODINUS_RUNTIME_FORM_COMPONENT_FACTORY, CSFormElementRenderState, FormErrorMessages,
-    ICSRuntimeFormElement, ICSRuntimeFormFieldBase, ICSRunTimeFormRenderer, IHasRenderState
-} from "./cs-element-base/types";
+import { CODINUS_RUNTIME_FORM_COMPONENT_FACTORY, CODINUS_RUNTIME_FORM_HANDLER, ICSRuntimeFormElement, ICSRuntimeFormHandler } from "./injection-tokens";
 
-type ConfigWithHint = Signal<ICSRuntimeFormFieldBase & { leftHint?: string; rightHint?: string, type: string; }>;
+type ConfigWithHint = Signal<ICSRuntimeFormFieldBase & { leftHint?: Nullable<string>; rightHint?: Nullable<string>, type: string; }>;
 const DefaultControlErrors = "DefaultControlErrors";
 
 @Directive({
@@ -31,7 +29,7 @@ const DefaultControlErrors = "DefaultControlErrors";
 export class CSFormPortal implements OnDestroy, OnInit {
 
     private readonly formComponentFactory = inject(CODINUS_RUNTIME_FORM_COMPONENT_FACTORY);
-    private readonly _runtimeForm = inject(CODINUS_RUNTIME_FORM);
+    private readonly _runtimeFormHandler = inject(CODINUS_RUNTIME_FORM_HANDLER);
     private readonly _formField = inject(MatFormField, { optional: true, host: true });
     private readonly _viewContainerRef = inject(ViewContainerRef);
 
@@ -40,9 +38,8 @@ export class CSFormPortal implements OnDestroy, OnInit {
     private _attachedType?: string;
 
     protected csFormControl = computed(() => this._element()?.csFormControl());
-    private runTimeFormRenderer = this._runtimeForm.runTimeFormRenderer;
-    protected events = this.runTimeFormRenderer.events;
-    protected formPrifix = this.runTimeFormRenderer.prefix;
+    protected events = this._runtimeFormHandler.events;
+    protected formPrifix = this._runtimeFormHandler.prefix;
 
     config = input.required<ICSRuntimeFormFieldBase & { type: string; }>({ alias: 'cs-form-portal' });
     parentFormGroup = input<Nullable<CSFormGroupDirective>>();
@@ -82,10 +79,10 @@ export class CSFormPortal implements OnDestroy, OnInit {
         if (!component)
             return;
 
-        ElementRenderState.register(newConfig, this._runtimeForm.runTimeFormRenderer);
+        registerElementRenderState(newConfig, this._runtimeFormHandler);
         const ref = this._viewContainerRef.createComponent(component, { injector: this._createInjector() });
         ref.setInput('config', newConfig);
-        ref.setInput('runTimeFormRenderer', this.runTimeFormRenderer);
+       // ref.setInput('formHandler', this._runtimeFormHandler);
         this._element.set(ref.instance);
         if (this._formField) {
             const matFormControl = ref.instance.matFormFieldControl();
@@ -96,10 +93,11 @@ export class CSFormPortal implements OnDestroy, OnInit {
 
     private _createInjector() {
         const parentGroup = this.parentFormGroup();
-        const parentFormGroup = parentGroup ?? this._runtimeForm;
+        const parentFormGroup = parentGroup ?? this._runtimeFormHandler.formGroupDirective;
         const providers: Provider[] = [
             { provide: ControlContainer, useValue: parentFormGroup },
             { provide: FormGroupDirective, useValue: parentFormGroup },
+            { provide: CODINUS_RUNTIME_FORM_HANDLER, useValue: this._runtimeFormHandler },
             { provide: CODINUS_RUNTIME_CONTROL_CONTAINER, useValue: parentFormGroup },
         ];
 
@@ -110,7 +108,7 @@ export class CSFormPortal implements OnDestroy, OnInit {
 
         if (isFormSection(parentGroup))
             providers.push({ provide: CODINUS_FORM_SECTION, useValue: parentGroup });
-        return Injector.create({ providers, parent: this.runTimeFormRenderer.injector });
+        return Injector.create({ providers, parent: this._runtimeFormHandler.injector });
     }
 }
 
@@ -166,23 +164,16 @@ export class CSFormPortalWithHints extends CSFormPortalWithErrors implements OnD
 }
 
 
-class ElementRenderState implements CSFormElementRenderState {
-    constructor(config: ICSRuntimeFormFieldBase & IHasRenderState, renderer: ICSRunTimeFormRenderer) {
-        config.renderState = this;
-        this.hidden = signalConditionFromFunctionOrConfig(renderer.events, config, 'hidden', renderer.prefix(), renderer.signalValue);
-        this.invisible = signalConditionFromFunctionOrConfig(renderer.events, config, 'invisible', renderer.prefix(), renderer.signalValue);
-    }
-
-    readonly hidden: Signal<boolean>;
-    readonly invisible: Signal<boolean>;
-
-    static register(config: ICSRuntimeFormFieldBase & IHasRenderState, renderer: ICSRunTimeFormRenderer) {
-        if (isCSRuntimeFormFieldContainer(config))
-            config.children?.forEach(c => ElementRenderState.register(c, renderer));
-        else if (isCSRuntimeFormArea(config))
-            config.panels?.forEach(p => {
-                ElementRenderState.register(p, renderer)
-                p.children?.forEach(c => ElementRenderState.register(c, renderer));
-            });
-    }
+function registerElementRenderState(config: ICSRuntimeFormFieldBase & IHasRenderState, handler: ICSRuntimeFormHandler) {
+    if (isCSRuntimeFormFieldContainer(config))
+        config.children?.forEach(c => registerElementRenderState(c, handler));
+    else if (isCSRuntimeFormArea(config))
+        config.panels?.forEach(p => registerElementRenderState(p, handler));
+    else
+        runInInjectionContext(handler.injector, () => {
+            config.renderState = {
+                hidden: signalConditionFromFunctionOrConfig(handler.events, config, 'hidden', handler.prefix(), handler.signalValue),
+                invisible: signalConditionFromFunctionOrConfig(handler.events, config, 'invisible', handler.prefix(), handler.signalValue)
+            }
+        });
 }

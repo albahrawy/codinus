@@ -1,10 +1,17 @@
 import { ComponentType } from "@angular/cdk/portal";
-import { ElementRef, InjectionToken, Injector, TemplateRef } from "@angular/core";
+import { ElementRef, InjectionToken, Injector, OutputEmitterRef, TemplateRef } from "@angular/core";
 import { ICSAddonProgress, IRecord, IStringRecord } from "@codinus/types";
 import { Observable } from "rxjs";
 
 export const CODINUS_DIALOG_SERVICE = new InjectionToken<ICSDialogService<unknown>>('cs_dialog_service');
 export const CODINUS_MESSAGE_SERVICE = new InjectionToken<ICSMessageService>('cs_message_service');
+export const CODINUS_OVERLAY_HOST = new InjectionToken<ICSOverlayHost>('cs_overlay_host');
+
+export interface ICSOverlayHost {
+    readonly attach: OutputEmitterRef<void>;
+    readonly detach: OutputEmitterRef<void>;
+    readonly positioningSettled: OutputEmitterRef<void>;
+}
 
 export interface ICSMessageService {
     showError(message: string, element?: HTMLElement | null, position?: 'top' | 'bottom', callBack?: () => void): void;
@@ -46,6 +53,7 @@ export interface ICSDialogOptions<TResult = unknown, TData = void, TRef = unknow
     closeOnX?: boolean;
     caption?: string | IStringRecord | null;
     overflow?: 'auto' | 'hidden';
+    noPadding?: boolean;
     cssClass?: string;
     minWidth?: string | number;
     minHeight?: string | number;

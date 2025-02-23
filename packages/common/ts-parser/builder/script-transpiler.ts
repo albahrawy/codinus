@@ -1,7 +1,8 @@
 import { Nullable } from "@codinus/types";
 import { IOptions } from "../types/basic";
-import { AnyNode } from "../types/nodes";
+import { AnyNode, IClassDeclaration, IFunctionDeclaration } from "../types/nodes";
 import { TypeScriptParser } from "../typescript/parser";
+import { IParenthesized } from "../types/nodes.common";
 
 class StringBuilder {
     private _lines: string[] = [];
@@ -12,7 +13,8 @@ class StringBuilder {
     }
 
     writeln(line = ""): void {
-        this._lines.push("\n");
+        if (this._lines.length)
+            this._lines.push("\n");
         this._lines.push(line);
     }
 
@@ -61,24 +63,95 @@ export function transpileTypeScriptToCSScript(typeScriptCode: string, containerI
     const program = parser.parse(typeScriptCode);
     const printBuilder = new StringBuilder();
     const membersBuilder = new StringBuilder();
+    const functions: string[] = [];
+    const classes: string[] = [];
+    const classesBuilder = new StringBuilder();
+    const collectExports = (node: IClassDeclaration | IFunctionDeclaration, collectorArray: string[]) => {
+        if (node.id?.name) {
+            classesBuilder.writeln(`export ${printBuilder.toString()}`);
+            collectorArray.push(node.id?.name);
+        }
+    }
+
+    program.children.forEach(c => {
+        printBuilder.clear();
+        printNodeCore(c, printBuilder);
+        switch (c.type) {
+            case 'ClassDeclaration':
+                collectExports(c, classes);
+                break;
+            case 'FunctionDeclaration':
+                collectExports(c, functions);
+                break;
+            case 'ExportNamedDeclaration':
+                if (c.declaration?.type === 'ClassDeclaration')
+                    collectExports(c.declaration, classes);
+                else if (c.declaration?.type === 'FunctionDeclaration')
+                    collectExports(c.declaration, functions);
+                break;
+            default:
+                membersBuilder.writeln(printBuilder.toString());
+        }
+    });
+
+    const allImports = printBuilder.getAllImports();
+    const finalBuilder = new StringBuilder();
+    finalBuilder.writeln(`export const classes = [${classes.map(k => `'${k}'`).join(', ')}];`);
+    finalBuilder.writeln(`export const functions = [${functions.map(k => `'${k}'`).join(', ')}];`);
+
+    if (allImports.length) {
+        finalBuilder.writeln(`export const dependencies = [${allImports.map(k => `'${k}'`).join(', ')}];`);
+        allImports.forEach(dependency => {
+            finalBuilder.writeln(`let ${dependency} = null;`);
+            finalBuilder.writeln(`export function set_${dependency}(dValue){${dependency} = dValue;}`)
+        });
+    }
+
+    finalBuilder.writeln(membersBuilder.toString());
+    finalBuilder.write(classesBuilder.toString());
+    return finalBuilder.toString();
+}
+
+export function transpileTypeScriptToCSScriptxx(typeScriptCode: string, containerId: string, options?: IOptions) {
+    const parser = new TypeScriptParser(options);
+    const program = parser.parse(typeScriptCode);
+    const printBuilder = new StringBuilder();
+    const membersBuilder = new StringBuilder();
     const exports: string[] = [];
     const classesBuilder = new StringBuilder();
+    const collectClass = (node: IClassDeclaration, index: number) =>
+        classesBuilder.writeln(`${node.id?.name ?? `Class${index}`} : ${printBuilder.toString()},`);
+
+    const collectFunction = (node: IFunctionDeclaration, index: number) => {
+        const fnName = node.id?.name ?? `Function${index}`;
+        membersBuilder.writeln(`const ${fnName} = ${printBuilder.toString()};`);
+        exports.push(fnName);
+    };
+
     program.children.forEach((c, i) => {
         printBuilder.clear();
         printNodeCore(c, printBuilder);
-        if (c.type === 'ClassDeclaration') {
-            classesBuilder.writeln(`${c.id?.name ?? `Class${i}`} : ${printBuilder.toString()},`);
-        } else if (c.type === 'FunctionDeclaration') {
-            const fnName = c.id?.name ?? `Function${i}`;
-            membersBuilder.writeln(`const ${fnName} = ${printBuilder.toString()};`);
-            exports.push(fnName);
-        } else {
-            membersBuilder.writeln(printBuilder.toString());
+        switch (c.type) {
+            case 'ClassDeclaration':
+                collectClass(c, i);
+                break;
+            case 'FunctionDeclaration':
+                collectFunction(c, i);
+                break;
+            case 'ExportNamedDeclaration':
+                if (c.declaration?.type === 'ClassDeclaration')
+                    collectClass(c.declaration, i);
+                else if (c.declaration?.type === 'FunctionDeclaration')
+                    collectFunction(c.declaration, i);
+                break;
+            default:
+                membersBuilder.writeln(printBuilder.toString());
         }
     });
+
     const allImports = printBuilder.getAllImports();
     const finalBuilder = new StringBuilder();
-    finalBuilder.write(`function ${containerId}Container() {`);
+    finalBuilder.write(`export function ${containerId}Container() {`);
     finalBuilder.writeln(`const dependencies = class Dependencies{};`);
     if (allImports.length) {
         finalBuilder.writeln(`let ${allImports.join(',')};`);
@@ -181,11 +254,18 @@ function printNodeCore(node: AnyNode | null | undefined, sb: StringBuilder) {
             printSemiColon(sb);
             break;
         case 'ArrowFunctionExpression':
-            sb.write('(');
-            printForEach(node.params, sb);
-            sb.write(')');
-            sb.write('=> ');
-            printNodeCore(node.body, sb);
+            {
+                sb.write('(');
+                printForEach(node.params, sb);
+                sb.write(')');
+                sb.write('=> ');
+                const isParenthesized = (node.body as IParenthesized).parenthesized;
+                if (isParenthesized)
+                    sb.write('(');
+                printNodeCore(node.body, sb);
+                if (isParenthesized)
+                    sb.write(')');
+            }
             break;
         case 'VariableDeclaration':
             {
@@ -215,17 +295,15 @@ function printNodeCore(node: AnyNode | null | undefined, sb: StringBuilder) {
             printParams(node.arguments, sb);
             sb.write(')');
             break;
+        case 'OptionalMemberExpression':
         case 'MemberExpression':
             printNodeCore(node.object, sb);
+            if (node.optional)
+                sb.write('?.');
             sb.write(node.computed ? '[' : '.');
             printNodeCore(node.property, sb);
             if (node.computed)
                 sb.write(']');
-            break;
-        case 'OptionalMemberExpression':
-            printNodeCore(node.object, sb);
-            sb.write('?.');
-            printNodeCore(node.property, sb);
             break;
         case 'BinaryExpression':
             printNodeCore(node.left, sb);
@@ -390,24 +468,3 @@ function printParams(params: Nullable<AnyNode>[], sb: StringBuilder, isConstruct
     });
     return ctorParams;
 }
-
-// function checkForInject(node: ICallOrNewExpression, sb: StringBuilder) {
-//     const addInject = (name?: string) => {
-//         if (name) {
-//             node.arguments = [{ type: 'StringLiteral', rawValue: `'${name}'` } as IStringLiteral];
-//             sb.addInject(name);
-//         }
-//     }
-
-//     if (node.callee.type === 'Identifier' && node.callee.name === 'inject') {
-//         if (node.typeParameters?.type === 'TSTypeParameterInstantiation'
-//             && node.typeParameters.params?.at(0)?.type === 'TSTypeReference') {
-//             const identifier = (node.typeParameters.params[0] as TsTypeReference).typeName as Identifier;
-//             addInject(identifier.name);
-//         } else {
-//             const identifier = node.arguments[0] as Identifier;
-//             addInject(identifier.name);
-//         }
-//     }
-// }
-

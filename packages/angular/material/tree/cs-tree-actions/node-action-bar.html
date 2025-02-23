@@ -1,0 +1,33 @@
+<ng-template let-handler let-args="args">
+        @switch (args.canAddType) {
+        @case ('default') {
+        <button class="cs-node-bar-button" mat-icon-button (click)="handler.add(null,args.nodeData)"><mat-icon
+                        class="cs-node-bar-icon cs-node-bar-icon-add">playlist_add</mat-icon></button>
+        }@case ('list') {
+        <button class="cs-node-bar-button" mat-icon-button [matMenuTriggerFor]="nodeAddContextMenu"
+                (menuOpened)="args.hoverOverlay.hasMenuOpened=true"
+                (menuClosed)="args.hoverOverlay.hasMenuOpened=false"><mat-icon
+                        class="cs-node-bar-icon cs-node-bar-icon-add">playlist_add</mat-icon></button>
+        <mat-menu #nodeAddContextMenu="matMenu" [hasBackdrop]="true">
+                @for(item of args.allowedTypes; track item){
+                @if(item ==='separator'){
+                <mat-divider></mat-divider>
+                }@else {
+                <button mat-menu-item class="cs-tree-add-menu-item"
+                        (click)="handler.add(_getChild(item.child), args.nodeData)">
+                        @if(item.icon){
+                        <mat-icon class="cs-tree-add-menu-item-icon" [fontIcon]="item.icon" />
+                        }
+                        <span>{{item.text}}</span>
+                </button>
+                }
+                }
+        </mat-menu>
+        }
+        }
+
+        @if(args.canRemove){
+        <button class="cs-node-bar-button" mat-icon-button (click)="handler.remove(args.nodeData)"><mat-icon
+                        class="cs-node-bar-icon cs-node-bar-icon-delete">delete</mat-icon></button>
+        }
+</ng-template>

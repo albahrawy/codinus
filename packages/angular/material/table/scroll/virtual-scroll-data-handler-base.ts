@@ -9,7 +9,7 @@
 import { CollectionViewer, ListRange } from "@angular/cdk/collections";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { CDK_TABLE } from "@angular/cdk/table";
-import { AfterViewInit, DestroyRef, Directive, NgZone, inject } from "@angular/core";
+import { AfterViewInit, DestroyRef, Directive, NgZone, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, Subject, combineLatest, distinctUntilChanged, shareReplay, startWith, switchMap, tap } from "rxjs";
 import { ICSTableVirtualScrollDataHandler } from "./types";
@@ -25,6 +25,8 @@ export abstract class CSTableVirtualScrollDataHandlerBase<T>
     protected _cdkTableDataSource: Observable<readonly T[] | null> | null = null;
 
     readonly viewChange = new Subject<ListRange>();
+    readonly viewChangeSignal = signal<ListRange>({ start: 0, end: 0 },
+        { equal: (a, b) => a.start === b.start && a.end === b.end });
     abstract readonly dataStream: Observable<readonly T[]>;
     abstract fetchNextData(range: ListRange): Observable<readonly T[] | null>;
 
@@ -32,21 +34,25 @@ export abstract class CSTableVirtualScrollDataHandlerBase<T>
         this._ngZone.runOutsideAngular(() => {
             this._cdkTable.dataSource = this._cdkTableDataSource =
                 combineLatest([
-                    this.dataStream,
-                    viewport.renderedRangeStream.pipe(startWith({ start: 0, end: 0 }))])
+                    viewport.renderedRangeStream.pipe(startWith({ start: 0, end: 0 })),
+                    this.dataStream])
                     .pipe(
-                        distinctUntilChanged(([pd, pr], [cd, cr]) =>
-                            (pd === cd || (pd?.length === 0 && cd?.length === 0))
-                            && pr.start === cr.start && pr.end === cr.end
+                        distinctUntilChanged(([pRange, pData], [cRange, cData]) =>
+                            (pData === cData || (pData?.length === 0 && cData?.length === 0))
+                            && pRange.start === cRange.start && pRange.end === cRange.end
                         ),
-                        tap(([_, range]) => {
+                        tap(([range]) => {
+                            this.viewChangeSignal.set(range);
                             if (this.viewChange.observed) {
-                                this._ngZone.run(() => this.viewChange.next(range));
+                                this._ngZone.run(() => {
+                                    this.viewChange.next(range)
+                                });
                             }
                         }),
                         shareReplay(1),
-                        switchMap(([_, range]) => this.fetchNextData(range)),
+                        switchMap(([range]) => this.fetchNextData(range)),
                         takeUntilDestroyed(this._destroyRef));
+
             viewport.attach(this);
         });
     }

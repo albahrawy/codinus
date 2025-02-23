@@ -1,0 +1,33 @@
+.cs-flex-property-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-between;
+    justify-content: stretch;
+    box-sizing: border-box;
+    gap: 0 3px;
+}
+
+.cs-flex-property-element {
+    border: none;
+    border-bottom: 1px solid var(--mat-sys-primary);
+    background: none;
+    padding: 0;
+    outline: none;
+    font: inherit;
+    text-align: center;
+    color: currentcolor;
+    width: 100%;
+}
+
+.cs-flex-property {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 13%;
+
+    .cs-flex-property-label {
+        font-size: .7em;
+        text-align: center;
+        color: var(--mat-sys-primary);
+        text-wrap: nowrap;
+    }
+}

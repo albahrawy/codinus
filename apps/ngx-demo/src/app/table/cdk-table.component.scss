@@ -1,5 +1,5 @@
 :host {
-    --table-inner-vertical-border: 1px solid rgba(0, 0, 0, 0.12);
+    --cs-table-inner-vertical-border: 1px solid rgba(0, 0, 0, 0.12);
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -25,7 +25,7 @@ cdk-row,
 cdk-header-row,
 cdk-footer-row {
     display: flex;
-    border-bottom: var(--table-inner-vertical-border);
+    border-bottom: var(--cs-table-inner-vertical-border);
 }
 
 cdk-footer-row {
@@ -50,11 +50,11 @@ cdk-cell,
 cdk-header-cell,
 cdk-footer-cell {
     flex: 1;
-    border-right: var(--table-inner-vertical-border);
+    border-right: var(--cs-table-inner-vertical-border);
 
     [dir='rtl'] & {
         border-right: unset;
-        border-left: var(--table-inner-vertical-border);
+        border-left: var(--cs-table-inner-vertical-border);
     }
 }
 

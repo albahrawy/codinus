@@ -7,7 +7,7 @@ import { CODINUS_VALUE_FORMATTER } from './types';
 })
 
 export class FormatPipe implements PipeTransform {
-    private readonly formatProvider = inject(CODINUS_VALUE_FORMATTER, { optional: true }) ?? new DefaultValueFormatter();
+    private readonly formatProvider = inject(CODINUS_VALUE_FORMATTER, { optional: true }) ?? inject(DefaultValueFormatter);
 
     transform(value: unknown, formatstring?: string, lang?: string): string | null {
         return this.formatProvider.format(value, formatstring, lang);

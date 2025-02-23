@@ -50,9 +50,9 @@ export function formatStringBy(value: string, obj: unknown): string {
 * Converts a string to camelCase format by removing spaces, hyphens, and apostrophes
 * and capitalizing the first letter of each word (except the first word).
 * @param {string} value - The input string to convert to camelCase.
-* @returns {string | undefined} The camelCase formatted string.
+* @returns {string} The camelCase formatted string.
 */
-export function toCamelCase(value: string): string | undefined {
+export function toCamelCase(value: string): string {
     return (value.match(camelCaseRegx) || [])
         .map((word, index) => index ? toFirstUpperCase(word.toLowerCase()) : word.toLowerCase())
         .join('');
@@ -117,6 +117,15 @@ async function dataUrlToBytes(dataUrl: string) {
     return new Uint8Array(await res.arrayBuffer());
 }
 
+/**
+ * Converts a Unicode string to a Base64 encoded string.
+ *
+ * This function takes a Unicode string, encodes it into a UTF-8 byte array,
+ * and then converts that byte array into a Base64 encoded data URL.
+ *
+ * @param unicodeString - The Unicode string to be converted.
+ * @returns A promise that resolves to the Base64 encoded string, or null if the conversion fails.
+ */
 export async function stringToBase64(unicodeString: string): Promise<string | null> {
     // Convert Unicode string to UTF-8 byte array
     const utf8Bytes = new TextEncoder().encode(unicodeString);
@@ -125,6 +134,12 @@ export async function stringToBase64(unicodeString: string): Promise<string | nu
     return base64DataUrl;
 }
 
+/**
+ * Converts a Base64 data URL back to a Unicode string.
+ *
+ * @param base64DataUrl - The Base64 encoded data URL to be converted.
+ * @returns A promise that resolves to the decoded Unicode string.
+ */
 export async function base64ToString(base64DataUrl: string) {
     // Convert Base64 data URL back to byte array
     const utf8Bytes = await dataUrlToBytes(base64DataUrl);

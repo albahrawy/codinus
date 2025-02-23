@@ -1,0 +1,47 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+.cs-setup-page-section-tree {
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+.cs-setup-page-toggle-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 5px;
+    align-items: center;
+    overflow: hidden;
+}
+
+.cs-setup-page-toggle {
+    min-width: 140px;
+}
+
+.cs-setup-page-form-area {
+    height: 100%;
+
+}
+
+.cs-setup-page-label-input {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+
+    .--label-icon-section {
+        max-width: 100px;
+        order: 0;
+    }
+
+    .--label-section {
+        flex: 1 1 auto;
+        min-width: 50px;
+        order: 1;
+    }
+}

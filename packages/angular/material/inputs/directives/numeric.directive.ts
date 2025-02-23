@@ -8,6 +8,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
 import { toStringValue } from "@codinus/js-extensions";
 import { Nullable } from "@codinus/types";
+import { booleanTrueAttribute } from "@ngx-codinus/core/shared";
 import { CSInputButtonDirectiveBase, CSInputButtonElementBase } from "../base/input-button-base.directive";
 
 const INPUTNUMBER_VALUE_ACCESSOR = {
@@ -46,7 +47,7 @@ class NumbericInputButtonsComponent extends CSInputButtonElementBase<number> {
     exportAs: 'numberInput',
     providers: [INPUTNUMBER_VALUE_ACCESSOR],
     host: {
-        '[disabled]': 'disabled',
+        '[disabled]': 'disabled()',
         '(input)': '_onInput($event)',
         '(blur)': '_onBlur()',
         '(focus)': '_onFocus()',
@@ -76,14 +77,14 @@ export class CSNumericInput extends CSInputButtonDirectiveBase<number, NumbericI
     mode = input<'integer' | 'decimal', 'integer' | 'decimal' | undefined>('integer', { transform: v => v ?? 'integer' });
     locale = input<string | undefined>();
     thousandSeparator = input(false, { transform: booleanAttribute });
-    allowArrowKeys = input(true, { transform: v => v == null ? true : booleanAttribute(v) });
+    allowArrowKeys = input(true, { transform: booleanTrueAttribute });
     percentage = input(false, { transform: booleanAttribute });
     currency = input<Nullable<string>>();
     decimalDigits = input<Nullable<number>>();
     verticalButton = input(false, { transform: booleanAttribute });
     @Input()
-    get value(): number | bigint | null | undefined { return this._value; }
-    set value(value: number | bigint | null | undefined) {
+    get value(): Nullable<number | bigint> { return this._value; }
+    set value(value: Nullable<number | bigint>) {
         if (this._parseValueAndValidate(value, true, false).changed) {
             this._value = value;
             this._updateInput(true);

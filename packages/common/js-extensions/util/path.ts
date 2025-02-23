@@ -1,11 +1,15 @@
 import { isString } from "./is";
 
+
 /**
- * Joins multiple path segments into a single path string.
- * Removes duplicate slashes and handles file protocol (file://) properly.
- *
- * @param {...string[]} args - Path segments to be joined.
- * @returns {string} - The concatenated path.
+ * Joins multiple string arguments into a single path string.
+ * 
+ * This function normalizes the path by removing duplicate slashes,
+ * leading slashes, and trailing slashes from each part. It also
+ * handles special cases for file protocols.
+ * 
+ * @param {...string[]} args - The parts of the path to join.
+ * @returns {string} The joined and normalized path.
  */
 export function joinAsPath(...args: string[]): string {
     if (args.length === 0)
@@ -13,7 +17,7 @@ export function joinAsPath(...args: string[]): string {
     return args.map((part, i) => {
         if (isString(part)) {
             part = part.replace(/\/\/+/g, '/').replace(/^[/]+/, '').replace(/[/]+$/, '');
-            if (i == 0) {
+            if (i === 0) {
                 const protocolFixer = part.match(/^file:/) ? '//' : '/';
                 if (part.endsWith(':'))
                     part += protocolFixer;
@@ -27,8 +31,24 @@ export function joinAsPath(...args: string[]): string {
 }
 
 
+/**
+ * Splits a file name into its name and extension parts.
+ *
+ * @param fileName - The full name of the file including its extension.
+ * @returns An object containing the name and extension of the file.
+ *          If the file has no extension, the extension will be an empty string.
+ *
+ * @example
+ * ```typescript
+ * const fileInfo = getFileInfo('example.txt');
+ * console.log(fileInfo); // { name: 'example', extension: 'txt' }
+ * 
+ * const fileInfoNoExt = getFileInfo('example');
+ * console.log(fileInfoNoExt); // { name: 'example', extension: '' }
+ * ```
+ */
 export function getFileInfo(fileName: string) {
-    const parts = fileName?.split('.') || [];
+    const parts = fileName.split('.');
     if (parts.length <= 1) {
         return { name: fileName, extension: '' };
     }

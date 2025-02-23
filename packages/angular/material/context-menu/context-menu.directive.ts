@@ -53,9 +53,11 @@ class CSContextMenuTracker {
 class ContextMenuComponent {
     private _menuTrigger = viewChild(MatMenuTrigger);
     private _triggerElement = viewChild('trigger', { read: ElementRef });
+    private _sourceElement?: HTMLElement;
+
     contextMenuDirective!: CSContextMenuDirective;
 
-    _open(event: MouseEvent | TouchEvent, args: ConextMenuOpenArgs) {
+    _open(event: MouseEvent | TouchEvent, args: ConextMenuOpenArgs, sourceElement?: HTMLElement) {
         const menuTrigger = this._menuTrigger();
         if (!menuTrigger)
             return;
@@ -64,6 +66,12 @@ class ContextMenuComponent {
         const triggerElement: HTMLElement = this._triggerElement()?.nativeElement;
         triggerElement.style.left = _position.clientX + 'px';
         triggerElement.style.top = _position.clientY + 'px';
+
+        this._removeElementOpenedCssClass();
+        if (sourceElement) {
+            this._sourceElement = sourceElement;
+            sourceElement.classList.add('cs-context-menu-opened');
+        }
 
         if (menuTrigger.menuOpen) {
             menuTrigger.updatePosition();
@@ -80,6 +88,13 @@ class ContextMenuComponent {
 
     protected onMenuClose() {
         this.contextMenuDirective._eventManager.unRegister('lockedDocument');
+        this._removeElementOpenedCssClass();
+    }
+
+    private _removeElementOpenedCssClass() {
+        if (this._sourceElement) {
+            this._sourceElement.classList.remove('cs-context-menu-opened');
+        }
     }
 
     _close(): void {
@@ -171,7 +186,7 @@ export class CSContextMenuDirective implements OnDestroy {
         if (!args.menuItems?.length)
             return false;
 
-        this._menuComponent.instance._open(eventArgs.event as MouseEvent | TouchEvent, args);
+        this._menuComponent.instance._open(eventArgs.event as MouseEvent | TouchEvent, args, eventArgs.source);
 
         return false;
     }

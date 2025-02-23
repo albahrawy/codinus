@@ -21,3 +21,4 @@ export * from './typescript/parser';
 export * from './scopes/handler-scope';
 export * from './scopes/scopeflags';
 export * from './builder/script-transpiler';
+export * from './builder/cs-transpiler-module-types';

@@ -1,3 +1,4 @@
 export * from './event-manager';
-export * from './lazy-click.directive';
+export * from './advanced-events.directive';
 export * from './svg-events.directive';
+export * from './functions';

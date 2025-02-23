@@ -15,7 +15,7 @@ import { ICSRuntimeFormFieldMaskedText } from './_types';
             [useUnmaskValue]="config().useUnmaskValue" [clearOnInvalid]="config().clearOnInvalid"
             [asyncValidators]="asyncValidator()" [validators]="validator()" />
     `,
-    imports: [ELEMENT_IMPORTS, CSMaskInput],
+    imports: [...ELEMENT_IMPORTS, CSMaskInput],
 })
 
 export class CSFormElementMaskedText extends CSRunTimeFormValidableElementBase<ICSRuntimeFormFieldMaskedText, string> { }

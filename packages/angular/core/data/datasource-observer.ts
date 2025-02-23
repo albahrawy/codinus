@@ -2,12 +2,12 @@ import { CollectionViewer, isDataSource } from "@angular/cdk/collections";
 import { Observable, ReplaySubject, Subscription, pairwise, shareReplay, startWith, switchMap } from "rxjs";
 import { convertToObservable } from "./functions";
 import { CSDataSource } from "./types";
-import { effect, Signal } from "@angular/core";
+import { effect } from "@angular/core";
 
 export interface ICSDataSourceObserverConfig<TRecord> {
     collectionViewer?: CollectionViewer | null;
     autoSubscribe?: (data: readonly TRecord[]) => void;
-    host?: { dataSource: Signal<CSDataSource<TRecord>> }
+    dsSync?: () => () => CSDataSource<TRecord>;
 }
 
 export class CSDataSourceObserver<TRecord> {
@@ -18,9 +18,9 @@ export class CSDataSourceObserver<TRecord> {
     constructor(private config?: ICSDataSourceObserverConfig<TRecord>) {
         if (config?.autoSubscribe)
             this.subscribe(config.autoSubscribe);
-        const host = config?.host;
-        if (host)
-            effect(() => this.dataSource = host.dataSource());
+        const dsSync = config?.dsSync;
+        if (dsSync)
+            effect(() => this.dataSource = dsSync()());
     }
 
     get dataSource(): CSDataSource<TRecord> {

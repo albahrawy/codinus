@@ -1,4 +1,4 @@
-import { Directive, computed, input } from "@angular/core";
+import { Directive, booleanAttribute, computed, input } from "@angular/core";
 import { getProperCssValue } from "@codinus/dom";
 import { toNumber } from "@codinus/js-extensions";
 import { Nullable } from "@codinus/types";
@@ -10,6 +10,7 @@ import { createFlexMediaInfo } from "./functions";
         'class': 'layout-flex-element',
         '[style.order]': 'order()',
         '[style.--layout-flex-basis]': 'basis().default',
+        '[class.--flex-limit]': 'flexLimit()',
         '[style.--layout-flex-basis-xs]': 'basis().xs',
         '[style.--layout-flex-basis-sm]': 'basis().sm',
         '[style.--layout-flex-basis-md]': 'basis().md',
@@ -19,7 +20,11 @@ import { createFlexMediaInfo } from "./functions";
     },
 })
 export class LayoutFlexElementDirective {
+
     protected basis = computed(() => createFlexMediaInfo(this.flexBasis(), v => getProperCssValue(v)));
+
     flexBasis = input<Nullable<string>>(null, { alias: 'flex-basis' });
+    flexLimit = input(false, { transform: booleanAttribute, alias: 'flex-limit' });
     order = input(null, { alias: 'flex-order', transform: (v: Nullable<string | number>) => v == null ? null : toNumber(v) });
+
 }

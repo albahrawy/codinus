@@ -55,4 +55,10 @@ export abstract class CSButtonContainerBase<TButton extends ICSButtonBase,
     getButton(key: string) {
         return this._buttonArray().find(b => b.key === key)?.args;
     }
+
+    setButtonDisabledState(key: string, value: boolean) {
+        const button = this.getButton(key);
+        if (button)
+            setTimeout(() => button.disabled = value);
+    }
 }

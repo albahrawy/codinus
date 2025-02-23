@@ -24,6 +24,6 @@ export interface ICSContextMenuParent {
     readonly conextMenuOpening: Observable<ConextMenuOpeningArgs> | OutputEmitterRef<ConextMenuOpeningArgs>;
 }
 
-export type ConextMenuOpeningArgs = { data?: unknown, event?: Event };
+export type ConextMenuOpeningArgs = { data?: unknown, event?: Event, source?: HTMLElement };
 
 export type ConextMenuOpenArgs = { menuItems: IContextMenuItem[], data?: unknown };

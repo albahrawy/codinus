@@ -6,19 +6,21 @@
  * found in the LICENSE file at the root.
  */
 import { FixedSizeVirtualScrollStrategy, VIRTUAL_SCROLL_STRATEGY } from "@angular/cdk/scrolling";
-import { Directive, computed, effect, forwardRef, input, numberAttribute, signal } from "@angular/core";
+import { Directive, computed, effect, forwardRef, inject, input, numberAttribute } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { CODINUS_TABLE_API_REGISTRAR } from "../api";
 import { CSTableResponsiveView } from "./responsive-view";
-import { ICSTableResponsiveArgs } from "./types";
 
 
 @Directive({
     selector: 'cdk-table[responsive][virtual-scroll], mat-table[responsive][virtual-scroll]',
     host: {
         'class': 'cs-fixed-size-virtual-scroll-table',
-        '[style.--cs-table-row-height.px]': 'domRowHeight()'
+        '[style.--cs-table-row-height.px]': 'domRowHeight()',
+        '[style.--cs-table-responsive-cell-height.px]': 'cellHeight()'
     },
     providers: [
-        { provide: CSTableResponsiveView, useExisting: CSTableResponsiveVirtualScroll },
+        // { provide: CSTableResponsiveView, useExisting: CSTableResponsiveVirtualScroll },
         {
             provide: VIRTUAL_SCROLL_STRATEGY,
             useFactory: (fixedSizeDir: CSTableResponsiveVirtualScroll) => fixedSizeDir._scrollStrategy,
@@ -26,12 +28,13 @@ import { ICSTableResponsiveArgs } from "./types";
         },
     ],
 })
-export class CSTableResponsiveVirtualScroll extends CSTableResponsiveView {
+export class CSTableResponsiveVirtualScroll {
+    private _responsiveView = inject(CSTableResponsiveView, { self: true });
+    protected _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
 
-    private _currentView = signal({ cells: 0, columns: 0 });
+    private _currentView = toSignal(this._responsiveView.viewChanged, { initialValue: { cells: 0, columns: 0 } });
 
     constructor() {
-        super();
         this._apiRegistrar?.register('tableApiResponsiveStrategy', this);
         effect(() => this._scrollStrategy.updateItemAndBufferSize(this.domRowHeight(), this._minBufferPx(), this._maxBufferPx()));
     }
@@ -52,15 +55,15 @@ export class CSTableResponsiveVirtualScroll extends CSTableResponsiveView {
     });
 
     cellHeight = input(40, { transform: numberAttribute });
-    minBufferPx = input(100, { transform: numberAttribute });
-    maxBufferPx = input(300, { transform: numberAttribute });
+    // minBufferPx = input(100, { transform: numberAttribute });
+    // maxBufferPx = input(300, { transform: numberAttribute });
 
 
     /** The scroll strategy used by this directive. */
     _scrollStrategy = new FixedSizeVirtualScrollStrategy(this.domRowHeight(), this._minBufferPx(), this._maxBufferPx());
 
-    protected override onViewChanged(arg: ICSTableResponsiveArgs): void {
-        super.onViewChanged(arg);
-        this._currentView.set(arg);
-    }
+    // protected override onViewChanged(arg: ICSTableResponsiveArgs): void {
+    //     super.onViewChanged(arg);
+    //     this._currentView.set(arg);
+    // }
 }

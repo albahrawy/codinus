@@ -7,31 +7,33 @@ import { ICSDialogConfig, ICSDialogOptions, ICSDialogService } from '@ngx-codinu
 import { EMPTY, Observable, map } from 'rxjs';
 import { CSDialogHostComponent } from './cs-dialog';
 import { CODINUS_DIALOG_OPTIONS, Default_Codinus_Dialog_Options } from './default.config';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class CSDialogService implements ICSDialogService<MatDialogRef<unknown>> {
 
-    private readonly dir = inject(Directionality, { optional: true });
-    private readonly dialog = inject(MatDialog);
-    private readonly htmlService = inject(CODINUS_HTTP_SERVICE, { optional: true });
-    private readonly defaultOptions = inject(CODINUS_DIALOG_OPTIONS, { optional: true }) ?? Default_Codinus_Dialog_Options;
+    private readonly _dir = inject(Directionality, { optional: true });
+    private readonly _document = inject(DOCUMENT);
+    private readonly _dialog = inject(MatDialog);
+    private readonly _htmlService = inject(CODINUS_HTTP_SERVICE, { optional: true });
+    private readonly _defaultOptions = inject(CODINUS_DIALOG_OPTIONS, { optional: true }) ?? Default_Codinus_Dialog_Options;
 
     confirm(message: string, options?: ICSDialogOptions<boolean, void, MatDialogRef<unknown, boolean>>): Observable<boolean> {
-        return this.openCore({ component: message, options, getResult: () => true }, false, this.defaultOptions.confirm);
+        return this.openCore({ component: message, options, getResult: () => true }, false, this._defaultOptions.confirm);
     }
 
     alert(message: string, options?: ICSDialogOptions<void, void, MatDialogRef<unknown, void>> | undefined): Observable<void> {
-        return this.openCore({ component: message, options }, false, this.defaultOptions.alert);
+        return this.openCore({ component: message, options }, false, this._defaultOptions.alert);
     }
 
     showHtml<TResult = boolean>(url: string | string[], options?: ICSDialogOptions<TResult, void, MatDialogRef<unknown, TResult>> | undefined): Observable<TResult> {
-        if (!this.htmlService)
+        if (!this._htmlService)
             return EMPTY;
-        return this.open<TResult>({ component: this.htmlService.get<string>(url).pipe(map(s => s ?? '')), options });
+        return this.open<TResult>({ component: this._htmlService.get<string>(url).pipe(map(s => s ?? '')), options });
     }
 
     open<TResult, TData = void>(config: ICSDialogConfig<TResult, TData, MatDialogRef<unknown, TResult>>, native?: boolean): Observable<TResult> {
-        return this.openCore(config, !!native, this.defaultOptions.dialog);
+        return this.openCore(config, !!native, this._defaultOptions.dialog);
     }
 
     openCore<TResult, TData, TRef>(config: ICSDialogConfig<TResult, TData, TRef>, native: boolean, defaultOptions: ICSDialogOptions)
@@ -46,8 +48,9 @@ export class CSDialogService implements ICSDialogService<MatDialogRef<unknown>> 
             : CSDialogHostComponent;
         const data = native ? config.data : config;
         const options = config.options ?? {};
-        const direction: Direction = this.dir?.value || document.dir.toLowerCase() as Direction;
-        const dialogRef = this.dialog.open(component, {
+        const direction: Direction = this._dir?.value || document.dir.toLowerCase() as Direction;
+        (this._document?.activeElement as HTMLElement)?.blur?.();
+        const dialogRef = this._dialog.open(component, {
             minWidth: options.minWidth,
             maxWidth: options.maxWidth,
             minHeight: options.minHeight,

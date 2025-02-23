@@ -21,12 +21,20 @@ export type IMonacoLanguages = typeof monaco.languages & {
 	typescript: typeof languages.typescript
 };
 
+export type EditorRange = monaco.Range;
+
 export interface ICSMonacoEditor {
+	modelName: () => string;
+	language: () => 'typescript' | 'json' | 'css' | 'html';
+	actions: () => IEditorActionDescriptor[] | null;
+	_editor: () => IStandaloneCodeEditor | null;
+	_monaco: () => IMonaco | null;
 	_onValueChange(newValue: string | null): void;
-	formatAndFocus(): void;
+	formatAndFocus(): Promise<void>;
 }
 
 export type IEditorModel = monaco.editor.ITextModel;
+export type IContextKey = monaco.editor.IContextKey;
 export interface IEditorActionDescriptorBase {		/**
 	* An unique identifier of the contributed action.
 	*/
@@ -88,7 +96,8 @@ export interface IEditorActionArgs {
 	readonly column: number;
 	readonly range: {
 		startLineNumber: number;
-		startColumn: number; endLineNumber: number;
+		startColumn: number; 
+		endLineNumber: number;
 		endColumn: number
 	}
 	separator: string;

@@ -1,4 +1,4 @@
-import { Component, computed } from '@angular/core';
+import { Component } from '@angular/core';
 import { DateFilterFn, MatCalendarCellClassFunction } from '@angular/material/datepicker';
 import { isDate } from '@codinus/js-extensions';
 import { CSTranslatePipe } from '@ngx-codinus/cdk/localization';
@@ -19,16 +19,16 @@ import { ICSRuntimeFormFieldDateRange } from './_types';
         [dateFormat]="config().dateFormat" [dateClass]="dateClass()" [dateFilter]="dateFilter()!">
         </cs-date-range-input>
     `,
-    imports: [ELEMENT_IMPORTS, CSDateRangeInput, CSTranslatePipe],
+    imports: [...ELEMENT_IMPORTS, CSDateRangeInput, CSTranslatePipe],
 })
 
 export class CSFormElementDateRange extends CSRunTimeFormValidableElementBase<ICSRuntimeFormFieldDateRange, Date> {
 
-    dateFilter = this.signalFunctionOf<DateFilterFn<Date | null>>('DateFilter');
-    dateClass = this.signalFunctionOf<MatCalendarCellClassFunction<Date>>('DateClass');
-    defaultValueFn = this.signalFunctionOf<() => [Date | string | null, Date | string | null]>('DateRangeDefaultValue');
+    protected dateFilter = this.signalFunctionOf<DateFilterFn<Date | null>>('DateFilter');
+    protected dateClass = this.signalFunctionOf<MatCalendarCellClassFunction<Date>>('DateClass');
+    protected defaultValueFn = this.signalFunctionOf<() => [Date | string | null, Date | string | null]>('DateRangeDefaultValue');
 
-    override defaultValue = computed(() => {
+    protected override getDefaultValue() {
         const defFn = this.defaultValueFn();
         let defValue = defFn ? defFn() : this.config().defaultValue;
         if (typeof defValue === 'string') {
@@ -44,5 +44,5 @@ export class CSFormElementDateRange extends CSRunTimeFormValidableElementBase<IC
                     : null
             )
         return null;
-    });
+    }
 }

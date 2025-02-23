@@ -1,6 +1,6 @@
 <h2>Flex Layout</h2>
 <div class="form-div" csContextMenu [contextMenuItems]="_contextMenuItems">
-    <div [layout-flex]="'row wrap'" #t [flex-gap]="flexGap" layout-flex-align="start">
+    <div layout-flex="row wrap" [flex-gap]="flexGap" layout-flex-align="start">
         @for (item of config; track $index)
         {
         <div class="flex-box-example" layout-flex-element [flex-basis]="item.base" [flex-order]="item.order">
@@ -15,6 +15,25 @@
         </div>
         }
     </div>
+
+</div>
+<h2>Flex Grid</h2>
+<div class="form-div">
+    <cs-flex-grid-container [flex-grid-gap]="flexGap" flex-grid-align="start" [flex-grid-columns]="gridColumns">
+        @for (item of config; track $index)
+        {
+        <div class="flex-box-example" flex-grid-element [flex-grid-column-span]="item.span" [flex-grid-order]="item.order">
+            <span>Flex Layout Box {{item.index}}</span>
+            <div class="item-button-area">
+                <button mat-button="stroked" csContextMenu [contextMenuItems]="_contextMenuItems2" color="primary"
+                    (click)="shufflePlace(item)">Shuffle Place</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='50'">50%</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='33.33'">33.33%</button>
+                <button mat-button="stroked" color="primary" (click)="item.base='auto'">Auto</button>
+            </div>
+        </div>
+        }
+    </cs-flex-grid-container>
 
 </div>
 <div class="button-area">

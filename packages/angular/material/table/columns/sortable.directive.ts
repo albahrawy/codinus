@@ -6,9 +6,8 @@ import {
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { CODINUS_TABLE_API_REGISTRAR } from '../api';
 import { CSTableColumnDataDef } from '../data/dataDef.directive';
-import { CSTableDataSourceDirective } from '../data/datasource.directive';
 import { isSupportMatSort } from '../data/functions';
-import { ICSSupportMatSortDataSource } from '../data/types';
+import { CODINUS_DATA_SOURCE_DIRECTIVE, ICSSupportMatSortDataSource } from '../data/types';
 
 //TODO: think about local compare
 @Component({
@@ -40,7 +39,7 @@ export class CSColumnSortable {
 })
 export class CSTableSortableDirective extends MatSort implements OnInit {
 
-    private dataSourceDirective = inject(CSTableDataSourceDirective, { optional: true });
+    private dataSourceDirective = inject(CODINUS_DATA_SOURCE_DIRECTIVE, { optional: true });
     private _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
     private _prevDs?: ICSSupportMatSortDataSource;
 

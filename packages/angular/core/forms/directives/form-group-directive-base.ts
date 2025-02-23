@@ -12,7 +12,7 @@ export abstract class CSFormGroupDirectiveBase extends FormGroupDirective implem
 
     parentCSFormGroupDirective = inject(FormGroupDirective, { optional: true, skipSelf: true });
 
-    override readonly form = new CSFormGroup();
+    override readonly form = new CSFormGroup(false);
     directiveLength = signal(0);
 
     @Input()
@@ -21,7 +21,7 @@ export abstract class CSFormGroupDirectiveBase extends FormGroupDirective implem
 
     ngAfterViewInit(): void {
         this._initialized = true;
-        this.form.updateValueAndValidity();
+        this.form.initialize();
     }
 
     override addControl(dir: FormControlName): FormControl {
@@ -46,18 +46,17 @@ export abstract class CSFormGroupDirectiveBase extends FormGroupDirective implem
         if (dir.control)
             return dir.control;
         let control;
-
         if (dir instanceof CSSectionFormControlName) {
             control = new CSSectionFormControl(
-                { value: dir.defaultValue, disabled: dir.isDisabled || this.form.disabled },
+                { value: dir.defaultValue, disabled: dir.initialDisableStatus() },
                 { nonNullable: dir.defaultValue != null });
             control.setSectionFormName(dir);
         } else if (dir instanceof CSFormControlName) {
             control = new FormControl(
-                { value: dir.defaultValue, disabled: dir.isDisabled || this.form.disabled },
+                { value: dir.defaultValue, disabled: dir.initialDisableStatus() },
                 { nonNullable: dir.defaultValue != null });
         } else {
-            control = new FormControl({ value: null, disabled: this.form.disabled });
+            control = new FormControl();
         }
         const _pendingValue = this.form.getPendingValue(ctrlName);
         if (_pendingValue != null)

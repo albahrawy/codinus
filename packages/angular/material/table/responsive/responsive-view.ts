@@ -7,8 +7,8 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { addStyleSectionToDocument, findElementAttributeByPrefix, getCssSizeBreakpoint, HTMLStyleElementScope } from "@codinus/dom";
 import { arrayFromMap, arrayToMap } from "@codinus/js-extensions";
 import { Nullable } from "@codinus/types";
-import { CSElementResizeObserverService } from "@ngx-codinus/cdk/observer";
-import { CODINUS_ELEMENT_RESIZE_OBSERVER, createMediaColumnProperty } from "@ngx-codinus/core/layout";
+import { createMediaColumnProperty } from "@ngx-codinus/core/layout";
+import { CODINUS_ELEMENT_RESIZE_OBSERVER, CSElementResizeObserverService } from "@ngx-codinus/core/observer";
 import { forceInputSet } from "@ngx-codinus/core/shared";
 import { CODINUS_TABLE_API_REGISTRAR, CSTableResponsive, ICSTableApiResponsive } from "../api";
 import { CSTableColumnDataDef } from "../data";
@@ -16,8 +16,8 @@ import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
 import { ICSTableResponsiveArgs } from "./types";
 
 @Directive({
-    selector: `mat-table:not([virtual-scroll])[responsive],
-               cdk-table:not([virtual-scroll])[responsive]`,
+    selector: `mat-table[responsive],
+               cdk-table[responsive]`,
 })
 export class CSTableResponsiveView implements OnDestroy, ICSTableApiResponsive {
 
@@ -50,7 +50,11 @@ export class CSTableResponsiveView implements OnDestroy, ICSTableApiResponsive {
         const mediaInfo = this._responseMedia();
         if (!mediaInfo)
             return 0;
-        const breakpoint = getCssSizeBreakpoint(this._containerWidth());
+        const containerWidth = this._containerWidth() ?? this._elementRef.nativeElement.clientWidth;
+        if (!containerWidth)
+            return 0;
+
+        const breakpoint = getCssSizeBreakpoint(containerWidth);
         return breakpoint
             ? mediaInfo[breakpoint]
             : mediaInfo['default'] ?? 0;
@@ -61,13 +65,17 @@ export class CSTableResponsiveView implements OnDestroy, ICSTableApiResponsive {
         effect(() => {
             const el = this._elementRef.nativeElement;
             const responsiveColumns = this.columnsInRow();
+            const cells = this.displayedColumns().length;
             if (responsiveColumns > 0) {
                 this._renderer.addClass(el, 'cs-table-responsive');
                 this._renderer.setStyle(el, '--cs-responsive-column-in-row', `${100 / responsiveColumns}%`, RendererStyleFlags2.DashCase);
+                this._renderer.setStyle(el, '--cs-responsive-cell-count', `${cells}`, RendererStyleFlags2.DashCase);
             } else {
                 this._renderer.removeClass(el, 'cs-table-responsive');
+                this._renderer.removeStyle(el, '--cs-responsive-column-in-row', RendererStyleFlags2.DashCase);
+                this._renderer.removeStyle(el, '--cs-responsive-cell-count', RendererStyleFlags2.DashCase);
             }
-            this.onViewChanged({ cells: this.displayedColumns().length, columns: responsiveColumns });
+            this.onViewChanged({ cells, columns: responsiveColumns });
         });
 
         effect(() => {

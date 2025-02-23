@@ -1,0 +1,13 @@
+<mat-form-field subscriptSizing="dynamic" class="cs-icon-browser-search-input">
+    <input matInput [(ngModel)]="searchText">
+    <mat-icon matSuffix>search</mat-icon>
+</mat-form-field>
+<cdk-virtual-scroll-viewport class="cs-icon-browser-container" [itemWidth]="itemSize()" [itemHeight]="itemSize()"
+    itemRowGap="4" itemColumnGap="4">
+    <div class="cs-icon-browser-icon-box" *cdkVirtualFor="let icon of availableIcons(); trackBy: trackByFn" #iconBox
+        [attr.iconName]="icon" [class.selected]="icon===selectedIcon()" (dblclick)="_onIconDblClick(icon)"
+        (click)="_onIconClick(icon)">
+        <span [class]="_iconCssClasses()">{{icon}}</span>
+        <div class="cs-icon-browser-icon-text">{{icon}}</div>
+    </div>
+</cdk-virtual-scroll-viewport>

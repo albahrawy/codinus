@@ -76,13 +76,3 @@ export class CSSelectControlValueAccessor extends SelectControlValueAccessor { }
     providers: [DEFAULT_VALUE_ACCESSOR],
 })
 export class CSDefaultValueAccessor extends DefaultValueAccessor { }
-
-
-export const CODINUS_DEFAULT_VALUE_ACCESSORS = [
-    CSDefaultValueAccessor,
-    CSCheckboxControlValueAccessor,
-    CSRadioControlValueAccessor,
-    CSRangeValueAccessor,
-    CSSelectMultipleControlValueAccessor,
-    CSSelectControlValueAccessor
-] as const;

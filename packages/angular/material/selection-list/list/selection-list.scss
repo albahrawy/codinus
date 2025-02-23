@@ -20,7 +20,8 @@
   // We don't use MDC's state layer since it's tied in with their ripple. Instead we emit slots
   // for our own state layer.
   // TODO(mmalerba): Consider using MDC's ripple & state layer.
-  .mdc-list-item:hover::before {
+  .mdc-list-item:hover::before,
+  .mdc-list-item.cs-context-menu-opened::before {
     @include token-utils.create-token-slot(background-color, list-item-hover-state-layer-color);
     @include token-utils.create-token-slot(opacity, list-item-hover-state-layer-opacity);
   }
@@ -74,7 +75,6 @@ a.mdc-list-item--activated {
 // MDC expects the list element to be a `<ul>`, since we use `<mat-list>` instead we need to
 // explicitly set `display: block`
 .mat-mdc-list-base {
-  display: block;
 
   // MDC sets `pointer-events: none` on these elements,
   // even though we allowed interactive content in them.
@@ -155,6 +155,7 @@ a.mdc-list-item--activated {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 }
 
@@ -199,6 +200,7 @@ mat-action-list button {
   box-sizing: border-box;
   overflow-y: hidden !important;
   padding: 0;
+  background-color: var(--cs-list-panel-background-color, transparent);
 
   &.cs-selection-list-panel-disabled {
     user-select: none;
@@ -226,13 +228,8 @@ mat-action-list button {
     // }
   }
 
-  .search-input {
+  .cs-list-search-input {
     width: 100%;
-
-    .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-      height: 0px;
-    }
   }
 
   .cs-list-option {

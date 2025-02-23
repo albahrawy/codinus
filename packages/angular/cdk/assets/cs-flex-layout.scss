@@ -1,4 +1,14 @@
+@use "sass:map";
 $element-sizes: xs sm md lg xl sl;
+$breakPoints: (
+    xs: (min:0, max:375),
+    sm: (min:375, max:810),
+    md: (min:810, max:1024),
+    lg: (min:1024, max:1440),
+    xl: (min:1440, max:2560),
+    sl: (min:2560, max:9000)
+);
+
 $base-variable: var(--layout-flex-basis, auto);
 $align-content: start end center space-between space-around space-evenly;
 $align-items: start end center baseline stretch;
@@ -8,6 +18,7 @@ $align-items: start end center baseline stretch;
     flex-direction: $direction;
     flex-wrap: nowrap;
     box-sizing: border-box;
+    align-content: start;
 
     &[layout-flex~="reverse"] {
         flex-direction: #{$direction}-reverse;
@@ -31,8 +42,11 @@ $align-items: start end center baseline stretch;
         flex-grow: 1;
         flex-shrink: 1;
         box-sizing: border-box;
-
         flex-basis: $base-variable;
+
+        &.--flex-limit {
+            max-width: var(--codinus-flex-basis-value);
+        }
     }
 
     @each $size in $element-sizes {
@@ -48,12 +62,6 @@ $align-items: start end center baseline stretch;
 
                 >[layout-flex-element] {
                     --codinus-flex-basis-value: calc(var(--layout-flex-basis-#{$size}, #{$base-variable}) - var(--active-gap-value));
-                }
-            }
-
-            &.--flex-limit {
-                >[layout-flex-element] {
-                    max-width: var(--codinus-flex-basis-value);
                 }
             }
         }
@@ -81,5 +89,86 @@ $align-items: start end center baseline stretch;
         }
 
         align-items: #{$align};
+    }
+}
+
+.cs-flex-line-break {
+    height: 0;
+    flex: 0 0 100%;
+}
+
+.cs-flex-grid-host {
+    container: csFlexGrid/inline-size;
+    display: block;
+    // contain: layout;
+}
+
+.cs-flex-grid-container {
+    --cs-container-flex-grid-columns: var(--cs-flex-grid-columns, 1);
+    --cs-container-flex-grid-gap: var(--cs-flex-grid-gap);
+    --_columns-count: var(--cs-container-flex-grid-columns);
+
+    display: grid;
+    grid-auto-flow: row;
+
+    &:has(> :only-child) {
+        --_columns-count: 1;
+    }
+
+    &:has(> :nth-last-child(2):first-child) {
+        --_columns-count: 2;
+    }
+
+    &:has(> :nth-last-child(3):first-child) {
+        --_columns-count: 3;
+    }
+
+    &:has(> :nth-last-child(4):first-child) {
+        --_columns-count: 4;
+    }
+
+    &:has(> :nth-last-child(5):first-child) {
+        --_columns-count: 5;
+    }
+
+    &:has(> :nth-last-child(6):first-child) {
+        --_columns-count: 6;
+    }
+
+    grid-template-columns: repeat(min(var(--cs-container-flex-grid-columns), var(--_columns-count)), 1fr);
+
+    gap: var(--cs-container-flex-grid-gap, auto);
+    grid-auto-rows: min-content;
+
+
+    .cs-flex-grid-element {
+        --cs-flex-guraded-column-span: auto;
+
+        &:not(.cs-flex-grid-element-full-row) {
+            grid-column-end: span min(var(--cs-flex-guraded-column-span, var(--cs-container-flex-grid-columns, 1)));
+        }
+
+        &.cs-flex-grid-element-new-row:not(.cs-flex-grid-element-full-row) {
+            grid-column-start: 1;
+        }
+
+        &.cs-flex-grid-element-full-row {
+            grid-column: 1/-1;
+        }
+    }
+}
+
+@each $key, $value in $breakPoints {
+    $min: map.get($value, min);
+    $max: map.get($value, max);
+    @container csFlexGrid (#{$min}px < width <= #{$max}px) {
+        .cs-flex-grid-container {
+            --cs-container-flex-grid-columns: var(--cs-flex-grid-columns-#{$key}, var(--cs-flex-grid-columns, 1));
+            --cs-container-flex-grid-gap: var(--cs-flex-grid-gap-#{$key}, var(--cs-flex-grid-gap, auto));
+
+            .cs-flex-grid-element {
+                --cs-flex-guraded-column-span: var(--cs-flex-grid-column-span-#{$key}, var(--cs-flex-grid-column-span, auto));
+            }
+        }
     }
 }

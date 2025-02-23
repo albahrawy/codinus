@@ -16,7 +16,7 @@ import { ICSRuntimeFormFieldNumber } from './_types';
             [showButtons]="config().showButton" [verticalButton]="config().verticalButton"
             [asyncValidators]="asyncValidator()" [validators]="validator()" />
     `,
-    imports: [ELEMENT_IMPORTS, CSNumericInput],
+    imports: [...ELEMENT_IMPORTS, CSNumericInput],
 })
 
 export class CSFormElementNumber extends CSRunTimeFormValidableElementBase<ICSRuntimeFormFieldNumber, number> {
