@@ -92,6 +92,7 @@ export abstract class CSCdkTreeNodeBodyBase<TNode> {
         const toolbarTemplate = this._treeFeatures._nodeToolBarTemplate();
         if (toolbarTemplate) {
             const nodeHoverOverlay = new CSHoverOverlay();
+            nodeHoverOverlay.effectedElement.set('.cs-tree-node-body');
             nodeHoverOverlay.csHoverOverlay.set(toolbarTemplate);
             nodeHoverOverlay.setOverlayContextGenerator(() => ({
                 ...this._treeFeatures._context, args: {

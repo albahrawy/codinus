@@ -1,9 +1,9 @@
 import { InjectionToken } from "@angular/core";
 
+import { ListRange } from "@angular/cdk/collections";
 import { Nullable, ValueGetter } from "@codinus/types";
 import { CSAggregation } from "@ngx-codinus/core/data";
 import { CSTableApiKey } from "./internal";
-import { ListRange } from "@angular/cdk/collections";
 
 export declare type KeyboardNavigationType = 'row' | 'cell' | 'cell-round' | 'none';
 export declare type SelectionType = 'none' | 'multiple' | 'single';

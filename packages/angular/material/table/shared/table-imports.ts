@@ -10,12 +10,12 @@ import { CODINUS_TABLE_EDITORS } from "../editors";
 import { CODINUS_TABLE_SELECTION_NAVIGATION } from "../features";
 import { CODINUS_TABLE_FILTERS } from "../filters";
 import { CSTableFormInput } from "../form-control/table-form-input";
-import { CODINUS_TABLE_RESPONSIVE } from "../responsive";
+import { CODINUS_TABLE_RESPONSIVE_DIRECTIVES } from "../responsive";
 import { CODINUS_TABLE_VIRTUAL_SCROLL, CSTableVirtualScrollable } from "../scroll";
 
 const TABLE_IMPORTS = [
     MatTableModule, CSTableVirtualScrollable, MatIconModule,
-    ...CODINUS_TABLE_RESPONSIVE, ...CODINUS_TABLE_SELECTION_NAVIGATION, ...CODINUS_TABLE_CELLS,
+    ...CODINUS_TABLE_RESPONSIVE_DIRECTIVES, ...CODINUS_TABLE_SELECTION_NAVIGATION, ...CODINUS_TABLE_CELLS,
     ...CODINUS_TABLE_COLUMNS, ...CODINUS_TABLE_DATA_DIRECTIVES,
     ...CODINUS_TABLE_VIRTUAL_SCROLL, ...CODINUS_TABLE_EDITORS, ...CODINUS_TABLE_FILTERS,
     CSTableMetaRowsVisiblity, CSTableApiIRegistrar, CSTableDirective, CSTableFormInput

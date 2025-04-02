@@ -117,7 +117,7 @@ export class CSDateInput<D> extends MatDatepickerInput<D> implements OnDestroy {
         enforceFormFieldSuffix(this.formField);
         const pickerControl = this._viewContainerRef.createComponent(InternalMatDatePickerComponent<D>);
         pickerControl.instance.attach(this, this._elementRef.nativeElement, this.formField);
-        this._stateObserverService.watchState(this._elementRef.nativeElement)
+        this._stateObserverService.watchEnabled(this._elementRef.nativeElement)
             .pipe(takeUntilDestroyed())
             .subscribe(e => {
                 pickerControl.setInput('disabled', e.disabled);

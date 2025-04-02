@@ -12,6 +12,7 @@ const FORM_AREA_HIDEEN_CSS_CLASS = 'cs-form-area-hidden-panel';
 })
 export class CSFormAreaPanel extends GridFlexContainerBase {
 
+    panelName = input<string>();
     label = input<Nullable<string>>(null);
     icon = input<Nullable<string>>(null);
     hidden = input(false, { transform: booleanAttribute });

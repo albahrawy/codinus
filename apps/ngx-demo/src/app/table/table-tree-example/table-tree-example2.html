@@ -1,0 +1,60 @@
+<mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <!-- Position Column -->
+    <ng-container matColumnDef="key">
+        <mat-header-cell *matHeaderCellDef>
+            <span [style.marginLeft.px]="25"> No. </span>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+            <!-- <button mat-icon-button [style.visibility]="!element.expandable ? 'hidden' : ''"
+                [style.marginLeft.px]="element.treeLevel * 40" (click)="dataSource.toggleNode(element)">
+                <mat-icon class="mat-icon-rtl-mirror">
+                    {{element.expanded ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+            </button>
+
+            {{element.key}} -->
+            <div class="cs-tree-node-body" (dblclick)="dataSource.toggleNode(element)"
+                (keydown.Space)="dataSource.toggleNode(element)" tabindex="-1">
+                @if(element.expandable){
+                <div class="cs-tree-arrow-container" (click)="dataSource.toggleNode(element)"
+                    [style.paddingLeft.px]="element.treeLevel * 40">
+                    <span class="cs-tree-expand-arrow" [class.cs-tree-expand-arrow-isExpanded]="element.expanded">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 20 20" width="20px"
+                            fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 6l6 6-6 6" />
+                        </svg>
+                    </span>
+                </div>
+                }@else {
+                <div class="cs-tree-arrow-container" [style.paddingLeft.px]="element.treeLevel * 40"></div>
+                }
+                <!-- @if(_showIcon()){
+                <mat-icon class="cs-tree-node-icon">{{_icon()}}</mat-icon>
+                } -->
+                <div class="cs-tree-node-text">{{element.key}}</div>
+            </div>
+        </mat-cell>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="weight">
+        <mat-header-cell *matHeaderCellDef> Weight </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.weight}} </mat-cell>
+    </ng-container>
+
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="symbol">
+        <mat-header-cell *matHeaderCellDef> Symbol </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.symbol}} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+</mat-table>

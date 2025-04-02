@@ -1,0 +1,128 @@
+:host,
+mat-table {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+}
+
+tr.example-detail-row {
+    height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+    background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+    background: #efefef;
+}
+
+.example-element-row td {
+    border-bottom-width: 0;
+}
+
+.example-element-detail {
+    overflow: hidden;
+    display: flex;
+}
+
+.example-element-diagram {
+    min-width: 80px;
+    border: 2px solid black;
+    padding: 8px;
+    font-weight: lighter;
+    margin: 8px 0;
+    height: 104px;
+}
+
+.example-element-symbol {
+    font-weight: bold;
+    font-size: 40px;
+    line-height: normal;
+}
+
+.example-element-description {
+    padding: 16px;
+}
+
+.example-element-description-attribution {
+    opacity: 0.5;
+}
+
+.child-row {
+    background-color: green;
+}
+
+.cs-tree-node-body {
+    display: flex;
+    flex: 1 1 auto;
+    outline: none;
+    align-items: center;
+    background-color: var(--cs-tree-node-background-color, transparent);
+    border-radius: var(--cs-tree-node-border-radius, var(--mat-sys-corner-medium));
+
+    .cs-tree-expand-arrow {
+        display: inline-block;
+        opacity: .7;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+
+        [dir='rtl'] & {
+            transform: rotate(180deg);
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &.cs-tree-expand-arrow-isExpanded {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+    }
+
+    .cs-tree-arrow-container {
+        min-width: 25px;
+        min-height: var(--mat-tree-node-min-height, 48px);
+        display: flex;
+        align-items: center;
+        outline: none;
+    }
+
+    .cs-tree-node-icon {
+        color: var(--cs-tree-node-icon-color, var(--mat-sys-primary));
+    }
+
+    .cs-tree-node-text {
+        flex: 1 1 auto;
+        // height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+        user-select: none;
+    }
+
+    &:not(.cs-tree-node-current) {
+
+        &:hover:not(:focus),
+        &.cs-context-menu-opened:not(:focus),
+        &.cs-hover-overlay-active:not(:focus) {
+            --cs-tree-node-background-color: var(--cs-tree-node-hover-state-layer-color,
+                    color-mix(in srgb, var(--mat-sys-inverse-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));
+            --cs-tree-node-border-radius: var(--cs-tree-node-hover-state-layer-shape, var(--mat-sys-corner-medium));
+        }
+
+        &:focus {
+            --cs-tree-node-background-color: var(--cs-tree-node-focus-state-layer-color,
+                    color-mix(in srgb, var(--mat-sys-primary) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));
+            --cs-tree-node-border-radius: var(--cs-tree-node-focus-state-layer-shape, var(--mat-sys-corner-medium));
+        }
+    }
+
+    &.cs-tree-node-current {
+        --cs-tree-node-background-color: var(--cs-tree-node-pressed-state-layer-color, var(--mat-sys-secondary-container));
+        --cs-tree-node-border-radius: var(--cs-tree-node-pressed-state-layer-shape, var(--mat-sys-corner-medium));
+    }
+}

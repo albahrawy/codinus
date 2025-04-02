@@ -92,6 +92,6 @@ export class CsTreeObjectHandler<TNode> extends CsTreeBaseHandler<TNode> {
             if (setCurrent)
                 this._csDataManager.setCurrent(rows[0], autoScroll);
         }
-        return this._csDataManager.getData();
+        return rows;
     }
 }

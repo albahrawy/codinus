@@ -1,4 +1,4 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, forwardRef, input, viewChild } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, forwardRef, input, output, viewChild } from "@angular/core";
 import { toNumber } from "@codinus/js-extensions";
 import { IFunc, IGenericRecord, Nullable } from '@codinus/types';
 import { CODINUS_FORM_VALIDATOR, CSFormGroupDirective } from "@ngx-codinus/core/forms";
@@ -39,6 +39,9 @@ export class CSFormSectionTree<TRow extends IGenericRecord = IGenericRecord> ext
     allowedChildTypes = input<ChildrenAllowedListFn<TRow>>();
     nodeIndent = input(20, { transform: (v: Nullable<string | number>) => v ? toNumber(v) : 20 });
 
+    readonly nodeRemoved = output<TRow | TRow[]>();
+    readonly nodeAdded = output<TRow | TRow[]>();
+
     protected override refreshItem(activeItem: TRow): void {
         this.sectionTree()?.refreshItem(activeItem);
     }
@@ -49,8 +52,12 @@ export class CSFormSectionTree<TRow extends IGenericRecord = IGenericRecord> ext
         } else {
             this._validationCache.delete(node);
         }
+        this.nodeRemoved.emit(node);
     }
 
+    protected _onNodeRemoving(state: boolean) {
+        this._listStructureChaning = state ? 'removing' : 'none';
+    }
 
     refresh() {
         this.sectionTree()?.refresh();

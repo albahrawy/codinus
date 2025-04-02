@@ -1,42 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { InjectionToken } from "@angular/core";
-import { IRecord, IStringRecord, Nullable } from "@codinus/types";
+import { IRecord, Nullable } from "@codinus/types";
+import { IAppPageContent } from '@ngx-codinus/data-pages/core';
 import {
-    CSFormAreaType,
-    ICSRuntimeFormConfig, ICSRuntimeFormElementAnyField, ICSRuntimeFormEvents, ICSRuntimeFormFieldBase,
+    ICSRuntimeFormElementAnyField, ICSRuntimeFormEvents, ICSRuntimeFormFieldBase,
+    ICSRuntimeFormFieldCheckBox,
     ICSRuntimeFormFieldConfig, ICSRuntimeFormFieldNamelessConfig
 } from "@ngx-codinus/material/forms";
 import { INodeAddMenuItem } from "@ngx-codinus/material/tree";
-
-export interface IAppPageInfo {
-    pageName: string;
-    originalName?: string;
-    type: string;
-    local: boolean;
-}
-
-export interface IAppPageProperties {
-    pageName: string;
-    autoSaveLayout?: boolean;
-    gridSize?: number;
-    displayType?: CSFormAreaType;
-    cssClass?: string;
-    icon?: string;
-
-    //leaveConfirmConfig: IConfirmConfig;
-
-    // search: IPageSearch;
-    // buttons: IToolBarButton[];
-    // securityItems: IDataPageSecurityItem[];
-    // reports: ReportMenuInfo[]
-}
-
-export interface IAppPageContent {
-    properties: IAppPageProperties,
-    sections: ICSRuntimeFormConfig,
-    code?: string;
-    styles?: string;
-}
 
 export interface IAppPageSaveRequest extends IAppPageContent {
     transpiledCode?: string;
@@ -63,6 +34,8 @@ export interface ICSFormSetupConfig<TField extends Omit<ICSRuntimeFormFieldBase,
 
 export interface ICSFormComponentSetupConfig {
     children?: ICSRuntimeFormSetupFieldConfig[],
+    mergedChildren?: ICSRuntimeFormSetupFieldConfig[],
+    toggleChildren?: ICSRuntimeFormFieldCheckBox[],
     panelColumns?: string;
     mergeTabs?: boolean;
     standards?: ICSComponentSetupStandard | null | false;
@@ -70,6 +43,8 @@ export interface ICSFormComponentSetupConfig {
         key: string;
         value: unknown | unknown[];
         children: ICSRuntimeFormSetupFieldConfig[],
+        mergedChildren?: ICSRuntimeFormSetupFieldConfig[],
+        toggleChildren?: ICSRuntimeFormFieldCheckBox[],
     }>
 }
 
@@ -111,3 +86,4 @@ export interface ICSBuiltInConfigComponent<T extends string> {
 }
 
 export type CSFlxGapConfigComponent = ICSBuiltInConfigComponent<'flex-gap'> | ICSBuiltInConfigComponent<'flex-columns'> | ICSBuiltInConfigComponent<'flex-span'>;
+

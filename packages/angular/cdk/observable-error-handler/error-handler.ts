@@ -3,9 +3,9 @@ import { Injectable, inject } from "@angular/core";
 import { IGenericRecord } from "@codinus/types";
 import { CODINUS_LOCALIZER } from "@ngx-codinus/cdk/localization";
 import { CODINUS_LOGGER_SERVICE } from "@ngx-codinus/cdk/logger";
-import { EMPTY, Observable, OperatorFunction, catchError, of, switchMap, throwError } from "rxjs";
+import { Observable, OperatorFunction, catchError, of, switchMap, throwError } from "rxjs";
 import { ErrorHandleType, ICSObservableErrorHandler } from "./types";
-
+//TODO: handle Codinus API Error
 @Injectable({ providedIn: 'root' })
 export class ObservableErrorHandler implements ICSObservableErrorHandler {
 
@@ -38,7 +38,7 @@ export class ObservableErrorHandler implements ICSObservableErrorHandler {
                             if (!e.error.startsWith('<!DOCTYPE html>'))
                                 stringError = e.error;
                         } else {
-                            stringError = e.error?.localError;
+                            stringError = e.error?.detail ?? e.error?.message;
                         }
                         return this._throwModifyError(stringError || e.message || 'HttpErrors.ServerError', isTranslate, logError);
                     } else {

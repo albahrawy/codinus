@@ -14,7 +14,11 @@ import { CODINUS_VIRTUAL_TABLE_DATA_HANDLER } from './types';
 import { CODINUS_OVERLAY_HOST } from '@ngx-codinus/cdk/overlays';
 
 @Directive({
-    selector: 'cdk-table:not([dataSource])[virtual-scroll], mat-table:not([dataSource])[virtual-scroll]',
+    selector: `cdk-table:not([dataSource]):not([cs-table-tree])[virtual-scroll], 
+               mat-table:not([dataSource]):not([[cs-table-tree])[virtual-scroll],
+               cdk-table:not([dataSource]):not([virtual-scroll])[cs-table-tree], 
+               mat-table:not([dataSource]):not([virtual-scroll])[cs-table-tree]
+                `,
     exportAs: 'csTableVirtualScroll',
     hostDirectives: [CdkVirtualScrollableElement, HtmlElementRuler],
 })

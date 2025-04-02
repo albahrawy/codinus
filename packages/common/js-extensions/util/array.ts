@@ -276,6 +276,15 @@ export function arrayToObject<T, O>(source: Array<T> | ReadonlyArray<T>, callbac
     }, {} as IRecord<O>);
 }
 
+/**
+ * Groups the elements of a given iterable according to the string values returned by a provided callback function. 
+ *  
+ * @param source - The source array to group it's elements.
+ * @param callback A function to execute for each element in the iterable. 
+ * It should return a value that can get coerced into a property key (string or symbol) 
+ * indicating the group of the current element. The function is called with the following arguments:
+ * @returns an object has separate properties for each group, containing arrays with the elements in the group.
+*/
 export function arrayGroupBy<T>(source: Array<T>, callback: (value: T, index: number) => string): IRecord<T[]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nativeGroupBy = (Object as any).groupBy;

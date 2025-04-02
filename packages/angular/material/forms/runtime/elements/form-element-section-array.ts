@@ -21,7 +21,7 @@ import { ICSRuntimeFormFieldSectionArray } from './_types';
             <cs-button-container cs-form-field-bar [buttons]="speedButtons()" [absolute]="true"
              [disabled]="sectionArray.disabled" (buttonClicked)="onSpeedBtnClicked(sectionArray,$event)">
             </cs-button-container>
-            <cs-form-section-array #sectionArray
+            <cs-form-section-array #sectionArray [sectionName]="config().name"
             [required]="!!config().required" [displayMember]="displayMember()" [disableMember]="disableMember()"
             [iconMember]="iconMember()" style="display:block;" [style.height]= "height()"
             [multiple]="config().multiple" [showIndex]="config().showIndex" [showTitle]="config().showTitle!==false"

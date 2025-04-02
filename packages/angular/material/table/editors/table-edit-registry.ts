@@ -68,7 +68,7 @@ export class CSTableEditRegistryHandler<TData> {
     }
 
     notify(affected: TData) {
-        this._dataSourceDirective.notifyChanged();
+        //this._dataSourceDirective.notifyChanged();
         this._dataSourceDirective.notifyModified('update', [affected]);
     }
 }

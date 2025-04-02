@@ -56,7 +56,7 @@ export abstract class CSAbstractFormControlName extends NgControl implements OnD
             this._parent.registerDir(this);
 
         effect(() => {
-            const newName = this.csFormControlName() ?? null;
+            const newName = this.csFormControlName() || null;
             if (newName == this.name)
                 return;
             const oldName = this.name;

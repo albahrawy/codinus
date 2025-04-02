@@ -34,6 +34,7 @@ export interface ICSMonacoEditor {
 }
 
 export type IEditorModel = monaco.editor.ITextModel;
+export type IMonacoUri = monaco.Uri;
 export type IContextKey = monaco.editor.IContextKey;
 export interface IEditorActionDescriptorBase {		/**
 	* An unique identifier of the contributed action.

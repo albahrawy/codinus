@@ -1,0 +1,51 @@
+:host {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cs-migrate-page-list-bar {
+    display: flex;
+
+    .cs-migrate-page-list-separator {
+        flex: 1 1 auto;
+    }
+}
+
+.cs-migrate-page-list {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+.cs-migrate-page-list-title {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.cs-migrate-page-item {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    column-gap: 10px;
+
+    .cs-migrate-page-name-span {
+        min-width: 200px;
+        font-weight: bold;
+        color: navy;
+    }
+
+    .cs-migrate-item-converting {
+        font-size: .8em;
+
+    }
+
+    .cs-migrate-item-result-1 {
+        font-size: .8em;
+        color: green;
+    }
+
+    .cs-migrate-item-result-2 {
+        font-size: .8em;
+        color: red;
+    }
+}

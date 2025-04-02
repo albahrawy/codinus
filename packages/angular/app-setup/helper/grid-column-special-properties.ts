@@ -1,5 +1,5 @@
 import {
-    getBooleanPropertyConfig, getDecimalPropertyConfig, getLocalizableTextPropertyConfig,
+    getBooleanPropertyConfig, getLocalizableTextPropertyConfig,
     getSelectPropertyConfig, getTextPropertyConfig
 } from "./functions";
 import { ICSFormComponentSetupConfig } from "./types";
@@ -7,9 +7,8 @@ const flexSpan = '1';
 
 export const GridColumnSpecialProperties: ICSFormComponentSetupConfig = {
     children: [
-        getTextPropertyConfig('name', { en: 'Name' }),
+        getLocalizableTextPropertyConfig('dataKey', { en: 'Data Key' }, { required: ['en'], order: -1 }),
         getTextPropertyConfig('width', { en: 'Width' }),
-        getDecimalPropertyConfig('order', { en: 'Order' }),
         //TODO: cell border issue
         //sticky ?: 'start' | 'end';
         getTextPropertyConfig('cellDefaultValue', { en: 'Cell DefaultValue' }),
@@ -17,8 +16,6 @@ export const GridColumnSpecialProperties: ICSFormComponentSetupConfig = {
         getSelectPropertyConfig('footerAggregation', { en: 'Aggregation' },
             [null, 'sum', 'max', 'min', 'count', 'avg', 'first', 'last'], null),
 
-        getLocalizableTextPropertyConfig('dataKey', { en: 'Data Key' }, { required: true }),
-        getLocalizableTextPropertyConfig('headerText', { en: 'Header Text' }),
         getLocalizableTextPropertyConfig('cellFormatter', { en: 'Cell Formatter' }),
         getLocalizableTextPropertyConfig('footerFormatter', { en: 'Footer Formatter' }),
         {
@@ -28,17 +25,35 @@ export const GridColumnSpecialProperties: ICSFormComponentSetupConfig = {
             label: { en: 'Filter' },
             // flex: '100',
             children: [
-                getSelectPropertyConfig('type', { en: 'Type' }, [null, 'text', 'number', 'date', 'select'], null, { flexSpan }),
-                getTextPropertyConfig('initialOperation', { en: 'Initial Operation' }, { flexSpan }),
                 getTextPropertyConfig('filterkey', { en: 'Filter Key' }, { flexSpan }),
+                getSelectPropertyConfig('gridColumnFilterType', { en: 'Type' }, [null, 'string', 'number', 'date', 'select'], null, { flexSpan, dataKey: 'type' }),
+                getSelectPropertyConfig('gridColumnFilterInitialOperation', { en: 'Initial Operation' }, [], 'equals', { flexSpan, dataKey: 'initialOperation' }),
             ]
         },
-        getBooleanPropertyConfig('readOnly', { en: 'Read Only' }),
-        getBooleanPropertyConfig('hidden', { en: 'Hidden' }),
+        {
+            type: 'section',
+            name: 'editor',
+            dataKey: 'editor',
+            label: { en: 'Editor' },
+            // flex: '100',
+            children: [
+                getSelectPropertyConfig('gridColumnEditorType', { en: 'Type' }, [null, 'string', 'number', 'date', 'select'], null, { flexSpan, dataKey: 'type' }),
+            ]
+        },
         getBooleanPropertyConfig('sortable', { en: 'Sortable' }),
         getBooleanPropertyConfig('reordable', { en: 'Reordable' }),
         getBooleanPropertyConfig('resizable', { en: 'Resizable' }),
-    ]
+    ],
+    standards: {
+        allowClear: false,
+        disabled: false,
+        flexSpan: false,
+        hints: false,
+        invisible: false,
+        labelIcon: false,
+        required: false,
+        dataKey: false,
+    }
 };
 
 

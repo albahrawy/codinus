@@ -1,51 +1,48 @@
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { CdkColumnDef } from '@angular/cdk/table';
+import { CdkColumnDef, CdkTable } from '@angular/cdk/table';
 import {
     Directive, Injector, OnDestroy, Renderer2, booleanAttribute, effect, inject,
     input, runInInjectionContext
 } from '@angular/core';
-import { addStyleSectionToDocument, findElementAttributeByPrefix } from '@codinus/dom';
+import { addStyleSectionToDocument, findElementAttributeByPrefix, HTMLStyleElementScope } from '@codinus/dom';
 import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from '../shared/internal';
-import { CSTableReorderColumns } from './reorder.directive';
+import { CSCDKTableReorderColumns } from './reorder.directive';
 
 @Directive({
     selector: 'mat-header-cell[reordable], cdk-header-cell[reordable]',
+    hostDirectives: [CdkDrag],
     host: {
         'class': 'cdk-drag',
     },
 })
 export class CSColumnReordable implements OnDestroy {
 
-    private _injector = inject(Injector);
     private _columnDef = inject(CdkColumnDef);
-    private _renderer = inject(Renderer2);
-    private _dropContainer = inject(CSTableReorderColumns, { skipSelf: true, optional: true });
+    private _dropContainer = inject(CSCDKTableReorderColumns, { skipSelf: true, optional: true });
+    private _cdkDrag = inject(CdkDrag, { self: true });
 
-    private _cdkDragInfo?: { _cdkDrag: CdkDrag, _destroy: () => void };
+    private _cssElement?: HTMLStyleElementScope;
 
     reordable = input(false, { transform: booleanAttribute });
 
     constructor() {
+        this._cssElement = this.addCssToDocument();
         effect(() => {
             const draggable = this.reordable() && this._dropContainer?.reorderColumns();
-            if (draggable && !this._cdkDragInfo) {
-                runInInjectionContext(this._injector, () => {
-                    this._cdkDragInfo = this._createCdkDrag();
-                });
-            } else if (!draggable && this._cdkDragInfo) {
-                this._destroyDrag();
-            }
+            this._cdkDrag.previewClass = 'cs-column-drag-preview';
+            this._cdkDrag.data = this._columnDef.cssClassFriendlyName;
+            this._cdkDrag.boundaryElement = '.cs-table-reorder-columns .cdk-header-row';
+            this._cdkDrag.dragStartDelay = 50;
+            this._cdkDrag.disabled = !draggable;
         });
     }
 
     ngOnDestroy(): void {
-        this._destroyDrag();
+        this._cssElement?.remove();
     }
 
-    private addCssToDocument(element: HTMLElement) {
-        const headerRow = this._renderer.parentNode(element);
-        const headerRowParent = this._renderer.parentNode(headerRow);
-        const tableElement = (headerRow.tagName === 'TH') ? this._renderer.parentNode(headerRowParent) : headerRowParent;
+    private addCssToDocument() {
+        const tableElement = this._dropContainer?.elementRef.nativeElement;
         const columnClass = this._columnDef._columnCssClassName.find(c => c == `cdk-column-${this._columnDef.cssClassFriendlyName}`);
         const tableNgAttributes = findElementAttributeByPrefix(tableElement?.attributes, NG_HOST_PREFIX, NG_CONTENT_PREFIX);
         const _hostCssId = tableNgAttributes[NG_HOST_PREFIX] ?? tableNgAttributes[NG_CONTENT_PREFIX] ?? '';
@@ -56,28 +53,6 @@ export class CSColumnReordable implements OnDestroy {
             transform: var(${variableName});
           }
         `;
-        return addStyleSectionToDocument(`${columnClass}-style`, columnStyles);
-    }
-
-    private _createCdkDrag = () => {
-        if (!this._dropContainer)
-            return;
-        const _cdkDrag = new CdkDrag();
-        _cdkDrag.previewClass = 'cs-column-drag-preview';
-        _cdkDrag.data = this._columnDef.cssClassFriendlyName;
-        _cdkDrag.boundaryElement = '.cs-table-reorder-columns .cdk-header-row';
-        _cdkDrag.dragStartDelay = 50;
-        _cdkDrag.ngAfterViewInit();
-        const cssElement = this.addCssToDocument(_cdkDrag.element.nativeElement);
-        const _destroy = () => {
-            _cdkDrag.ngOnDestroy();
-            cssElement?.remove();
-        }
-        return { _cdkDrag, _destroy };
-    }
-
-    private _destroyDrag() {
-        this._cdkDragInfo?._destroy();
-        this._cdkDragInfo = undefined;
+        return addStyleSectionToDocument(`${columnClass}-draggable`, columnStyles);
     }
 }

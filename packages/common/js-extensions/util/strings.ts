@@ -45,6 +45,16 @@ function trimCore(type: 'trailing' | 'head', value: string, ...chars: string[]):
 export function formatStringBy(value: string, obj: unknown): string {
     return value?.replace(formatByRegx, (_, key) => getValue(obj, key, ''));
 }
+/**
+ * 
+ * @param {string} source - The input string to remove strings from.
+ * @param {string[]} removers String array contains strings to remove.
+ * @returns {string} return the original string after remove all removers.
+ */
+export function stringReplaceAll(source: string, removers: string[]): string {
+    const regex = new RegExp(removers.join("|"), "g"); // Create a regex pattern from the array
+    return source.replace(regex, ""); // Replace all occurrences
+}
 
 /**
 * Converts a string to camelCase format by removing spaces, hyphens, and apostrophes

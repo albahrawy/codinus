@@ -62,21 +62,21 @@ export class CSSelectExampleComponent {
 
     columns: ICSTableColumn<unknown, unknown>[] = [
         {
-            name: 'position', footerAggregation: 'sum', headerText: 'No.', // sticky: 'start',
+            name: 'position', footerAggregation: 'sum', label: 'No.', // sticky: 'start',
             resizable: true, readOnly: true, sortable: true, filter: { type: 'number' },
         },
         {
-            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', headerText: 'Date',
+            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', label: 'Date',
             resizable: true, readOnly: false, sortable: true,
             filter: { type: 'date', operations: ['equals', 'greaterThan'], options: { dateFormat: 'dd-MM-yyyy' } },
         },
         {
-            name: 'weight', footerAggregation: 'avg', headerText: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
+            name: 'weight', footerAggregation: 'avg', label: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
             footerFormatter: "Avg. {#,###.00}", resizable: true, readOnly: true, sortable: true,
             filter: { type: "number", options: { decimalDigits: 3, mode: "decimal" } },
         },
         {
-            name: 'symbol', headerText: 'Symbol',
+            name: 'symbol', label: 'Symbol',
             resizable: true, readOnly: true, sortable: true, filter: { type: 'string' }
         }
     ];

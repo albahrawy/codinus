@@ -51,9 +51,9 @@
     [attr.tabindex]="(contentTabIndex !== null && selectedIndex === i) ? contentTabIndex : null"
     [attr.aria-labelledby]="_getTabLabelId(i)" [attr.aria-hidden]="selectedIndex !== i"
     [class.mat-mdc-tab-body-active]="selectedIndex === i" [class]="tab.bodyClass" [content]="tab.content!"
-    [position]="tab.position!" [origin]="tab.origin" [animationDuration]="animationDuration"
-    [preserveContent]="preserveContent" (_onCentered)="_removeTabBodyWrapperHeight()"
-    (_onCentering)="_setTabBodyWrapperHeight($event)">
+    [position]="tab.position!" [animationDuration]="animationDuration" [preserveContent]="preserveContent"
+    (_onCentered)="_removeTabBodyWrapperHeight()" (_onCentering)="_setTabBodyWrapperHeight($event)"
+    (_beforeCentering)="_bodyCentered($event)">
   </mat-tab-body>
   }
 </div>

@@ -46,14 +46,13 @@ export function removeGlobalWindowMember(key: string): void {
 }
 
 export async function loadModuleDynamically<TModule>(moduleCode: string): Promise<TModule>;
-export async function loadModuleDynamically<TModule, TResult>(moduleCode: string, fetchFn: (module: TModule) => TResult): Promise<TResult>;
-export async function loadModuleDynamically(moduleCode: string, fetchFn?: (module: any) => any) {
+export async function loadModuleDynamically<TModule, TResult = unknown>(moduleCode: string,
+    setupFn: (module: TModule) => Promise<TResult> | TResult): Promise<TResult>;
+export async function loadModuleDynamically(moduleCode: string, setupFn?: (module: any) => any) {
     const blob = new Blob([moduleCode], { type: 'application/javascript' });
     const moduleUrl = URL.createObjectURL(blob);
     const module = await import( /* @vite-ignore */moduleUrl);
     // Clean up the Blob URL after use
     URL.revokeObjectURL(moduleUrl);
-    if (typeof fetchFn === 'function')
-        return fetchFn(module);
-    return module;
+    return setupFn ? await setupFn(module) : module;
 }

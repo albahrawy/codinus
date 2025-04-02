@@ -1,6 +1,6 @@
 import { MatAccordionDisplayMode, MatAccordionTogglePosition } from "@angular/material/expansion";
 import { IStringRecord, Nullable } from "@codinus/types";
-import { CSIconType, CSImageIcon, CSSpeedButtonMode } from '@ngx-codinus/material/buttons';
+import { CSIconType, CSSpeedButtonMode } from '@ngx-codinus/material/buttons';
 import { CSCalendarView, CSDateRangeRequired } from "@ngx-codinus/material/inputs";
 import { ListIconType, ListTogglePosition } from "@ngx-codinus/material/selection-list";
 import { ICSEditableTableConfig, ICSTableColumn } from "@ngx-codinus/material/table";
@@ -11,12 +11,14 @@ import {
     ICSRuntimeFormFieldBase, ICSRuntimeFormFieldCanBeInDialog,
     ICSRuntimeFormFieldContainer, ICSRuntimeFormFieldHasDefaultValue, IHasItemGetters, IHasRenderState
 } from "../cs-element-base/types";
+import { StepperOrientation } from "@angular/cdk/stepper";
+import { MatCardAppearance } from "@angular/material/card";
 
 type ICSRuntimeFormElementFieldHasDefaultValue = ICSRuntimeFormFieldHasDefaultValue & ICSRuntimeFormElementField;
 
 export declare interface ICSRuntimeFormButton extends ICSRuntimeFormButtonBase {
     disabled?: boolean;
-    iconType?: CSImageIcon;
+    iconType?: CSIconType;
     icon: string;
 }
 
@@ -34,7 +36,7 @@ export interface ICSRuntimeFormElementInputBase extends ICSRuntimeFormElementFie
     disabled?: boolean;
     allowClear?: boolean;
     labelIcon?: string;
-    labelIconType?: CSImageIcon;
+    labelIconType?: CSIconType;
     buttons?: ICSRuntimeFormButton[];
 }
 export interface ICSRuntimeFormElementField extends ICSRuntimeFormElementInputBase {
@@ -54,7 +56,7 @@ export interface ICSRuntimeFormFlexContainer {
 
 
 export interface ICSRuntimeFormFieldText extends ICSRuntimeFormElementFieldHasDefaultValue {
-    type: 'text';
+    type: 'text' | 'text-area';
     maxlength?: number | null;
     minlength?: number | null;
 }
@@ -147,6 +149,7 @@ export interface ICSRuntimeFormAreaDefault extends ICSRuntimeFormFlexContainer {
 
 export interface ICSRuntimeFormAreaCard extends ICSRuntimeFormFlexContainer {
     displayType: 'card';
+    cardAppearance?: MatCardAppearance;
 }
 
 export interface ICSRuntimeFormAreaTab {
@@ -168,10 +171,17 @@ export interface ICSRuntimeFormAreaAccordion {
     accordionTogglePosition?: MatAccordionTogglePosition;
 }
 
+export interface ICSRuntimeFormAreaStepper {
+    displayType: 'stepper';
+    stepperOrientation?: StepperOrientation;
+}
+
+
 export interface ICSRuntimeFormArea extends ICSRuntimeFormElementAreaBase,
     Omit<ICSRuntimeFormAreaTab, 'displayType'>,
     Omit<ICSRuntimeFormAreaAccordion, 'displayType'>,
     Omit<ICSRuntimeFormAreaCard, 'displayType'>,
+    Omit<ICSRuntimeFormAreaStepper, 'displayType'>,
     Omit<ICSRuntimeFormAreaDefault, 'displayType'> {
     displayType: CSFormAreaType;
 }
@@ -207,7 +217,7 @@ export interface ICSRuntimeFormFieldSelectBase extends ICSRuntimeFormElementFiel
     panelWidth?: string | number | null;
     showIndex?: boolean;
     optionHeight?: number;
-    maxHeight?: number;
+    maxHeight?: number | string;
     multiple?: boolean;
     overlayPanelClass?: string | string[];
     moreSingleText?: string;
@@ -239,6 +249,7 @@ export interface ICSRuntimeFormFieldSelectGrid<TRow = unknown> extends ICSRuntim
     iconType?: CSIconType;
     noDataText?: string | IStringRecord;
     sortable?: boolean;
+    dataSource?: unknown[];
 }
 
 export type ICSRuntimeFormElementAnyField =

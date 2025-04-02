@@ -5,10 +5,12 @@ import { CSTableResponsive, KeyboardNavigationType, SelectPredicate } from "../a
 import { CSAggregationFn, CSFormatterFn, CSValueGetter } from "../data";
 import { CSTableEditorType, CSTableFilterType } from "../shared";
 
+export type ICSTableTreeColumn<TData, TValue = unknown> = Omit<ICSTableColumn<TData, TValue>, "name">;
+
 export interface ICSTableColumn<TData, TValue = unknown> {
     name: string;
     dataKey?: Nullable<string | IStringRecord>;
-    headerText?: string | IStringRecord;
+    label?: string | IStringRecord;
     cellFormatter?: string | CSFormatterFn<TValue> | IStringRecord;
     footerFormatter?: string | CSFormatterFn<TValue> | IStringRecord;
     cellValueGetter?: (data: TData | null, key?: string) => Nullable<TValue>;
@@ -26,8 +28,8 @@ export interface ICSTableColumn<TData, TValue = unknown> {
     sortable?: boolean;
     reordable?: boolean;
     resizable?: boolean;
-    filter?: ITableColumnFilter;
-    editor?: ITableColumnEditor;
+    filter?: ITableColumnFilter | null;
+    editor?: ITableColumnEditor | null;
 }
 
 export interface ITableColumnFilter {

@@ -3,12 +3,22 @@
 <nav mat-tab-nav-bar mat-stretch-tabs="false" [tabPanel]="tabPanel">
     @let _pages = _renderedPages();
     @for (page of _pages; track page) {
-    <a mat-tab-link (click)="onPageChanged(page)" [active]="activePage() === page"> {{(page.label|csTranslate)()}}</a>
+    <a mat-tab-link (click)="onPageChanged(page)" [active]="!_definitionIsActive() && activePage() === page">
+        {{(page.label|csTranslate)()}}</a>
+    }
+    @if(definitionIsOpen()){
+    <a mat-tab-link class="cs-code-tab-definition-link" (click)="_definitionIsActive.set(true)"
+        [active]="_definitionIsActive()">
+        {{(_definitionPage.label|csTranslate)()}}
+        <mat-icon style="pointer-events: auto" (click)="closeDefinition($event)"
+            class="cs-code-tab-close-button">close</mat-icon>
+    </a>
     }
 </nav>
 <mat-tab-nav-panel #tabPanel></mat-tab-nav-panel>
 @if(activePage(); as page){
-<div class="cs-monaco-editor-area" monacoEditor (controlTouched)="_onTouched()" (valueChanged)="_onValueChanged(page.key)"
-    [actions]="page.actions" [extraLibs]="page.extraLibs" [language]="page.language" [modelName]="page.key"
-    [readOnly]="isDisabled() || page.readOnly" [(ngModel)]="value()[page.key]"></div>
+<div class="cs-monaco-editor-area" monacoEditor (controlTouched)="_onTouchedChanged(page)"
+    (valueChanged)="_onValueChanged(page)" [actions]="page.actions" [extraLibs]="page.extraLibs"
+    [language]="page.language" [modelName]="page.key" [readOnly]="isDisabled() || page.readOnly"
+    [(ngModel)]="_valueProxy[page.key]"></div>
 }

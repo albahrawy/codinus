@@ -9,11 +9,12 @@ import { FixedSizeVirtualScrollStrategy, VIRTUAL_SCROLL_STRATEGY } from "@angula
 import { Directive, computed, effect, forwardRef, inject, input, numberAttribute } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { CODINUS_TABLE_API_REGISTRAR } from "../api";
-import { CSTableResponsiveView } from "./responsive-view";
+import { CODINUS_TABLE_RESPONSIVE_VIEW } from "./types";
 
 
 @Directive({
-    selector: 'cdk-table[responsive][virtual-scroll], mat-table[responsive][virtual-scroll]',
+    selector: `cdk-table:not([cs-table-tree])[responsive][virtual-scroll], 
+               mat-table:not([cs-table-tree])[responsive][virtual-scroll]`,
     host: {
         'class': 'cs-fixed-size-virtual-scroll-table',
         '[style.--cs-table-row-height.px]': 'domRowHeight()',
@@ -29,7 +30,7 @@ import { CSTableResponsiveView } from "./responsive-view";
     ],
 })
 export class CSTableResponsiveVirtualScroll {
-    private _responsiveView = inject(CSTableResponsiveView, { self: true });
+    private _responsiveView = inject(CODINUS_TABLE_RESPONSIVE_VIEW, { self: true });
     protected _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
 
     private _currentView = toSignal(this._responsiveView.viewChanged, { initialValue: { cells: 0, columns: 0 } });
@@ -45,13 +46,13 @@ export class CSTableResponsiveVirtualScroll {
     });
 
     private _minBufferPx = computed(() => {
-        const args = this._currentView();
-        return this.domRowHeight() * 8 * (args.columns ? args.cells : 1);
+        //const args = this._currentView();
+        return this.domRowHeight() * 4;
     });
 
     private _maxBufferPx = computed(() => {
-        const args = this._currentView();
-        return this.domRowHeight() * 8 * 2 * (args.columns ? args.cells : 1);
+        //const args = this._currentView();
+        return this.domRowHeight() * 4 * 2;
     });
 
     cellHeight = input(40, { transform: numberAttribute });

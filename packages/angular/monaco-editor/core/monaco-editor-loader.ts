@@ -50,6 +50,7 @@ export class MonacoEditorLoaderService implements ICSMonacoEditorLoader {
 
         return MonacoEditorLoaderService.loadPromise;
     }
+
     setDefaultTheme(monaco: IMonaco) {
         monaco.editor.defineTheme('csVSCodeDrakTheme', {
             base: 'vs-dark', // Keep the base theme as VS Code dark

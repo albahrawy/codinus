@@ -40,8 +40,9 @@
 
 {{dataSourceWithChildren|json}} -->
 
-<mat-tree #csTree3="csTree" csTreeInput [csChildrenAccessor]="childrenAccessor" (cdkDropListDropped)="handleDrag($event)" cdkDropList [displayMember]="'name'"
-    showIcon="true" [iconMember]="iconGetter" activateFirstItem="true" [formControl]="treeFormControl">
+<mat-tree #csTree3="csTree" csTreeInput [csChildrenAccessor]="childrenAccessor" [cdkDropListSortingDisabled]="true"
+    (cdkDropListDropped)="handleDrag($event)" cdkDropList [displayMember]="'name'" showIcon="true"
+    [iconMember]="iconGetter" activateFirstItem="true" [formControl]="treeFormControl">
     <!-- <cs-tree-action-area>
         <ng-container *csTreeHandler="let handler">
             <input #inp (input)="handler.setFilter(inp.value)">
@@ -49,7 +50,7 @@
     </cs-tree-action-area> -->
     <cs-tree-action-top-bar></cs-tree-action-top-bar>
     <cs-node-action-bar></cs-node-action-bar>
-    <cs-tree-node cdkDrag *matTreeNodeDef></cs-tree-node>
+    <cs-tree-node #nodeBody="csTreeNodeBody" cdkDrag [cdkDragData]="nodeBody" *matTreeNodeDef></cs-tree-node>
     <!-- <ng-container *csNodeToolBar="let handler; let nodeData=nodeData">
         <div>
             <button (click)="log(handler,nodeData)">Add New Root Node</button>

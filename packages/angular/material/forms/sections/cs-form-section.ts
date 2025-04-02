@@ -70,6 +70,7 @@ export class CSFormSection<TValue extends IGenericRecord = IGenericRecord> exten
     flexAlign = input('start', { alias: 'flex-grid-align', transform: (v: Nullable<'start' | 'end' | 'center'>) => v ?? 'start' });
     flexGap = input<Nullable<string>>(null, { alias: 'flex-grid-gap' });
     flexColumns = input<Nullable<string | number[]>>(null, { alias: 'flex-grid-columns' });
+    sectionName = input<string>();
 
     protected _setupEffects() {
         /** */
@@ -106,14 +107,14 @@ export class CSFormSection<TValue extends IGenericRecord = IGenericRecord> exten
 
 
     writeValue(obj: unknown): void {
-        const _value = this.verifyWriteValue((isObject(obj) && !isEmpty(obj) ? obj : {}) as TValue) ?? {};
+        const _value = this.verifyWriteValue(obj);
         this.form.reset(_value, { emitEvent: false });
         if (this.hasNgControl)
             this._cdr.detectChanges();
     }
 
-    protected verifyWriteValue(value: TValue): TValue | null {
-        return value;
+    protected verifyWriteValue(value: unknown): TValue | null {
+        return ((isObject(value) && !isEmpty(value) ? value : {}) ?? {}) as TValue;
     }
 
     setDisabledState(isDisabled: boolean): void {

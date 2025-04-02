@@ -11,7 +11,10 @@ import { computed, Directive, effect, forwardRef, input, numberAttribute } from 
 
 @Directive({
     selector: `cdk-table:not([responsive])[virtual-scroll][rowHeight], 
-               mat-table:not([responsive])[virtual-scroll][rowHeight]`,
+               mat-table:not([responsive])[virtual-scroll][rowHeight],
+               mat-table:not([responsive]):not([virtual-scroll])[cs-table-tree][rowHeight],
+               cdk-table:not([responsive]):not([virtual-scroll])[cs-table-tree][rowHeight]
+               `,
     host: {
         'class': 'cs-fixed-size-virtual-scroll-table',
         '[style.--cs-table-row-height.px]': 'rowHeight()'

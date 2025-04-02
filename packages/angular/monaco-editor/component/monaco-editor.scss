@@ -14,4 +14,34 @@
         flex: 1 1 auto;
     }
 
+    .cs-code-tab-definition-link {
+        position: relative;
+        font-style: italic;
+        opacity: .7;
+        font-weight: normal;
+    }
+
+    .cs-code-tab-close-button {
+        position: absolute;
+        top: 0;
+        right: -24px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        font-size: 18px;
+        opacity: 0.5;
+        cursor: default;
+        color: red;
+        transition: opacity 0.2s ease-in-out;
+        border: 1px solid gray;
+
+        [dir='rtl'] & {
+            right: auto;
+            left: -24px;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }

@@ -1,32 +1,28 @@
 $cell-horizontal-padding: 16px;
-$row-bottom-margin: 3px;
+// $row-bottom-margin: 3px;
 
 @mixin apply() {
-    --row-flex-basis: calc(var(--cs-responsive-column-in-row, 100%) - 5px);
     --resposive-label-width: 100px;
     border: 0;
     padding-left: 5px;
     padding-right: 5px;
 
-    &:not(.cs-fixed-size-virtual-scroll-table) {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-    }
+    //&:not(.cs-table-grid) {
+    // &:not(.cs-fixed-size-virtual-scroll-table) {
+    //     display: flex;
+    //     flex-wrap: wrap;
+    //     justify-content: space-around;
+    // }
 
     &.cs-fixed-size-virtual-scroll-table {
         .cs-table-scrollable-content-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            // right: 5px;
-            // left: 5px;
-            justify-content: space-around;
-            //gap: 0 5px;
+            gap: var(--cs-responsive-row-gap, 0);
         }
 
         cdk-row,
         mat-row {
-            height: calc(var(--cs-table-row-height, unset) - $row-bottom-margin) !important;
+            height: calc(var(--cs-table-row-height, unset) - var(--cs-responsive-row-gap, 0)) !important;
+            //height: var(--cs-table-row-height, unset) !important;
         }
     }
 
@@ -55,9 +51,6 @@ $row-bottom-margin: 3px;
     cdk-footer-row,
     mat-filter-row,
     mat-footer-row {
-        display: flex;
-        flex-wrap: wrap;
-        flex-basis: 100%;
         height: auto;
 
         mat-filter-cell,
@@ -83,10 +76,11 @@ $row-bottom-margin: 3px;
 
     cdk-row,
     mat-row {
+        display: flex;
         flex-direction: column;
-        flex-basis: var(--row-flex-basis);
+        grid-column: unset;
         min-height: unset;
-        margin-bottom: $row-bottom-margin;
+        // margin-bottom: $row-bottom-margin;
         border: 2px solid #ddd !important;
         position: relative;
         // border-right: 1px solid #ddd !important;
@@ -188,6 +182,5 @@ $row-bottom-margin: 3px;
     .cdk-column-select-column {
         max-width: unset;
         min-width: unset;
-
     }
 }

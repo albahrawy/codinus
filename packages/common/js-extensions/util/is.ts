@@ -16,7 +16,7 @@ type TypeArrayLike = Float32Array | Float64Array | Int8Array | Int16Array | Int3
 const typeArrayReqx = /^\[object (?:Float(?:32|64)|(?:Int|Uint)(?:8|16|32)|Uint8Clamped)Array\]$/;
 const arrowFuncRegx = /\([a-z|A-Z|0-9|_|\s|,|:]*\)[\s|:|a-z|A-Z|0-9|_|<|>]*=>/;
 const funcRegx = /function[\s|a-z|A-Z|0-9|_]*\([a-z|A-Z|0-9|_|\s|,|:]*\)\s*{/;
-const classReqx = /^\s*class/;
+const classReqx = /^class\s/;
 const hexRegex = /^0x[0-9a-fA-F]+$/;
 const imageExtensions = ['jpg', 'png', 'gif', 'bmp', 'jpeg', 'jpe', 'tif', 'tiff'];
 
@@ -48,13 +48,22 @@ export const isObject = (value: unknown): value is Record<string, any> => typeof
 
 
 /**
- * Checks if the given value is a class.
+ * Checks if the given value is a class Type.
  *
  * @param value - The value to check.
- * @returns `true` if the value is a class, otherwise `false`.
+ * @returns `true` if the value is a class type, otherwise `false`.
  */
-export const isClass = (value: unknown): boolean => !!value && typeof value === 'object' && classReqx.test(value.constructor.toString());
+export const isClassType = (value: unknown): value is new (...args: any[]) => any =>
+    typeof value === 'function' && classReqx.test(Function.prototype.toString.call(value));
 
+/**
+ * Checks if the given value is a class instance.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a class instance, otherwise `false`.
+ */
+export const isClassInstance = (value: unknown): value is object =>
+    !!value && typeof value === 'object' && value.constructor && classReqx.test(Function.prototype.toString.call(value.constructor));
 
 /**
  * Checks if the given value is of type string.

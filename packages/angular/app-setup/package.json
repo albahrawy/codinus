@@ -2,8 +2,18 @@
   "name": "@ngx-codinus/app-setup",
   "version": "5.0.0",
   "peerDependencies": {
-    "@angular/common": "^19.1.2",
-    "@angular/core": "^19.1.2"
+    "@angular/core": "^19.1.2",
+    "@angular/forms": "~19.2.0",
+    "@ngx-codinus/material": "5.0.0",
+    "@codinus/js-extensions": "5.0.0",
+    "@codinus/types": "5.0.0",
+    "@ngx-codinus/monaco-editor": "5.0.0",
+    "@ngx-codinus/cdk": "5.0.0",
+    "rxjs": "~7.8.2",
+    "@angular/material": "^19.2.1",
+    "@ngx-codinus/core": "5.0.0",
+    "@codinus/dom": "5.0.0",
+    "@codinus/ts-parser": "5.0.0"
   },
   "sideEffects": false
 }

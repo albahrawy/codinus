@@ -39,6 +39,9 @@ export abstract class CSTreeFeaturesBase<TNode> implements ICSTreeFeatures<TNode
 
     readonly conextMenuOpening = output<ConextMenuOpeningArgs>();
     readonly nodeRemoved = output<TNode | TNode[]>();
+    readonly nodeAdded = output<TNode | TNode[]>();
+    readonly nodeAdding = output();
+    readonly nodeRemoving = output<boolean>();
 
     readonly _renderVersion = computed(() => Math.max(this._dataVersion() + this._csDataManager._dataVersion()));
 
@@ -93,7 +96,10 @@ export abstract class CSTreeFeaturesBase<TNode> implements ICSTreeFeatures<TNode
     _context = new CSTreeActionAreaContext(this);
 
     add(row?: TNode | TNode[], parent?: Nullable<TNode>, setCurrent?: boolean, autoScroll?: boolean): TNode[] {
-        this._treeOperationHandler()?.add(row, parent, setCurrent, autoScroll);
+        this.nodeAdding.emit();
+        const rows = this._treeOperationHandler()?.add(row, parent, setCurrent, autoScroll);
+        if (rows)
+            this.nodeAdded.emit(rows);
         return this._csDataManager.getData();
     }
 
@@ -162,8 +168,11 @@ export abstract class CSTreeFeaturesBase<TNode> implements ICSTreeFeatures<TNode
     }
 
     remove(row?: TNode | TNode[] | null, setCurrent = true) {
+        this.nodeRemoving.emit(true);
         if (this._csDataManager.remove(row, setCurrent) && row)
             this.nodeRemoved.emit(row);
+        else
+            this.nodeRemoving.emit(false);
     }
 
     getData() { return this._csDataManager.getData(false); }

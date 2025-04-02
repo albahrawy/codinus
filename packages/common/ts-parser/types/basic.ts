@@ -20,6 +20,7 @@ export interface ErrorDetails {
 }
 
 export interface IOptions {
+    ignoreImports?: string[];
     sourceType?: ProgramSourceType;
     annexB?: boolean;
     continueOnerror?: boolean;

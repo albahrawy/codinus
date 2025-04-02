@@ -10,22 +10,27 @@ import { CSTableDataSource } from "../data/datasource";
 import { ICSDataModifedArgs } from "../data/types";
 import { CSTableEditRegistryHandler } from "../editors/table-edit-registry";
 import { CODINUS_TABLE_EDIT_REGISTRY, ICSTableEditorContext, ICSTableEditRegistry } from "../shared";
-import { CSTableApiEditModel, CSTableInputDataSourceDirective } from "./internal-directives";
+import { CSTableInternalDataSourceDirective } from "../data/internal-datasource.directive";
+import { CSCDKTableReorderColumns } from "../columns";
+import { CSTableApiEditModel } from "./table-edit-model";
 
 
 @Directive({
     selector: 'mat-table:not([dataSource]):not([virtual-scroll])[csTableFormInput]',
     exportAs: 'csTableFormInput',
     host: {
+        'class': 'cs-table',
         '[class.cs-table-form-input-disabled]': 'disabled',
         '[attr.editing-mode]': 'inEditMode()',
 
     },
-    hostDirectives: [CSMatFormFieldControl, CSTableInputDataSourceDirective],
+    hostDirectives: [CSMatFormFieldControl, CSTableInternalDataSourceDirective],
     providers: [
         { provide: CODINUS_TABLE_EDIT_REGISTRY, useExisting: CSTableFormInput },
         { provide: MAT_FORM_FIELD, useValue: null },
         { provide: RUNTIME_MAT_FORM_FIELD, useValue: null },
+        { provide: CSTableDirective, useExisting: CSTableFormInput },
+        { provide: CSCDKTableReorderColumns, useExisting: CSTableDirective },
     ]
 })
 export class CSTableFormInput<TRecord = unknown> extends CSTableDirective<TRecord>
@@ -33,7 +38,7 @@ export class CSTableFormInput<TRecord = unknown> extends CSTableDirective<TRecor
 
     private readonly _mfc = inject(CSMatFormFieldControl, { self: true }).setComponent(this);
     private _dataSource = new CSTableDataSource<TRecord>();
-    private _dataSourceDirective = inject(CSTableInputDataSourceDirective<TRecord>, { self: true });
+    private _dataSourceDirective = inject(CSTableInternalDataSourceDirective<TRecord>, { self: true });
 
     constructor() {
         super();

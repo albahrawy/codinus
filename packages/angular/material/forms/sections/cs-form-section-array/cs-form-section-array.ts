@@ -33,6 +33,7 @@ export class CSFormSectionArray<TRow extends IGenericRecord = IGenericRecord> ex
 
     showIndex = input(true, { transform: booleanAttribute });
     showTitle = input(true, { transform: v => v == null ? true : booleanAttribute(v) });
+    sectionName = input<string>();
 
     iconType = input<ListIconType>('none');
 
@@ -41,6 +42,7 @@ export class CSFormSectionArray<TRow extends IGenericRecord = IGenericRecord> ex
     }
 
     addNew(row?: TRow | TRow[]) {
+        this._listStructureChaning = 'adding';
         if (!row)
             row = this._form.getDefaultValue() as TRow;
         this._value = this.selectionList()?.add(row) ?? null;
@@ -48,6 +50,7 @@ export class CSFormSectionArray<TRow extends IGenericRecord = IGenericRecord> ex
     }
 
     remove(row?: TRow | TRow[]) {
+        this._listStructureChaning = 'removing';
         this.selectionList()?.remove(row);
         this._mfc.notifyChange(this._value);
     }

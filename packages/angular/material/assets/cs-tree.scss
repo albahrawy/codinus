@@ -3,6 +3,7 @@
     outline: none;
     margin-bottom: 2px;
     flex-direction: column;
+    // pointer-events: none;
 
     .cs-tree-node-body {
         display: flex;
@@ -76,13 +77,24 @@
     }
 
     .cs-tree-node-children-container {
+        // padding-left: 25px;
+        // max-height: 0;
+        // transition: max-height 0.5s ease-in-out;
+        // overflow: hidden;
         padding-left: 25px;
-        max-height: 0;
-        transition: max-height 0.5s ease-in-out;
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease-out;
         overflow: hidden;
 
+        >div {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
         &.cs-tree-node-isExpanded {
-            max-height: 500px;
+            grid-template-rows: 1fr;
         }
     }
 }

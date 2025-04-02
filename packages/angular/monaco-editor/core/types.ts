@@ -1,13 +1,18 @@
 import { InjectionToken } from "@angular/core";
 import { Observable } from "rxjs";
-import { IEditorOptions as ICSEditorOptions, IEditorActionDescriptor, IMonaco, ShowLightbulbIconMode } from "./monaco-interfaces";
+import { IEditorOptions as ICSEditorOptions, IEditorActionDescriptor, IEditorModel, IMonaco, IMonacoUri, ShowLightbulbIconMode } from "./monaco-interfaces";
 
 export const CODINUS_MONACO_LOADER_SERVICE = new InjectionToken<ICSMonacoEditorLoader>('codinus_monaco_loader_service');
+export const CODINUS_MONACO_EDITOR_PARENT = new InjectionToken<ICSMonacoEditorParent>('codinus_monaco_editor_parent');
 export const CODINUS_MONACO_EDITOR_TS_LIB_LOADER = new InjectionToken<ICSEditorTSExLibLoader>('codinus_monaco_editor_ts_lib_loader');
 
 export declare type CSEditorLanguage = 'typescript' | 'json' | 'css' | 'html';
 export interface ICSMonacoEditorLoader {
     load(baseUrl?: string): Promise<IMonaco>;
+}
+
+export interface ICSMonacoEditorParent {
+    handleOpener(model: IEditorModel | null, resource: IMonacoUri): boolean;
 }
 
 export const DEFAULT_MONACO_EDITOR_CONFIG: ICSEditorOptions = {
@@ -21,6 +26,12 @@ export const DEFAULT_MONACO_EDITOR_CONFIG: ICSEditorOptions = {
     overviewRulerLanes: 0,
     automaticLayout: true,
     scrollBeyondLastLine: false,
+    suggestOnTriggerCharacters: true,
+    // suggest: {
+    //     showFunctions: true,
+    //     showModules: true
+    // },
+    quickSuggestions: true, // Enable quick suggestions
     // scrollbar: {
     //     verticalScrollbarSize: 5,
     //     horizontalScrollbarSize: 5

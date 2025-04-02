@@ -1,12 +1,12 @@
-import { computed, Directive, effect, inject, input, output, Signal } from "@angular/core";
+import { computed, Directive, effect, inject, input, Signal } from "@angular/core";
 import { outputFromObservable, toSignal } from "@angular/core/rxjs-interop";
 import { MatTableDataSource } from "@angular/material/table";
 import { arrayRange, isFunction, isObject, removeFromArray } from "@codinus/js-extensions";
 import { Nullable } from "@codinus/types";
 import { CSAggregation, CSDataSource } from "@ngx-codinus/core/data";
-import { debounceTime, Observable, of, ReplaySubject, switchMap } from "rxjs";
+import { combineLatest, debounceTime, map, Observable, of, ReplaySubject, startWith, switchMap } from "rxjs";
 import { CODINUS_TABLE_API_REGISTRAR, ICSTableApiRegistrar } from "../api";
-import { isSupportAggregation, isSupportDataArray, isSupportDataChanged, isSupportFilter, isSupportNotify } from "./functions";
+import { isSupportAggregation, isSupportCSFilter, isSupportDataArray, isSupportDataChanged, isSupportMatFilter, isSupportNotify } from "./functions";
 import { CODINUS_DATA_SOURCE_DIRECTIVE, CSModifyMode, ICSDataModifedArgs } from "./types";
 
 
@@ -16,6 +16,7 @@ export abstract class CSTableDataSourceDirectiveBase<TRecord = unknown> {
     private _apiRegistrar = inject<ICSTableApiRegistrar<TRecord>>(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
 
     private dataSourceChanged$ = new ReplaySubject<CSDataSource<TRecord>>(1);
+    private dataModified$ = new ReplaySubject<ICSDataModifedArgs<TRecord>>(1);
     abstract dataSource: Signal<CSDataSource<TRecord>>;
 
     constructor() {
@@ -30,9 +31,10 @@ export abstract class CSTableDataSourceDirectiveBase<TRecord = unknown> {
                 : of(this._getDataArray(d))
         ));
 
-    private _inlineData = toSignal(this.dataChanged$);
+    private _inlineData = toSignal(combineLatest([this.dataChanged$, this.dataModified$.pipe(startWith(null))])
+        .pipe(map(([d]) => d)), { equal: () => false });
 
-    dataModified = output<ICSDataModifedArgs<TRecord>>();
+    dataModified = outputFromObservable(this.dataModified$);
     dataSourceChanged = outputFromObservable(this.dataSourceChanged$);
     dataChanged = outputFromObservable(this.dataChanged$);
 
@@ -56,7 +58,7 @@ export abstract class CSTableDataSourceDirectiveBase<TRecord = unknown> {
     }
 
     notifyModified(type: CSModifyMode, affected?: TRecord[]) {
-        this.dataModified.emit({ api: this._apiRegistrar?.getApi(), type, affected: affected, data: this.getData() });
+        this.dataModified$.next({ api: this._apiRegistrar?.getApi(), type, affected: affected, data: this.getData() });
     }
 
     aggregate(key: string, type: CSAggregation): unknown {
@@ -71,14 +73,16 @@ export abstract class CSTableDataSourceDirectiveBase<TRecord = unknown> {
     }
 
     clearFilter() {
-        this.setFilter(() => true, '');
+        this.setFilter(null, '');
     }
 
-    setFilter(predicate: (data: unknown) => boolean, filter: string) {
+    setFilter(predicate: null | ((data: unknown) => boolean), filter: string) {
         const ds = this.dataSource();
-        if (isSupportFilter(ds)) {
-            ds.filterPredicate = predicate;
+        if (isSupportMatFilter(ds)) {
+            ds.filterPredicate = predicate ?? (() => true);
             ds.filter = filter;
+        } else if (isSupportCSFilter(ds)) {
+            ds.setFilter(predicate);
         }
     }
 
@@ -174,8 +178,8 @@ export abstract class CSTableDataSourceDirectiveBase<TRecord = unknown> {
 
 
 @Directive({
-    selector: `mat-table:not([virtual-scroll])[dataSource],
-               cdk-table:not([virtual-scroll])[dataSource]`,
+    selector: `mat-table:not([virtual-scroll]):not([cs-table-tree])[dataSource],
+               cdk-table:not([virtual-scroll]):not([cs-table-tree])[dataSource]`,
     exportAs: 'csDatasourceDirective',
     providers: [{ provide: CODINUS_DATA_SOURCE_DIRECTIVE, useExisting: CSTableDataSourceDirective }]
 })
@@ -185,8 +189,8 @@ export class CSTableDataSourceDirective<TRecord = unknown> extends CSTableDataSo
 }
 
 @Directive({
-    selector: `mat-table:not([dataSource])[virtual-scroll],
-               cdk-table:not([dataSource])[virtual-scroll]`,
+    selector: `mat-table:not([dataSource]):not([cs-table-tree])[virtual-scroll],
+               cdk-table:not([dataSource]):not([cs-table-tree])[virtual-scroll]`,
     exportAs: 'csDatasourceDirective',
     providers: [{ provide: CODINUS_DATA_SOURCE_DIRECTIVE, useExisting: CSTableVirtualDataSourceDirective }]
 })

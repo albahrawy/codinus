@@ -26,6 +26,14 @@ export const appRoutes: Route[] = [
             .then(model => model.CdoinusTableExampleComponent)
     },
     {
+        path: 'mat-table-tree', loadComponent: () => import('./table/table-tree-example/table-tree-example')
+            .then(model => model.TableTreeExample)
+    },
+    {
+        path: 'codinus-table-tree', loadComponent: () => import('./table/table-tree-example/codinus-table/codinus-table')
+            .then(model => model.CdoinusTableTreeExampleComponent)
+    },
+    {
         path: 'table-form-control', loadComponent: () => import('./table/form-control/form-control')
             .then(mod => mod.TableFormExampleComponent)
     },
@@ -82,8 +90,8 @@ export const appRoutes: Route[] = [
             .then(mod => mod.CSPageSetup)
     },
     {
-        path: 'AdminPage2', loadComponent: () => import('@ngx-codinus/app-setup')
-            .then(mod => mod.CSPageSetup)
+        path: 'pages-migrate', loadComponent: () => import('@ngx-codinus/app-migrate')
+            .then(mod => mod.AppMigratePages)
     },
 ];
 

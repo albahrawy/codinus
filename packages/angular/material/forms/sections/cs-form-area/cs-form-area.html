@@ -58,7 +58,7 @@
 <!-- Accordion -->
 @defer(when areaType === 'accordion') {
 @if(areaType === 'accordion') {
-<mat-accordion [multi]="false" class="cs-form-area-accordion" [displayMode]="accordionDisplayMode()"
+<mat-accordion class="cs-form-area-accordion" [displayMode]="accordionDisplayMode()"
     [hideToggle]="accordionHideToggle()" [multi]="accordionMulti()" [togglePosition]="accordionTogglePosition()">
     @for(panel of _panels();track $index){
     @if(!panel.hidden()){
@@ -80,7 +80,30 @@
 </mat-accordion>
 }
 }
-<!-- Accordion -->
+
+<!-- Stepper -->
+@defer(when areaType === 'stepper') {
+@if(areaType === 'stepper') {
+<mat-stepper class="cs-form-area-stepper" [orientation]="stepperOrientation()" [linear]="stepperLinear()">
+    @for(panel of _panels();track $index){
+    @if(!panel.hidden()){
+    <mat-step [class.cs-form-element-invisible]="panel.invisible()" [completed]="false"
+        [state]="panel.icon() ? `step_${$index}` : 'number'">
+        <ng-template matStepLabel>{{panel.label()}}</ng-template>
+        <ng-container [ngTemplateOutlet]="contentTemplate"
+            [ngTemplateOutletContext]="{$implicit: panel}"></ng-container>
+    </mat-step>
+    @if (panel.icon()) {
+    <ng-template [matStepperIcon]="`step_${$index}`">
+        <mat-icon>{{panel.icon()}}</mat-icon>
+    </ng-template>
+    }
+    }
+    }
+</mat-stepper>
+}
+}
+<!-- None -->
 @defer(when areaType === 'none') {
 @if(areaType === 'none') {
 <cs-flex-grid-container class="cs-form-area-default" [flex-grid-align]="flexAlign()" [flex-grid-gap]="flexGap()"
@@ -98,7 +121,7 @@
 </cs-flex-grid-container>
 }
 }
-<!-- Accordion -->
+<!-- Flat -->
 @defer(when areaType === 'flat') {
 @if(areaType === 'flat') {
 <cs-flex-grid-container class="cs-form-area-flat" [flex-grid-align]="flexAlign()" [flex-grid-gap]="flexGap()"

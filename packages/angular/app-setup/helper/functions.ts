@@ -12,39 +12,41 @@ const flexColumns = '2,1,2,2,2,2';
 const flexGap = '5px';
 const flexSpan = '1';
 
+type RunTimeConfig<T, K extends (string & keyof T) = never> = Omit<T, 'name' | 'type' | 'dataKey' | 'label' | K> & { dataKey?: Nullable<string> };
+
 export function getTextPropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldText, 'name' | 'type' | 'dataKey' | 'label'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldText>) {
     return createOptions(name, label, 'text', options);
 }
 
 export function getIntegerPropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldNumber, 'name' | 'type' | 'dataKey' | 'label' | 'mode'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldNumber, 'mode'>) {
     return createOptions<ICSRuntimeFormFieldNumber>(name, label, 'number', { ...options, mode: 'integer' });
 }
 
 export function getDecimalPropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldNumber, 'name' | 'type' | 'dataKey' | 'label' | 'mode'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldNumber, 'mode'>) {
     return createOptions<ICSRuntimeFormFieldNumber>(name, label, 'number', { ...options, mode: 'decimal' });
 }
 
 export function getDatePropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldDate, 'name' | 'type' | 'dataKey' | 'label' | 'mode'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldDate>) {
     return createOptions(name, label, 'date', options);
 }
 
 export function getLocalizableTextPropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldLocalizable, 'name' | 'type' | 'dataKey' | 'label'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldLocalizable>) {
     options = { ...{ flex: '100', gap: flexGap, columns: flexColumns }, ...options };
     return createOptions<ICSRuntimeFormFieldLocalizable>(name, label, 'localizable-text', options);
 }
 
 export function getBooleanPropertyConfig(name: string, label: IStringRecord,
-    options?: Omit<ICSRuntimeFormFieldSlideToggle, 'name' | 'type' | 'dataKey' | 'label'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldSlideToggle>) {
     return createOptions<ICSRuntimeFormFieldSlideToggle>(name, label, 'slide-toggle', options);
 }
 
 export function getSelectPropertyConfig(name: string, label: IStringRecord, dataSource: unknown[], defaultValue?: unknown,
-    options?: Omit<ICSRuntimeFormFieldSelect, 'name' | 'type' | 'dataKey' | 'label' | 'dataSource' | 'defaultValue'>) {
+    options?: RunTimeConfig<ICSRuntimeFormFieldSelect, 'dataSource' | 'defaultValue'>) {
     const allowClear = defaultValue == null;
     return createOptions<ICSRuntimeFormFieldSelect>(name, label, 'select', { showSearch: false, defaultValue, dataSource, allowClear, ...options });
 }
@@ -68,7 +70,7 @@ export function normalizeSections(config: ICSRuntimeFormAreaBase, showRoot: bool
 }
 
 function createOptions<T extends ICSRuntimeFormElementAnyField>(name: string,
-    label: IStringRecord, type: T["type"], options?: Omit<T, "name" | "type" | "label" | 'dataKey'>) {
+    label: IStringRecord, type: T["type"], options?: RunTimeConfig<T>) {
     if (!options?.flexSpan) {
         options = { ...options, ...{ flexSpan } } as T;
     }

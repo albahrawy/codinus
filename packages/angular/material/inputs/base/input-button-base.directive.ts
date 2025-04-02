@@ -45,7 +45,7 @@ export abstract class CSInputButtonDirectiveBase<TValue, TElement extends CSInpu
     private _viewContainerRef = inject(ViewContainerRef);
     private _stateObserverService = inject(CODINUS_ELEMENT_STATE_OBSERVER, { optional: true }) ?? inject(CSElementStateObserverService);
 
-    private _stateObserverRef = toSignal(this._stateObserverService.watchState(this.elementRef.nativeElement));
+    private _stateObserverRef = toSignal(this._stateObserverService.watchEnabled(this.elementRef.nativeElement));
 
     private _removeElement = noopFn;
     private _matFormFieldFlex: HTMLElement | null = null;

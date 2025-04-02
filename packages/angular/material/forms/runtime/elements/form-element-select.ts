@@ -31,8 +31,8 @@ import { ICSRuntimeFormFieldSelect } from './_types';
 })
 
 export class CSFormElementSelect extends CSFormElementBindingBase<ICSRuntimeFormFieldSelect> {
-    protected _selectionChange = this.signalFunctionOf<IAction<CSListChangeArgs<unknown, unknown>>>('selectionChange');
-    protected _valueChange = this.signalFunctionOf<IAction<ICSValueChangeArgs<unknown>>>('valueChange');
+    protected _selectionChange = this.signalFunctionOf<IAction<CSListChangeArgs<unknown, unknown>>>('SelectionChange');
+    protected _valueChange = this.signalFunctionOf<IAction<ICSValueChangeArgs<unknown>>>('ValueChange');
     protected _dataSource = this.signalFromFunctionOrConfig("dataSource") as DataSourceFunc<unknown>;
     protected readonly valueMember = this.signalItemGetter<unknown>('valueMember');
 }

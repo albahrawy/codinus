@@ -9,7 +9,6 @@ import { isEmpty, isObject, isString } from "./is";
 import { toStringValue } from "./to";
 import { IRecord, IGenericRecord, Nullable } from "@codinus/types";
 
-// export namespace json {
 /**
  * Converts a JavaScript value to a JavaScript Object Notation (JSON) string and return empty string when error occured. 
  * @param value A JavaScript value, usually an object or array, to be converted.

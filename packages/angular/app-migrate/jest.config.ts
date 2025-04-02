@@ -1,7 +1,7 @@
 export default {
   displayName: 'app-migrate',
   preset: '../../../jest.preset.js',
-  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/test-setup.ts'],
   coverageDirectory: '../../../coverage/packages/angular/app-migrate',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [

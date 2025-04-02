@@ -30,7 +30,7 @@ class InputSuffixClearComponent extends CSInputButtonElementBase<void> {
 
 
 @Directive({
-    selector: `input:not([type="radio"]):not([type="select"]):not([type="checkbox"])[allowClear]`,
+    selector: `input:not([type="radio"]):not([type="select"]):not([type="checkbox"])[allowClear], textarea[allowClear]`,
     exportAs: 'csClear',
 })
 export class CSInputClearButton extends CSInputButtonDirectiveBase<void, InputSuffixClearComponent> {

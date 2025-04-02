@@ -51,17 +51,17 @@ export class TableFormExampleComponent {
         // iconMember: 'icon',
         columns: [
             {
-                name: 'position', footerAggregation: 'sum', headerText: 'No.',
+                name: 'position', footerAggregation: 'sum', label: 'No.',
                 resizable: true, reordable: true, sortable: true, filter: { type: 'number' }, editor: { type: 'number' }
             },
             {
-                name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', headerText: 'Date',
+                name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', label: 'Date',
                 resizable: true, reordable: false, sortable: true,
                 filter: { type: 'date', operations: ['equals', 'greaterThan'], options: { dateFormat: 'dd-MM-yyyy' } },
                 editor: { type: 'date', options: { dateFormat: 'dd-MM-yyyy' } }
             },
             {
-                name: 'weight', footerAggregation: 'avg', headerText: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
+                name: 'weight', footerAggregation: 'avg', label: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
                 footerFormatter: "Avg. {#,###.00}", resizable: true, reordable: true, sortable: true,
                 filter: { type: 'number', options: { decimalDigits: 3, mode: 'decimal' } },
                 editor: { type: 'number', options: { allowArrowKeys: true, mode: 'decimal' } }

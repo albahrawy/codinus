@@ -1,16 +1,18 @@
 import { Component, computed, effect, forwardRef, input, signal, viewChild } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { getValue, isEqual } from '@codinus/js-extensions';
 import { noopFn, Nullable } from '@codinus/types';
+import { CSTranslatePipe } from '@ngx-codinus/cdk/localization';
 import { CodinusFormsModule } from '@ngx-codinus/core/forms';
 import { CODINUS_CDK_FLEX_DIRECTIVES } from '@ngx-codinus/core/layout';
 import {
     CODINUS_FORM_AREA, CODINUS_RUNTIME_FORM_HANDLER, CODINUS_RUNTIME_FORM_SECTION, CSFormSectionArrayContent, CSFormSectionTree,
     CSFormTemplateOutlet, CSLocalizableInput, CSRuntimeFormHandler, ICSFormElementValueChange, ICSRuntimeFormAreaBase,
+    ICSRuntimeFormFieldCheckBox,
     ICSRuntimeFormFieldConfig, ICSRuntimeFormFieldNamelessConfig, ICSRuntimeFormHost
 } from '@ngx-codinus/material/forms';
 import { CSIconSelector } from '@ngx-codinus/material/icon-selector';
@@ -23,6 +25,8 @@ import { ICSComponentSetupStandard, ICSRuntimeFormSetupFieldConfig } from '../he
 
 interface ICSFormComponentSetupSpecialConfig {
     children?: ICSRuntimeFormSetupFieldConfig[],
+    mergedChildren?: ICSRuntimeFormSetupFieldConfig[],
+    toggleChildren?: ICSRuntimeFormFieldCheckBox[],
     panelColumns?: string;
     mergeTabs?: boolean;
     standards: ICSComponentSetupStandard | false;
@@ -40,7 +44,7 @@ const ROOT_NODE: ICSRuntimeFormAreaBase = {
     styleUrl: './page-setup-sections.scss',
     imports: [
         CSFormSectionTree, FlexPropertyInput, FlexColumnInput, CSFormSectionArrayContent,
-        CODINUS_FORM_AREA, CODINUS_CDK_FLEX_DIRECTIVES, CSIconSelector,
+        CODINUS_FORM_AREA, CODINUS_CDK_FLEX_DIRECTIVES, CSIconSelector, CSTranslatePipe,
         CSNumericInput, CodinusFormsModule, CSLocalizableInput, CSFormTemplateOutlet,
         MatSelectModule, MatFormFieldModule, MatInputModule, MatSlideToggleModule, FormsModule
     ],
@@ -63,7 +67,7 @@ const ROOT_NODE: ICSRuntimeFormAreaBase = {
         }
     ]
 })
-export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormFieldConfig>, ControlValueAccessor {
+export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormFieldConfig>, ControlValueAccessor, Validator {
 
     private _formHandler = new CSRuntimeFormHandler<ICSRuntimeFormFieldConfig>(this,
         computed(() => this._treeArray().groupDirective));
@@ -87,9 +91,8 @@ export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormField
         effect(() => {
             this._showRootArea();
             this._treeArray().refresh();
-        })
+        });
     }
-
 
     protected sectionSource = computed(() => this.sectionHandler().normalizeSections(this.rootArea(), this._showRootArea()));
 
@@ -122,24 +125,38 @@ export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormField
             return null;
 
         const children = [...specialProperties.children ?? []];
+        const mergedChildren = [...specialProperties.children ?? []];
+        const toggleChildren = [...specialProperties.toggleChildren ?? []];
 
         if (Array.isArray(specialProperties.conditional)) {
             const currentItemValue = this._treeArray().formValueChanges();
-            const conditionalChildren = specialProperties.conditional
-                .find(c => isMatch(currentItemValue, c.key, c.value))?.children;
-            if (conditionalChildren)
-                children.push(...conditionalChildren);
+            const conditional = specialProperties.conditional
+                .find(c => isMatch(currentItemValue, c.key, c.value));
+
+            if (conditional?.children)
+                children.push(...conditional.children);
+            if (conditional?.mergedChildren)
+                mergedChildren.push(...conditional.mergedChildren);
+            if (conditional?.toggleChildren)
+                toggleChildren.push(...conditional.toggleChildren);
         }
         const standards = specialProperties.standards ?? {};
         return {
             children,
             standards,
+            mergedChildren,
+            toggleChildren,
             hasToggles: standards === false ? false : hasStandardToggle(standards),
             displayType: specialProperties.mergeTabs ? 'flat' : 'tab',
             panelColumns: specialProperties.panelColumns
         };
 
     }, { equal: (a, b) => isEqual(a, b) });
+
+    protected onNodeRemoved() {
+        this._onValidateChange();
+    }
+
 
     protected _onFocusedChanged(isFocused: boolean) {
         if (!isFocused)
@@ -148,11 +165,12 @@ export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormField
 
     protected _onValueChanged(args: ICSFormElementValueChange<Nullable<ICSRuntimeFormFieldNamelessConfig[]>>) {
         if (args.source === 'input') {
-            this._onChange(args.value);
+            this._onChange(this.rootArea());
         }
     }
 
     private _onTouched: () => void = noopFn;
+    private _onValidateChange: () => void = noopFn;
     private _onChange: (value: unknown) => void = noopFn;
 
     writeValue(obj: ICSRuntimeFormAreaBase): void {
@@ -160,10 +178,15 @@ export class PageSetupSections implements ICSRuntimeFormHost<ICSRuntimeFormField
             this.rootArea.update(() => ({ ...ROOT_NODE }));
         else
             this.rootArea.set(obj);
+        setTimeout(() => this._onValidateChange());
     }
 
     validate(): ValidationErrors | null {
         return this._treeArray().validate();
+    }
+
+    registerOnValidatorChange(fn: () => void): void {
+        this._onValidateChange = fn;
     }
 
     registerOnChange(fn: () => void): void {

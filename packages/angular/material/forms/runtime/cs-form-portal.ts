@@ -41,10 +41,11 @@ export class CSFormPortal implements OnDestroy, OnInit {
     protected events = this._runtimeFormHandler.events;
     protected formPrifix = this._runtimeFormHandler.prefix;
 
-    config = input.required<ICSRuntimeFormFieldBase & { type: string; }>({ alias: 'cs-form-portal' });
-    parentFormGroup = input<Nullable<CSFormGroupDirective>>();
     readonly isValid = computed(() => this.csFormControl()?.signalValid() ?? true);
     readonly value = computed(() => this.csFormControl()?.signalValue());
+
+    config = input.required<ICSRuntimeFormFieldBase & { type: string; }>({ alias: 'cs-form-portal' });
+    parentFormGroup = input<Nullable<CSFormGroupDirective>>();
 
     constructor() {
         effect(() => {

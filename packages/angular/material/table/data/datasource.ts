@@ -36,9 +36,13 @@ export class CSTableDataSource<T, P extends MatPaginator = MatPaginator>
     override set data(data: Array<T> | Observable<T[]> | undefined | null) {
         if (isObservable(data)) {
             this._observableDataSubscription?.unsubscribe();
-            this._observableDataSubscription = data.subscribe(d => super.data = d);
+            this._observableDataSubscription = data.subscribe(d => this.setDataCore(d));
         }
-        else { super.data = data || []; }
+        else { this.setDataCore(data); }
+    }
+
+    protected setDataCore(data: T[] | null | undefined) {
+        super.data = data || [];
     }
 
     override disconnect(): void {

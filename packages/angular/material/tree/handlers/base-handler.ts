@@ -12,7 +12,7 @@ export abstract class CsTreeBaseHandler<TNode> {
     abstract nodesToShow: () => TNode[];
     abstract getChildrenFromNode(node: TNode): TNode[];
     abstract buildRelationMap(data: TNode[], map: Map<TNode, TNode | null>): void;
-    abstract add(row?: TNode | TNode[], parent?: Nullable<TNode>, setCurrent?: boolean, autoScroll?: boolean): void;
+    abstract add(row?: TNode | TNode[], parent?: Nullable<TNode>, setCurrent?: boolean, autoScroll?: boolean): TNode[];
     abstract _dataRemoveHandler: (rows: TNode[]) => Nullable<TNode>;
     _isRecordPartOfData?: (data: readonly TNode[], record: Nullable<TNode>) => boolean;
 

@@ -1,10 +1,10 @@
 import { JsonPipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 
 
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 import { IGenericRecord } from '@codinus/types';
 import { ConextMenuOpenArgs, IContextMenuClickArgs, IContextMenuItem } from '@ngx-codinus/material/context-menu';
@@ -65,6 +65,15 @@ export class CSRuntimeFromExampleComponent {
     onClick() {
         // const c = this._form.getElementByDataKey('nested_panel1_db_section_4');
         // console.log(c);
+
+        const smallData = Array(3).fill(0).map((v, i) => ({
+            name: 'item' + i+5, value: i + 1, disable: (i + 1) % 15 == 0,
+            icon: (i + 1) % 5 ? 'home' : 'tel',
+            avatar: (i + 1) % 3
+                ? 'https://angular.io/generated/images/bios/devversion.jpg'
+                : 'https://angular.io/generated/images/bios/jelbourn.jpg',
+        }));
+        this.events.signalDataSource.next(smallData);
     }
 }
 
@@ -84,8 +93,8 @@ class MyEvents implements ICSRuntimeFormEvents {
             return { misMatch: true };
         return null;
     }
-
-    nested_panel1_SelectComponent_DataSource1() {
+    signalDataSource = new BehaviorSubject<unknown[]>([]);
+    nested_panel1_SelectComponent_DataSource() {
         const smallData = Array(3).fill(0).map((v, i) => ({
             name: 'item' + i, value: i + 1, disable: (i + 1) % 15 == 0,
             icon: (i + 1) % 5 ? 'home' : 'tel',
@@ -93,7 +102,8 @@ class MyEvents implements ICSRuntimeFormEvents {
                 ? 'https://angular.io/generated/images/bios/devversion.jpg'
                 : 'https://angular.io/generated/images/bios/jelbourn.jpg',
         }));
-        return smallData;
+        this.signalDataSource.next(smallData);
+        return this.signalDataSource;
     }
 
     nested_panel1_SelectGridComponent_DataSource() {

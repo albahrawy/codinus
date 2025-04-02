@@ -3,20 +3,18 @@
     [cellHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="config.editable"
     attachFilter="true" [editWithF2]="true" [stickyHeader]="config.stickyHeader" [selectColumn]="'before'"
     [editWithEnter]="true" [reorderColumns]="true" [sortable]="true" responsiveHeaderColumn="name" [resizable]="true"
-    [displayedColumns]="buttons.displayedColumns" [showHeader]="true" [showFooter]="true" [showFilter]="true"
-    (initialized)="buttons.onCreated($event)" [columns]="config.columns" [responsive]="[2,2,0]">
+    [showHeader]="true" [showFooter]="true" [showFilter]="true" (initialized)="buttons.onCreated($event)"
+    [columns]="config.columns" [responsive]="[2,2,0]">
 
-    <!-- [editable]="config.editable" [commitOnDestroy]="config.commitOnDestroy"
-    [editWithF2]="config.editWithF2" [editWithEnter]="config.editWithEnter" [rowHeight]="config.rowHeight"
-    [attachFilter]="config.attachFilter" [reorderColumns]="config.reorderColumns" [sortable]="config.sortable"
-    [showHeader]="config.showHeader" [showFilter]="config.showFilter" [showFooter]="config.showFooter"
-    [stickyHeader]="config.stickyHeader" [stickyFilter]="config.stickyFilter" [stickyFooter]="config.stickyFooter"
-    [noDataText]="config.noDataText" [responsive]="config.responsive" [dataSource]="dataSource"
-    [selectColumn]="config.selectColumn" [selectable]="config.selectable" [columns]="config.columns"
-    (edited)="onEdited($event)" [iconMember]="config.iconMember" [iconColumn]="config.iconColumn"
-    [showIndex]="config.showIndex" [disabled]="disabled" [iconType]="config.iconType" keyboardNavigation="row"
-    (created)="onTableCreated($event) -->
 
+    <ng-container matColumnDef="position" readOnly="false" editorType="checkbox">
+        <mat-header-cell *matHeaderCellDef [reordable]="false"> Active
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef>
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
 
 
 </mat-table>

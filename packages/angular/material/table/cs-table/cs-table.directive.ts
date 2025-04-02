@@ -1,5 +1,8 @@
 import { CdkColumnDef, CdkFooterRowDef, CdkHeaderRowDef, CdkNoDataRow, CdkRowDef, CdkTable } from '@angular/cdk/table';
-import { booleanAttribute, Component, computed, Directive, effect, ElementRef, EnvironmentInjector, forwardRef, inject, INJECTOR, Injector, input, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import {
+    AfterContentInit, booleanAttribute, Component, computed, Directive, effect,
+    ElementRef, EnvironmentInjector, inject, INJECTOR, Injector, input, signal, viewChild, viewChildren, ViewContainerRef
+} from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { arraySort } from '@codinus/js-extensions';
 import { IStringRecord, Nullable, ValueGetter } from '@codinus/types';
@@ -7,39 +10,65 @@ import { CSTranslateFromDictionaryPipe, CSTranslatePipe } from '@ngx-codinus/cdk
 import { booleanTrueAttribute, signalVersion } from '@ngx-codinus/core/shared';
 import { CSIconType } from '@ngx-codinus/material/buttons';
 import { CODINUS_TABLE_CELLS } from '../cells';
-import { CSColumnReordable, CSColumnSortable, CSTableColumnResize, CSTableReorderColumns, CSTableReorderColumnsBase } from '../columns';
+import {
+    CSCDKTableReorderColumns, CSColumnReordable, CSColumnSortable,
+    CSTableColumnResize, CSTableReorderColumnsBase
+} from '../columns';
 import { CSTableColumnDataDef, CSValueGetter } from '../data';
 import { CODINUS_TABLE_EDITORS, CSColumnEditorDef } from '../editors';
 import { CSInteractiveRowDirective, CSInteractiveTableDirective, CSTableNavigatableCell } from '../features';
 import { CODINUS_TABLE_FILTERS, CSCdkFilterRowDef } from '../filters';
 import { CSTableMetaRowModel } from './meta-row-model';
-import { ICSTableColumn } from './types';
-import { CDK_DROP_LIST } from '@angular/cdk/drag-drop';
+import { ICSTableColumn, ICSTableTreeColumn } from './types';
+import { CSTableTreeEditableCell } from '../table-tree/tree-head-edit-cell';
+import { CSTableTreeCell } from '../table-tree/tree-head-cell';
 
 @Component({
     selector: 'cs-table-dynamic-columns',
     template: `
 
-  <ng-container matColumnDef="select-column" csColumnDataDef label="">
-    <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
-    <mat-filter-cell *matFilterCellDef></mat-filter-cell>
-    <mat-cell class="cs-selector-cell" *matCellDef selectorCell></mat-cell>
-    <mat-footer-cell *matFooterCellDef></mat-footer-cell>
-  </ng-container>
+    @if(_treeColumn(); as column){
+        <ng-container matColumnDef="tree-main-node" csColumnDataDef [sticky]="column.sticky==='start'" 
+            [stickyEnd]="column.sticky==='end'" [cellValueGetter]="column.cellValueGetter" 
+            [cellValueSetter]="column.cellValueSetter" [cellFormatter]="(column.cellFormatter|csTranslateFromDictionary)()"
+            [footerFormatter]="(column.footerFormatter|csTranslateFromDictionary)()" 
+            [footerAggregation]="column.footerAggregation" [cellDefaultValue]="column.cellDefaultValue" 
+            [footerDefaultValue]="column.footerDefaultValue" [dataKey]="(column.dataKey|csTranslateFromDictionary)()" 
+            [readOnly]="column.readOnly" [label]="(column.label|csTranslateFromDictionary)()"
+            [editorType]="column.editor?.type" [editorOptions]="column.editor?.options">
+                <mat-header-cell *matHeaderCellDef [resizable]="column.resizable" [reordable]="column.reordable"
+                [columnWidth]="column.width" [sortable]="column.sortable">
+                <span [style.marginLeft.px]="25">{{(column.label|csTranslateFromDictionary)()}}</span>
+                </mat-header-cell>
+                <mat-filter-cell *matFilterCellDef="column.filter?.type; options: column.filter?.options" cs-filter
+                [defaultOperation]="column.filter?.initialOperation" [operations]="column.filter?.operations">
+                </mat-filter-cell>
+                @if(column.editor?.type){<mat-cell *matCellDef treeHeadEditableCell></mat-cell>}
+                @else{<mat-cell *matCellDef treeHeadCell></mat-cell>}
+                <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+        </ng-container>
+    }
 
-  <ng-container matColumnDef="row-index-column" csColumnDataDef label="">
-    <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
-    <mat-filter-cell *matFilterCellDef></mat-filter-cell>
-    <mat-cell *matCellDef indexCell></mat-cell>
-    <mat-footer-cell *matFooterCellDef></mat-footer-cell>
-  </ng-container>
+    <ng-container matColumnDef="select-column" csColumnDataDef label="">
+        <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
+        <mat-filter-cell *matFilterCellDef></mat-filter-cell>
+        <mat-cell class="cs-selector-cell" *matCellDef selectorCell></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
 
-  <ng-container matColumnDef="icon-column" label="" csColumnDataDef [dataKey]="(iConDataKey()|csTranslate)()" [cellValueGetter]="iconGetter()">
-    <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
-    <mat-filter-cell *matFilterCellDef></mat-filter-cell>
-    <mat-cell *matCellDef reactiveIcon [iconType]="iconType()"></mat-cell>
-    <mat-footer-cell *matFooterCellDef></mat-footer-cell>
-  </ng-container>
+    <ng-container matColumnDef="row-index-column" csColumnDataDef label="">
+        <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
+        <mat-filter-cell *matFilterCellDef></mat-filter-cell>
+        <mat-cell *matCellDef indexCell></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="icon-column" label="" csColumnDataDef [dataKey]="(iConDataKey()|csTranslate)()" [cellValueGetter]="iconGetter()">
+        <mat-header-cell *matHeaderCellDef [columnWidth]="40"></mat-header-cell>
+        <mat-filter-cell *matFilterCellDef></mat-filter-cell>
+        <mat-cell *matCellDef reactiveIcon [iconType]="iconType()"></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
 
    @for (column of columns(); track column) {
     <ng-container [matColumnDef]="column.name" csColumnDataDef [sticky]="column.sticky==='start'" [stickyEnd]="column.sticky==='end'"
@@ -48,10 +77,10 @@ import { CDK_DROP_LIST } from '@angular/cdk/drag-drop';
         [footerFormatter]="(column.footerFormatter|csTranslateFromDictionary)()" 
         [footerAggregation]="column.footerAggregation" [cellDefaultValue]="column.cellDefaultValue" 
         [footerDefaultValue]="column.footerDefaultValue" [dataKey]="(column.dataKey|csTranslateFromDictionary)()" 
-        [readOnly]="column.readOnly" [label]="(column.headerText|csTranslateFromDictionary)()"
+        [readOnly]="column.readOnly" [label]="(column.label|csTranslateFromDictionary)()"
         [editorType]="column.editor?.type" [editorOptions]="column.editor?.options">
             <mat-header-cell *matHeaderCellDef [resizable]="column.resizable" [reordable]="column.reordable"
-            [columnWidth]="column.width" [sortable]="column.sortable">{{(column.headerText|csTranslateFromDictionary)()}}
+            [columnWidth]="column.width" [sortable]="column.sortable">{{(column.label|csTranslateFromDictionary)()}}
             </mat-header-cell>
             <mat-filter-cell *matFilterCellDef="column.filter?.type; options: column.filter?.options" cs-filter
             [defaultOperation]="column.filter?.initialOperation" [operations]="column.filter?.operations">
@@ -72,7 +101,8 @@ import { CDK_DROP_LIST } from '@angular/cdk/drag-drop';
     imports: [
         MatTableModule, CSTableColumnResize, CSTableColumnDataDef, CSColumnEditorDef, CSColumnReordable,
         CSColumnSortable, CSTranslateFromDictionaryPipe, CODINUS_TABLE_CELLS, CSTableNavigatableCell,
-        CODINUS_TABLE_FILTERS, CODINUS_TABLE_EDITORS, CSTranslatePipe, CSInteractiveRowDirective
+        CODINUS_TABLE_FILTERS, CODINUS_TABLE_EDITORS, CSTranslatePipe, CSInteractiveRowDirective,
+        CSTableTreeEditableCell, CSTableTreeCell
     ]
 })
 export class CSDynamicColumnsComponent {
@@ -105,18 +135,12 @@ export class CSDynamicColumnsComponent {
     });
 
     _displayedColumns = computed(() => this.parentTable._displayedColumns());
+    _treeColumn = computed(() => this.parentTable._treeColumn());
 
 }
 
-@Directive({
-    selector: `mat-table[cs-table]`,
-    exportAs: 'csTable',
-    host: { 'class': 'cs-table' },
-    providers: [
-        { provide: CSTableReorderColumns, useExisting: CSTableDirective },
-    ]
-})
-export class CSTableDirective<TRecord> extends CSTableReorderColumnsBase {
+@Directive({ host: { 'class': 'cs-table' } })
+export abstract class CSTableDirectiveBase<TRecord> extends CSTableReorderColumnsBase implements AfterContentInit {
 
     protected _cdkTable = inject(CdkTable, { self: true });
     protected _elementRef = inject(ElementRef);
@@ -146,6 +170,9 @@ export class CSTableDirective<TRecord> extends CSTableReorderColumnsBase {
     /** @internal */
     _renderVersion = signalVersion();
 
+    /** @internal */
+    _treeColumn = signal<Nullable<ICSTableTreeColumn<TRecord, unknown>> | null>(null);
+
     constructor() {
         super();
         const providers = [{ provide: CSTableDirective, useValue: this }];
@@ -154,6 +181,11 @@ export class CSTableDirective<TRecord> extends CSTableReorderColumnsBase {
         const component = inject(ViewContainerRef).createComponent(CSDynamicColumnsComponent, { injector: elementInjector, environmentInjector });
         this._elementRef.nativeElement.appendChild(component.location.nativeElement);
         component.changeDetectorRef.detectChanges();
+
+        this._cdkTable.addRowDef(component.instance.rowDef());
+        this._cdkTable.setNoDataRow(component.instance.noDataRowDef());
+
+        this._apiRegistrar?.register('metaRowDirective', new CSTableMetaRowModel(this));
 
         effect(() => {
             const showHeader = this.showHeader();
@@ -179,28 +211,33 @@ export class CSTableDirective<TRecord> extends CSTableReorderColumnsBase {
                 this._cdkTable.removeFooterRowDef(component.instance.footerRowDef());
         });
 
-        this._cdkTable.addRowDef(component.instance.rowDef());
-        this._cdkTable.setNoDataRow(component.instance.noDataRowDef());
-
-        this._apiRegistrar?.register('metaRowDirective', new CSTableMetaRowModel(this));
-
         effect(() => {
             component.instance.columnDefs().forEach(c => this._cdkTable.addColumnDef(c));
         });
 
         effect(() => {
             this.columns();
+            this._treeColumn();
             component.changeDetectorRef.detectChanges();
         });
-
     }
+
+    ngAfterContentInit(): void {
+        this._cdkTable._contentColumnDefs?.reset([]);
+        this._cdkTable._contentFooterRowDefs?.reset([]);
+        this._cdkTable._contentHeaderRowDefs?.reset([]);
+        this._cdkTable._contentRowDefs?.reset([]);
+    }
+
+    private useVisibleColumns = computed(() => {
+        this._renderVersion();
+        const columnNames = this.columns()?.filter(c => !c.hidden).map((c, i) => ({ name: c.name, order: c.order ?? i }));
+        return arraySort(columnNames, c => c.order).map(c => c.name);
+    });
 
     /** @internal */
     _displayedColumns = computed(() => {
-        this._renderVersion();
-        const columnNames = this.columns()?.filter(c => !c.hidden).map((c, i) => ({ name: c.name, order: c.order ?? i }));
-        let displayedColumns = arraySort(columnNames, c => c.order).map(c => c.name);
-
+        let displayedColumns = this.useVisibleColumns();
         if (this.iconColumn() === 'after')
             displayedColumns.push('icon-column');
         else if (this.iconColumn() === 'before')
@@ -216,25 +253,33 @@ export class CSTableDirective<TRecord> extends CSTableReorderColumnsBase {
                 displayedColumns = ['select-column', ...displayedColumns];
         }
 
+        if (this._treeColumn())
+            displayedColumns = ['tree-main-node', ...displayedColumns];
+
         return displayedColumns;
     });
 
     protected override moveColumn(draggable: string[], previousIndex: number, currentIndex: number): void {
-        const columns = this.columns();
-        previousIndex = columns.findIndex(c => c.name === draggable[previousIndex]);
-        currentIndex = columns.findIndex(c => c.name === draggable[currentIndex]);
 
-        if (previousIndex < 0 || currentIndex < 0)
+        const displayedColumns = [...this._displayedColumns()];
+        if (!this.moveColumnCore(displayedColumns, draggable, previousIndex, currentIndex))
             return;
 
-        const previousColumn = columns[previousIndex];
-        const currentColumn = columns[currentIndex];
-
-        const previousOrder = previousColumn.order ?? previousIndex;
-        const currentOrder = currentColumn.order ?? currentIndex;
-
-        previousColumn.order = currentOrder;
-        currentColumn.order = previousOrder;
+        const columns = this.columns();
+        columns.forEach(c => c.order = displayedColumns.indexOf(c.name));
         this._renderVersion.refresh();
     }
+}
+
+
+@Directive({
+    selector: `mat-table:not([cs-table-tree])[cs-table]`,
+    exportAs: 'csTable',
+    host: { 'class': 'cs-table' },
+    providers: [
+        { provide: CSCDKTableReorderColumns, useExisting: CSTableDirective },
+    ]
+})
+export class CSTableDirective<TRecord> extends CSTableDirectiveBase<TRecord> {
+    
 }

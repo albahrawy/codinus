@@ -13,7 +13,7 @@ import { toNumber } from "@codinus/js-extensions";
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FlexColumnInput extends FlexPropertyInputBase<number> {
-
+    
     protected override getInitialValue(): number { return 0; }
     protected override getDefaultValue(): number { return 0; }
     protected override convert(partValue: string | undefined): number { return toNumber(partValue, 0); }

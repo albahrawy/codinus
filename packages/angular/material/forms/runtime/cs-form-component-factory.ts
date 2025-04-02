@@ -21,6 +21,7 @@ import {
     ICSFormTemplateProviderComponent, ICSRuntimeFormComponentFactory,
     ICSRuntimeFormElement, ICSRuntimeFormFieldNamelessConfig
 } from "./injection-tokens";
+import { CSFormElementTextArea } from "./elements/form-element-text-area";
 
 
 @Injectable({ providedIn: 'root' })
@@ -40,6 +41,8 @@ export class CSFormComponentFactory implements ICSRuntimeFormComponentFactory {
                 return CSFormElementSectionArray;
             case 'text':
                 return CSFormElementText;
+                case 'text-area':
+                return CSFormElementTextArea;
             case 'masked-text':
                 return CSFormElementMaskedText;
             case 'number':

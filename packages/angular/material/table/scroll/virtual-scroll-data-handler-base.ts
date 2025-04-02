@@ -61,7 +61,6 @@ export abstract class CSTableVirtualScrollDataHandlerBase<T>
         return 0;
     }
 
-
     ngAfterViewInit(): void {
         if (this._cdkTable.dataSource != this._cdkTableDataSource) {
             this._cdkTable.dataSource = this._cdkTableDataSource;

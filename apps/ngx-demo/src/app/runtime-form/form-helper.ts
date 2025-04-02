@@ -153,7 +153,7 @@ export function createPanel(prefix: string, action?: (panel: ICSRuntimeFormAreaP
                     type: 'select',
                     name: `${prefix}_SelectComponent`,
                     dataKey: `${prefix}_db_select`,
-                    dataSource: createSimpleData(),
+                    //dataSource: createSimpleData(),
                     // defaultValue: 1,
                     required: true,
                     label: { en: 'Select' },
@@ -201,23 +201,23 @@ export function createPanel(prefix: string, action?: (panel: ICSRuntimeFormAreaP
                     allowClear: true,
                     columns: [
                         {
-                            name: 'position', footerAggregation: 'sum', headerText: 'No.', // sticky: 'start',
+                            name: 'position', footerAggregation: 'sum', label: 'No.', // sticky: 'start',
                             resizable: true, draggable: true, sortable: true, filter: { type: 'number' }, editor: { type: 'number' }
                         },
                         {
-                            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', headerText: 'Date',
+                            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', label: 'Date',
                             resizable: true, draggable: false, sortable: true,
                             filter: { type: 'date', operations: ['equals', 'greaterThan'], options: { dateFormat: 'dd-MM-yyyy' } },
                             editor: { type: 'date' }
                         },
                         {
-                            name: 'weight', footerAggregation: 'avg', headerText: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
+                            name: 'weight', footerAggregation: 'avg', label: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
                             footerFormatter: "Avg. {#,###.00}", resizable: true, draggable: true, sortable: true,
                             filter: { type: "number", options: { decimalDigits: 3, mode: "decimal" } },
                             editor: { type: 'number', options: { allowArrowKeys: true, mode: "decimal" } }
                         },
                         {
-                            name: 'symbol', headerText: 'Symbol',
+                            name: 'symbol', label: 'Symbol',
                             resizable: true, draggable: true, sortable: true, filter: { type: 'string' }, editor: { type: 'string' }
                         },
                     ],
@@ -318,17 +318,17 @@ export function createPanel(prefix: string, action?: (panel: ICSRuntimeFormAreaP
                     iconMember: 'icon',
                     columns: [
                         {
-                            name: 'position', footerAggregation: 'sum', headerText: 'No.',
+                            name: 'position', footerAggregation: 'sum', label: 'No.',
                             resizable: true, draggable: true, sortable: true, filter: { type: 'number' }, editor: { type: 'number' }
                         },
                         {
-                            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', headerText: 'Date',
+                            name: 'date', cellFormatter: 'dd/MM/yyyy', footerDefaultValue: 'Footer', label: 'Date',
                             resizable: true, draggable: false, sortable: true,
                             filter: { type: 'date', operations: ['equals', 'greaterThan'], options: { dateFormat: 'dd-MM-yyyy' } },
                             editor: { type: 'date', options: { dateFormat: 'dd-MM-yyyy' } }
                         },
                         {
-                            name: 'weight', footerAggregation: 'avg', headerText: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
+                            name: 'weight', footerAggregation: 'avg', label: 'Weight', dataKey: "nested.weightx", cellFormatter: "#,###.##",
                             footerFormatter: "Avg. {#,###.00}", resizable: true, draggable: true, sortable: true,
                             filter: { type: 'number', options: { decimalDigits: 3, mode: 'decimal' } },
                             editor: { type: 'number', options: { allowArrowKeys: true, mode: 'decimal' } }

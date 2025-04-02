@@ -54,10 +54,16 @@ export interface ICSSupportMatSortDataSource {
     sort: MatSort | null;
 }
 
-export interface ICSSupportFilter {
+export interface ISupportMatFilter {
     filterPredicate: (data: unknown) => boolean;
     filter: string;
 }
+
+export interface ISupportCSFilter {
+    setFilter(filterPredicate: ((data: unknown) => boolean) | null): void;
+}
+
+
 
 export interface ICSSupportNotify {
     notifyChanged(): void;

@@ -29,6 +29,7 @@ export interface ICSTreeFeatures<TNode = unknown> extends ICSTreeActions<TNode> 
     hasChild: (node: TNode) => boolean;
     canRemove: (node: TNode) => boolean;
     readonly conextMenuOpening: OutputEmitterRef<ConextMenuOpeningArgs>;
+    optionHeight(): number;
 }
 
 export interface INodeChildInfo<TNode> {

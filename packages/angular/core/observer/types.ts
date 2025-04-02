@@ -20,6 +20,9 @@ export interface ICSElementResizeObserver {
 }
 
 export interface ICSElementStateObserver {
-    watchState(elem: HTMLInputElement): Observable<InputStateEntry>;
+    watchEnabled(elem: HTMLInputElement): Observable<InputStateEntry>;
     watchParent(element: HTMLInputElement): Observable<HTMLElement | null>;
+    watchCssVariable(element: HTMLElement, cssVariable: string): Observable<string>;
+    watchState<TElement extends HTMLElement, TResult>(element: TElement, options: MutationObserverInit,
+        callBack: (el: TElement, subscriber: Subscriber<TResult>) => TResult): Observable<TResult>;
 }

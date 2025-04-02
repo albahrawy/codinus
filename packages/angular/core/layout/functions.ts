@@ -22,13 +22,13 @@ const FlEX_MEDIA_INITIALS = {
 };
 
 const FlEX_MEDIA_COLUMN_INITIALS = {
-    'default': 0,
-    'xs': 0,
-    'sm': 0,
-    'md': 0,
-    'lg': 0,
-    'xl': 0,
-    'sl': 0
+    'default': null,
+    'xs': null,
+    'sm': null,
+    'md': null,
+    'lg': null,
+    'xl': null,
+    'sl': null
 };
 
 export function createMediaColumnProperty(value: Nullable<string | number | number[]>) {

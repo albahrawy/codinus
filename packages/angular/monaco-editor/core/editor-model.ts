@@ -43,7 +43,7 @@ export class CSEditorModel {
     set value(value: string | null) {
         this._value = value ?? '';
         this._currentModel()?.setValue(this._value);
-       // this._parentEditor.formatAndFocus();
+        // this._parentEditor.formatAndFocus();
     }
 
     get currentModel() { return this._currentModel() as unknown as IEditorModel | null; }
@@ -75,6 +75,7 @@ export class CSEditorModel {
     }
 
     private createModel(): IEditorModel | null {
+
         const monaco = this._parentEditor._monaco();
         const modelPathUri = this._modelFileUri();
         if (!monaco || !modelPathUri)
@@ -83,9 +84,16 @@ export class CSEditorModel {
         const attachEvent = (model: IEditorModel | null) => {
             if (!model)
                 return;
-            this._changeEvent = model.onDidChangeContent(() => {
-                this._value = model.getValue();
-                this._parentEditor._onValueChange(this.value);
+            let isFormatting = false;
+            this._changeEvent = model.onDidChangeContent((e) => {
+                if (e.isFlush) {
+                    isFormatting = true;
+                    this._parentEditor.formatAndFocus().then(() => setTimeout(() => isFormatting = false, 400));
+                } else if (!isFormatting) {
+                    this._value = model.getValue();
+                    this._parentEditor._onValueChange(this.value);
+                    console.log(e);
+                }
             });
         };
 
@@ -113,12 +121,11 @@ export class CSEditorModel {
     private _createActions(editor: Nullable<IStandaloneCodeEditor>, actions: Nullable<IEditorActionDescriptor[]>) {
         if (!actions || !editor)
             return;
-
-        this._contextKey = editor.createContextKey("moduleId", null);
+        this._contextKey = editor.createContextKey("csModuleId", null);
         const moduleId = this._parentEditor.modelName();
         actions.forEach(a => {
             if (!a.precondition) {
-                a.precondition = `moduleId == ${moduleId}`;
+                a.precondition = `csModuleId == ${moduleId}`;
                 // ...{ id: `${a.id}|${moduleId}|csAction` }
             }
             if (a.type == 'custom')
@@ -126,8 +133,8 @@ export class CSEditorModel {
             else {
                 const userRun = a.run;
                 const run = (ed: ICodeEditor) => new Promise<void>(resolve => {
-                   // const lineCount = ed.getModel()?.getLineCount() ?? 0;
-                   // const lastLineLength = ed.getModel()?.getLineMaxColumn(lineCount) ?? 0;
+                    // const lineCount = ed.getModel()?.getLineCount() ?? 0;
+                    // const lastLineLength = ed.getModel()?.getLineMaxColumn(lineCount) ?? 0;
                     const { column, lineNumber } = ed.getPosition() ?? { column: 0, lineNumber: 0 };
                     const args = {
                         column, lineNumber,

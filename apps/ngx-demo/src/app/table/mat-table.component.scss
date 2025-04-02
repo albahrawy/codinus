@@ -1,5 +1,6 @@
 :host {
     --cs-table-inner-vertical-border: 1px solid rgba(0, 0, 0, 0.12);
+    --cs-table-active-resizing-cell-border: 1px dashed rgb(179, 61, 32);
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -35,7 +36,7 @@
         border-left: var(--cs-table-inner-vertical-border);
     }
 
-   // min-width: 400px;
+    // min-width: 400px;
 }
 
 mat-header-row {

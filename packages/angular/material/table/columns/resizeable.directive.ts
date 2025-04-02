@@ -1,22 +1,36 @@
-import { computed, Directive, inject, input } from "@angular/core";
+import { computed, Directive, ElementRef, inject, input, signal } from "@angular/core";
 import { Nullable } from "@codinus/types";
 
 import { booleanTrueAttribute, signalVersion } from "@ngx-codinus/core/shared";
 import { CSTableDirective } from "../cs-table/cs-table.directive";
-import { CODINUS_TABLE_RESIZABLE } from "./types";
+import { CODINUS_TABLE_RESIZABLE, ICSTableResizable } from "./types";
+import { findElementAttributeByPrefix } from "@codinus/dom";
+import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
 
 @Directive({
     host: {
-        '[style.--cs-table-grid-column-sizes]': '_sizes()'
+        '[style.--cs-table-grid-column-resizable-sizes]': '_sizes()',
+        'class': 'cs-table-grid'
     }
 })
-export abstract class CSTableResizableBase {
+export abstract class CSTableResizableBase implements ICSTableResizable {
 
+    readonly elementRef = inject(ElementRef);
     private _sizesMap = new Map<string, Nullable<string>>();
     private _renderVersion = signalVersion();
+    private _isDisabled = signal(false);
 
-    resizable = input(true, { transform: booleanTrueAttribute });
+    setDisabledState(isDisabled: boolean) {
+        this._isDisabled.set(isDisabled);
+    }
+
+    userResizable = input(true, { alias: 'resizable', transform: booleanTrueAttribute });
+
+    resizable = computed(() => this.userResizable() && !this._isDisabled());
+
     abstract displayedColumns: () => string[];
+
+    readonly highlightCssTemplate = this.buildHighlightCssTemplate();
 
     protected _sizes = computed(() => {
         this._renderVersion();
@@ -33,10 +47,22 @@ export abstract class CSTableResizableBase {
     getSize(key: string) {
         return this._sizesMap.get(key);
     }
+
+    buildHighlightCssTemplate(): (columnClass: string) => string {
+        const tableNgAttributes = findElementAttributeByPrefix(this.elementRef.nativeElement?.attributes, NG_HOST_PREFIX, NG_CONTENT_PREFIX);
+        const _hostCssId = tableNgAttributes[NG_HOST_PREFIX] ?? tableNgAttributes[NG_CONTENT_PREFIX] ?? '';
+        const _isolationId = _hostCssId ? `[${_hostCssId}]` : '';
+        return (columnClass: string) => `
+          ${_isolationId}.cdk-table.cs-table-resizing .${columnClass}{
+            --cs-table-current-cell-resizing-cell-border: var(--cs-table-active-resizing-cell-border);
+          }
+        `;
+    }
 }
 
 @Directive({
-    selector: 'mat-table:not([cs-table])[resizable], cdk-table:not([cs-table])[resizable]',
+    selector: `mat-table:not([cs-table]):not([csTableFormInput])[resizable], 
+               cdk-table:not([cs-table]):not([csTableFormInput])[resizable]`,
     providers: [{ provide: CODINUS_TABLE_RESIZABLE, useExisting: CSCdkTableResizable }]
 })
 export class CSCdkTableResizable extends CSTableResizableBase {
@@ -44,7 +70,8 @@ export class CSCdkTableResizable extends CSTableResizableBase {
 }
 
 @Directive({
-    selector: 'mat-table[cs-table][resizable], cdk-table[cs-table][resizable]',
+    selector: `mat-table[cs-table][resizable], cdk-table[cs-table][resizable],
+               mat-table[csTableFormInput][resizable], cdk-table[csTableFormInput][resizable]`,
     providers: [{ provide: CODINUS_TABLE_RESIZABLE, useExisting: CSTableResizable }]
 
 })

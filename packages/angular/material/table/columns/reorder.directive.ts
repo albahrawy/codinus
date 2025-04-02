@@ -1,6 +1,6 @@
 import { coerceElement } from '@angular/cdk/coercion';
-import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Directive, OnDestroy, booleanAttribute, effect, inject, input, untracked } from '@angular/core';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { Directive, ElementRef, OnDestroy, booleanAttribute, effect, inject, input, untracked } from '@angular/core';
 import { IAction } from '@codinus/types';
 import { forceInputSet } from '@ngx-codinus/core/shared';
 import { CODINUS_TABLE_API_REGISTRAR } from '../api';
@@ -10,7 +10,8 @@ import { CODINUS_TABLE_API_REGISTRAR } from '../api';
     host: { 'class': 'cs-table-reorder-columns' },
 })
 export abstract class CSTableReorderColumnsBase implements OnDestroy {
-    
+
+    readonly elementRef = inject(ElementRef);
     protected dropList = inject(CdkDropList, { self: true });
     protected _apiRegistrar = inject(CODINUS_TABLE_API_REGISTRAR, { self: true, optional: true });
     private remove: IAction | null = null;
@@ -28,6 +29,7 @@ export abstract class CSTableReorderColumnsBase implements OnDestroy {
             if (enabled) {
                 const droppedSub = this.dropList.dropped.subscribe(d => this._onDrop(d));
                 const sortedSub = this.dropList.sorted.subscribe(() => this._applyTransform(true));
+                this.dropList.sortPredicate = this._sortPredicate;
                 this.remove = () => {
                     droppedSub.unsubscribe();
                     sortedSub.unsubscribe();
@@ -39,12 +41,19 @@ export abstract class CSTableReorderColumnsBase implements OnDestroy {
         });
     }
 
+    private _sortPredicate = (index: number, drag: CdkDrag, drop: CdkDropList) => {
+        const dropped = drop.getSortedItems()[index];
+        return !dropped?.disabled;
+    };
+
     reorderColumns = input(false, { transform: booleanAttribute });
 
     getReorder() { return untracked(() => this.reorderColumns()); }
     setReorder(value: boolean) { forceInputSet(this.reorderColumns, value); }
 
     private _onDrop(event: CdkDragDrop<unknown>) {
+        if (event.container != event.previousContainer)
+            return;
         this._applyTransform(false);
         const draggable = event.container.getSortedItems().map(i => i.data);
         this.moveColumn(draggable, event.previousIndex, event.currentIndex);
@@ -64,25 +73,31 @@ export abstract class CSTableReorderColumnsBase implements OnDestroy {
         });
     }
 
+    protected moveColumnCore(columns: string[], draggable: string[], previousIndex: number, currentIndex: number): boolean {
+        previousIndex = columns.indexOf(draggable[previousIndex]);
+        currentIndex = columns.indexOf(draggable[currentIndex]);
+
+        if (previousIndex < 0 || currentIndex < 0)
+            return false;
+
+        moveItemInArray(columns, previousIndex, currentIndex);
+        return true;
+    }
+
     ngOnDestroy(): void {
         this.remove?.();
     }
 }
 
 @Directive({
-    selector: 'mat-table:not([cs-table])[reorderColumns], cdk-table:not([cs-table])[reorderColumns]',
+    selector: `mat-table:not([cs-table]):not([csTableFormInput])[reorderColumns], 
+               cdk-table:not([cs-table]):not([csTableFormInput])[reorderColumns]`,
     exportAs: 'reorderColumns',
 })
-export class CSTableReorderColumns extends CSTableReorderColumnsBase {
+export class CSCDKTableReorderColumns extends CSTableReorderColumnsBase {
     displayedColumns = input<string[]>([]);
 
     protected override moveColumn(draggable: string[], previousIndex: number, currentIndex: number): void {
-        const columns = this.displayedColumns();
-        previousIndex = columns.indexOf(draggable[previousIndex]);
-        currentIndex = columns.indexOf(draggable[currentIndex]);
-
-        if (previousIndex < 0 || currentIndex < 0)
-            return;
-        moveItemInArray(columns, previousIndex, currentIndex);
+        this.moveColumnCore(this.displayedColumns(), draggable, previousIndex, currentIndex);
     }
 }

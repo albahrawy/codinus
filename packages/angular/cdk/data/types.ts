@@ -12,7 +12,7 @@ export type DataResponseType = 'set' | 'table' | 'row' | 'value' | 'json' | 'byt
 export type DataHttpHandleOptions = Omit<HttpHandleOptions, "argsType">;
 
 export type DataTableCompactResponseType = { columns: string[], rows: Array<unknown>[] };
-export type DataTableResponseType = IGenericRecord[] | DataTableCompactResponseType;
+export type DataTableResponseType = IGenericRecord[];
 export type DataSetResponseType = IRecord<DataTableResponseType>;
 
 export declare interface ICSDataRequestBase<T extends DataResponseType> {
@@ -59,6 +59,7 @@ export declare interface ICSLookupDefinition extends ICSLookupData {
 
 export interface ICSDataService {
     get(request: IDataRequestReturnTable, options?: DataHttpHandleOptions, reqOptions?: HttpReqOptions): Observable<DataTableResponseType | null>;
+    get<T>(request: IDataRequestReturnTable, options?: DataHttpHandleOptions, reqOptions?: HttpReqOptions): Observable<T[] | null>;
     get(request: IDataRequestReturnSet, options?: DataHttpHandleOptions, reqOptions?: HttpReqOptions): Observable<DataSetResponseType | null>;
     get<T extends IGenericRecord = IGenericRecord>(request: IDataRequestReturnRow, options?: DataHttpHandleOptions, reqOptions?: HttpReqOptions): Observable<T | null>;
     get<T = unknown>(request: IDataRequestReturnValue, options?: DataHttpHandleOptions, reqOptions?: HttpReqOptions): Observable<T | null>;

@@ -1,0 +1,71 @@
+<!-- <h5>Data:</h5>
+<button mat-button="stroked" [color]="color" (click)="dataSource.data=[]">Clear</button>
+<button mat-button="stroked" [color]="color" (click)="dataSource.data=createData(100)">100</button>
+<button mat-button="stroked" [color]="color" (click)="dataSource.data=createData(1000)">1000</button>
+<button mat-button="stroked" [color]="color" (click)="dataSource.data=createData(500_000)">500_000</button>
+<button mat-button="stroked" [color]="color" (click)="changeDataSource()">New Data Source 50_000</button>
+<button mat-button="stroked" [color]="color" (click)="updateData()">update 3rd record</button>
+<button mat-button="stroked" [color]="color" (click)="insertData()">insert new record</button>
+<button mat-button="stroked" [color]="color" (click)="removeData()">remove 4th record</button>
+<h5>Toggle:</h5>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.showHeader=!_tableApi!.showHeader">Header</button>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.showFooter=!_tableApi!.showFooter">Footer</button>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.showFilter=!_tableApi!.showFilter">Filter</button>
+<button mat-button="stroked" [color]="color"
+    (click)="_tableApi!.reorderColumns=!_tableApi!.reorderColumns">Reorder</button>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.sortable=!_tableApi!.sortable">Sortable</button>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.editable=!_tableApi!.editable">Editable</button>
+<button mat-button="stroked" [color]="color" (click)="_tableApi!.responsive=!_tableApi!.responsive">Responsive</button>
+
+<button mat-button="stroked" [color]="color" (click)="toggleSymbol()">Toggle Symbol</button>
+<button mat-button="stroked" [color]="color" (click)="toggleOperation()">Toggle Filter Operation</button>
+<button mat-button="stroked" [color]="color" (click)="rowHeight= rowHeight+5">+ RowHeight</button>
+<button mat-button="stroked" [color]="color" (click)="rowHeight= rowHeight-5">- RowHeight</button>
+<ng-content></ng-content> -->
+<button mat-button [matMenuTriggerFor]="data">Data</button>
+<mat-menu #data="matMenu">
+    <button mat-menu-item (click)="dataSource = []">Clear</button>
+    <button mat-menu-item (click)="dataSource = createData(100)">100</button>
+    <button mat-menu-item (click)="dataSource = createData(1000)">1000</button>
+    <button mat-menu-item (click)="dataSource = createData(500_000)">500_000</button>
+    <button mat-menu-item (click)="changeDataSource()">New Data Source 50_000</button>
+    <button mat-menu-item (click)="updateData()">update 3rd record</button>
+    <button mat-menu-item (click)="insertData()">insert new record</button>
+    <button mat-menu-item (click)="removeData()">remove 4th record</button>
+</mat-menu>
+<button mat-button [matMenuTriggerFor]="prop">Properties</button>
+<mat-menu #prop="matMenu">
+    @for (item of toggleProperties; track $index) {
+    <button mat-menu-item (click)="_tableApi![item.key]=!_tableApi![item.key]">
+        @if(_tableApi![item.key]){
+        <mat-icon>done</mat-icon>
+        }@else {
+        <mat-icon></mat-icon>
+        }
+        <span>{{item.text}}</span>
+    </button>
+    }
+    <button mat-menu-item (click)="toggleSymbol()">
+        @if(showSymbol){
+        <mat-icon>done</mat-icon>
+        }@else {
+        <mat-icon></mat-icon>
+        }
+        <span>Show Symbol Column</span>
+    </button>
+    <button mat-menu-item (click)="isResizable=!isResizable">
+        @if(isResizable){
+        <mat-icon>done</mat-icon>
+        }@else {
+        <mat-icon></mat-icon>
+        }
+        <span>Toggle Resizable</span>
+    </button>
+</mat-menu>
+<button mat-button (click)="select3rdRow()">Select 3rd Row</button>
+
+<button mat-button disabled>Row Height</button>
+<mat-slider [max]="200" [min]="20" [step]="5" discrete>
+    <input matSliderThumb (valueChange)="rowHeight= rowHeight=$event">
+</mat-slider>
+<ng-content></ng-content>

@@ -13,7 +13,7 @@ export interface ICSFormSection {
     readonly form: FormGroup;
     readonly parentCSFormGroupDirective: FormGroupDirective | null;
     readonly hasNgControl: boolean;
-    // readonly isFormSection: boolean;
+    sectionName(): string | undefined;
     refreshRegistrations(): void;
     registerDir(dir: CSAbstractFormControlName): void;
     unRegisterDir(dir: CSAbstractFormControlName): void;

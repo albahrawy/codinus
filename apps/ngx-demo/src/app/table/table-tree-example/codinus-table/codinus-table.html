@@ -1,0 +1,25 @@
+<!-- [responsive]="[2,2,0]" -->
+<mat-table class="table-area absolute-footer" cs-table recycleRows [cs-table-tree]="buttons.dataSource"
+    [rowHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="config.editable"
+    attachFilter="true" [editWithF2]="true" [stickyHeader]="config.stickyHeader" [selectColumn]="'before'"
+    [editWithEnter]="true" [reorderColumns]="true" [sortable]="true" responsiveHeaderColumn="name" [resizable]="true"
+    [showHeader]="true" [showFooter]="true" [showFilter]="true" (initialized)="buttons.onCreated($event)"
+    [columns]="config.columns" [treeColumn]="treeColumn" keyGetter="position" parentKeyGetter="parentKey">
+
+
+    <ng-container matColumnDef="position" readOnly="false" editorType="checkbox">
+        <mat-header-cell *matHeaderCellDef [reordable]="false"> Active
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef>
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+
+</mat-table>
+
+<table-tree-buttons #buttons color="primary">
+    <button mat-button="stroked" (click)="config.stickyHeader = !config.stickyHeader">Test Aggregation</button>
+</table-tree-buttons>
+<!-- <button (click)="changeFilterConfig()">changeFilter</button> -->

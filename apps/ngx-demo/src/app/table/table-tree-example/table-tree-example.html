@@ -1,0 +1,122 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<mat-table class="table-area absolute-footer" recycleRows #tree="csTableTree" [cs-table-tree]="buttons.dataSource"
+    [rowHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="true"
+    attachFilter="true" [editWithF2]="true" [editWithEnter]="true" [reorderColumns]="true" [sortable]="true"
+    [displayedColumns]="buttons.displayedColumns" [showHeader]="true" [showFooter]="true" [showFilter]="true"
+    (initialized)="buttons.onCreated($event)" [events]="gridEvents" [resizable]="true"
+    (selectionChange)="onSelectChange($event)" keyGetter="position" parentKeyGetter="parentKey">
+
+
+    <ng-container matColumnDef="position">
+        <mat-header-cell *matHeaderCellDef [sortable]="true">
+            <span [style.marginLeft.px]="25"> No. </span>
+        </mat-header-cell>
+        <mat-filter-cell  cs-filter  *matFilterCellDef="'number';">
+        </mat-filter-cell>
+        <mat-cell *matCellDef treeHeadCell></mat-cell>
+        <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="date" csColumnDataDef cellFormatter="dd/MM/yyyy" editorType="date">
+        <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true">Date.</mat-header-cell>
+        <mat-filter-cell  *matFilterCellDef="'date';options:dateFilterOptions">
+            <cs-filter [defaultOperation]="buttons.currentOperation"
+                [operations]="['equals', 'greaterThan']"></cs-filter>
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef>Footer</mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="selector" csColumnDataDef label="">
+        <mat-header-cell *matHeaderCellDef>
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef>
+        </mat-filter-cell>
+        <mat-cell *matCellDef selectorCell></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+
+    <ng-container matColumnDef="name" csColumnDataDef [dataKey]="(nameKey|csTranslate)()" editorType="string">
+        <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true" sortable="true"> Name
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef="'string';" cs-filter [defaultOperation]="buttons.currentOperation">
+            <!-- <mat-filter-component>
+        <filter-text-custom filterComponent></filter-text-custom>
+      </mat-filter-component> -->
+        </mat-filter-cell>
+        <mat-cell *matCellDef reactive></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="active" readOnly="false" editorType="checkbox">
+        <mat-header-cell *matHeaderCellDef [reordable]="false"> Active
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef>
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="weight" csColumnDataDef footerAggregation="avg" dataKey="nested.weightx"
+        cellFormatter="#,###.##" footerFormatter="Ahmed {#,###.00}" editorType="number">
+        <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true" sortable="true">
+            Weight
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef></mat-filter-cell>
+        <mat-filter-cell cs-filter *matFilterCellDef="'number', options:{ mode:'decimal', decimalDigits:3}">
+            <!-- <cs-filter [defaultOperation]="buttons.currentOperation"></cs-filter> -->
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="type" csColumnDataDef dataKey="type" editorType="select"
+        [editorOptions]="selectOptions">
+        <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true" sortable="true"
+            contextMenu>
+            Type
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef>
+        </mat-filter-cell>
+        <mat-cell *matCellDef editable></mat-cell>
+        <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+    </ng-container>
+
+    <!-- <ng-container matColumnDef="typeGrid" csColumnDataDef dataKey="typeGrid" editorType="select-grid"
+    [editorOptions]="selectGridOptions">
+    <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true" sortable="true" contextMenu>
+      Type
+    </mat-header-cell>
+    <mat-filter-cell *matFilterCellDef>
+    </mat-filter-cell>
+    <mat-cell *matCellDef editable></mat-cell>
+    <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+  </ng-container> -->
+
+    @if(buttons.showSymbol){
+    <ng-container matColumnDef="symbol" csColumnDataDef>
+        <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true"> Symbol
+        </mat-header-cell>
+        <mat-filter-cell *matFilterCellDef="'string';">
+            <!-- <mat-filter-element></mat-filter-element> -->
+        </mat-filter-cell>
+        <mat-cell *matCellDef="let element" [draggable]="true"> {{element.symbol}} </mat-cell>
+        <mat-footer-cell *matFooterCellDef reactive></mat-footer-cell>
+    </ng-container>
+    }
+    <mat-header-row *matHeaderRowDef="buttons.displayedColumns,sticky:true"></mat-header-row>
+    <mat-filter-row *matFilterRowDef="buttons.displayedColumns,sticky:true"></mat-filter-row>
+    <div class="mat-row" *matNoDataRow>
+        <div class="mat-cell">No data</div>
+    </div>
+    <mat-footer-row *matFooterRowDef="buttons.displayedColumns,sticky:true"></mat-footer-row>
+
+    <mat-row *matRowDef="let row; columns: buttons.displayedColumns;"></mat-row>
+</mat-table>
+
+<table-tree-buttons #buttons color="primary">
+    <!-- <button mat-button="stroked" (click)="changeAggregation()">Test Aggregation</button> -->
+</table-tree-buttons>
+<!-- <button (click)="changeFilterConfig()">changeFilter</button> -->

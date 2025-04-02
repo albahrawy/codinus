@@ -9,7 +9,7 @@ import { ICSRuntimeFormFieldSection } from './_types';
 @Component({
     selector: 'cs-runtime-form-section',
     template: `
-            <cs-form-section #section [required]="!!config().required" 
+            <cs-form-section #section [required]="!!config().required" [sectionName]="config().name"
             [csFormControlName]="config().dataKey" [asyncValidators]="asyncValidator()" [validators]="validator()">
             @for (element of config().children; track element) {
                 @if(!element.renderState?.hidden()){

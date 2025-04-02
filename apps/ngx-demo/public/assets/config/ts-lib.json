@@ -2,6 +2,9 @@
     "path": "assets/ts-lib",
     "files": [
         "ng-core",
-        "ng-observable"
+        "ng-observable",
+        "codinus",
+        "js-extensions",
+        "codinus-types"
     ]
 }

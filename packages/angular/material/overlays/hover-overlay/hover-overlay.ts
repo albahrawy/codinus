@@ -1,11 +1,10 @@
 import { ConnectedPosition, Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { Directive, effect, inject, input, model, signal, TemplateRef, ViewContainerRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { computed, Directive, effect, inject, input, model, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { preventEvent } from '@codinus/dom';
 import { IArglessFunc, Nullable } from '@codinus/types';
 import { createEventManager } from '@ngx-codinus/core/events';
-import { delay, filter, ReplaySubject } from 'rxjs';
+import { delay, fromEvent, of, switchMap, takeUntil } from 'rxjs';
 
 const DefaultPositions: ConnectedPosition[] = [
     { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top' },
@@ -26,14 +25,13 @@ export class CSHoverOverlay {
     private overlayRef: OverlayRef | null = null;
     private _eventManager = createEventManager();
     private _isOpen = signal(false);
-    private _mouseIn = false;
-    private _mouseEnterSubject = new ReplaySubject<MouseEvent>();
     private _overlayContextFn: IArglessFunc<unknown> | null = null;
     private _hasMenuOpened = false;
 
     csHoverOverlay = model.required<TemplateRef<unknown>>();
     overlayPositions = model<Nullable<ConnectedPosition[]>>(DefaultPositions);
     overlayContext = input<unknown>();
+    effectedElement = model<HTMLElement | string>();
 
     setOverlayContextGenerator(fn: IArglessFunc<unknown>) {
         this._overlayContextFn = fn;
@@ -46,27 +44,43 @@ export class CSHoverOverlay {
             this._detachCore();
     }
 
+    private _effectedElement = computed(() => {
+        const el = this.viewContainer.element.nativeElement as HTMLElement;
+        const effectedElement = this.effectedElement();
+        const customElement = typeof effectedElement === 'string'
+            ? el.querySelector(effectedElement)
+            : effectedElement instanceof HTMLElement
+                ? effectedElement
+                : null;
+        return customElement ?? el;
+    });
+
     constructor() {
-        const el = this.viewContainer.element.nativeElement;
-        this._eventManager.listenAndRegister<MouseEvent>('element', el, 'mouseenter', e => this.attachPending(e));
-        this._eventManager.listenAndRegister<MouseEvent>('element', el, 'mouseleave', e => this.detach(e));
+        effect(() => {
+            const el = this._effectedElement();
+            this._eventManager.unRegister('element');
+
+            const _mouseEnter$ = fromEvent<MouseEvent>(el, 'mouseenter');
+            const _mouseLeave$ = fromEvent<MouseEvent>(el, 'mouseleave');
+
+            const enterSub = _mouseEnter$
+                .pipe(switchMap(event => of(event).pipe(delay(300), takeUntil(_mouseLeave$))))
+                .subscribe(e => this.attach(e));
+
+            const leaveSub = _mouseLeave$
+                .subscribe((e) => this.detach(e));
+
+            this._eventManager.register('element', [() => enterSub.unsubscribe(), () => leaveSub.unsubscribe()]);
+        });
 
         effect(() => {
             const isOpen = this._isOpen();
-            const el = this.viewContainer.element.nativeElement as HTMLElement;
+            const el = this._effectedElement();
             if (isOpen)
                 el.classList.add('cs-hover-overlay-active');
             else
                 el.classList.remove('cs-hover-overlay-active');
         });
-
-        this._mouseEnterSubject.pipe(takeUntilDestroyed(), delay(100), filter(() => this._mouseIn))
-            .subscribe(e => this.attach(e));
-    }
-
-    private attachPending(e: MouseEvent): void {
-        this._mouseIn = true;
-        this._mouseEnterSubject.next(e);
     }
 
     private attach(event: MouseEvent) {
@@ -74,7 +88,7 @@ export class CSHoverOverlay {
         if (!this.overlayRef) {
             const positionStrategy = this.overlay
                 .position()
-                .flexibleConnectedTo(this.viewContainer.element)
+                .flexibleConnectedTo(this._effectedElement())
                 .withPositions(this.overlayPositions() ?? DefaultPositions);
 
             this.overlayRef = this.overlay.create({
@@ -87,19 +101,23 @@ export class CSHoverOverlay {
         if (!this.overlayRef.hasAttached()) {
             this.portal ??= new TemplatePortal(this.csHoverOverlay(), this.viewContainer);
             this.portal.context = this.overlayContext() ?? this._overlayContextFn?.();
+            const overlayElement = this.overlayRef.overlayElement;
+            overlayElement.classList.add('cs-animation-scale-in');
             this.overlayRef.attach(this.portal);
+          //  setTimeout(() => overlayElement.classList.remove('fade-in'), 200);
+
             this._isOpen.set(true);
             this._eventManager.listenAndRegister<MouseEvent>('overlayEvents', this.overlayRef.hostElement, 'mouseleave', e => this.detach(e));
         }
     }
 
     private detach(event: MouseEvent) {
-        this._mouseIn = false;
+        preventEvent(event);
         if (!this.overlayRef?.hasAttached() || this.hasMenuOpened)
             return;
-
-        if (!this.overlayRef?.hostElement.contains(event.relatedTarget as HTMLElement)
-            && !this.viewContainer.element.nativeElement.contains(event.relatedTarget)) {
+        const el = this._effectedElement();
+        const target = event.relatedTarget as HTMLElement;
+        if (target && !this.overlayRef?.hostElement.contains(target) && !el.contains(target)) {
             this._detachCore();
         }
     }

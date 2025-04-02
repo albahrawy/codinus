@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Nullable } from "@codinus/types";
-import { ICSRuntimeFormFieldNamelessConfig } from "@ngx-codinus/material/forms";
+import { ICSRuntimeFormEvents, ICSRuntimeFormFieldConfig, ICSRuntimeFormFieldNamelessConfig, ICSRuntimeFormHandler } from "@ngx-codinus/material/forms";
 import { AreaSpecialProperties, PanelSpecialProperties } from "../helper/area-special-properties";
 import { AnyFieldConfig, AnyFieldIcon, AreaFieldConfig, GridFieldConfig } from "../helper/children-info";
 import { GridColumnSpecialProperties } from "../helper/grid-column-special-properties";
@@ -14,9 +14,13 @@ import {
     ICSFormComponentSetupFactory, ICSFormSetupConfig
 } from "../helper/types";
 import { FORM_COMPONENT_VALIDATORS } from "../helper/input-special-events";
+import { ICSValueChangeArgs } from "@ngx-codinus/core/data";
+import { BehaviorSubject } from "rxjs";
+import { DateFilterPredicates, NumberFilterPredicates, StringFilterPredicates } from "@ngx-codinus/material/table-editors";
 
 @Injectable({ providedIn: 'root' })
 export class CSFormComponentSetupFactory implements ICSFormComponentSetupFactory {
+
     getComponentChildrenInfo(config: Nullable<ICSRuntimeFormFieldNamelessConfig>): ICSFormSetupConfig<ICSRuntimeFormFieldNamelessConfig> {
         switch (config?.type) {
             case 'area':
@@ -116,4 +120,39 @@ export class CSFormComponentSetupFactory implements ICSFormComponentSetupFactory
         }
     }
 
+    getCustomEventsClass(): Nullable<ICSRuntimeFormEvents<ICSRuntimeFormFieldConfig>> {
+        return FormSetupCustomEvent.customeEvent;
+    }
+}
+
+class FormSetupCustomEvent implements ICSRuntimeFormEvents<ICSRuntimeFormFieldConfig> {
+    static customeEvent = new FormSetupCustomEvent();
+    private _formHandler: Nullable<ICSRuntimeFormHandler<ICSRuntimeFormFieldConfig>>;
+    private _operationList = new BehaviorSubject<string[]>([]);
+    gridColumnFilterType_ValueChange(args: ICSValueChangeArgs<string | null>) {
+        switch (args.value) {
+            case 'text':
+                this._operationList.next(Object.keys(StringFilterPredicates));
+                break;
+            case 'number':
+                this._operationList.next(Object.keys(NumberFilterPredicates));
+                break;
+            case 'date':
+                this._operationList.next(Object.keys(DateFilterPredicates));
+                break;
+        }
+    }
+
+    gridColumnFilterInitialOperation_DataSource() {
+        return this._operationList;
+    }
+
+    // gridColumnFilterInitialOperation_Hidden(value: object) {
+    //     console.log('signalValue', value);
+    //     return false;
+    // }
+
+    formInitialized?(formHandler: ICSRuntimeFormHandler<ICSRuntimeFormFieldConfig>): void {
+        this._formHandler = formHandler;
+    }
 }

@@ -1,7 +1,8 @@
-import { inject, signal, input, booleanAttribute, model, computed, effect, untracked, Directive } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { inject, signal, input, booleanAttribute, model, computed, effect, untracked, Directive, Signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormGroup, FormControl } from "@angular/forms";
 import { CSMatFormFieldControl } from "@ngx-codinus/material/inputs";
+import { Observable } from "rxjs";
 
 export const FlexPropertyKeys: Array<keyof FlexProeprty<unknown>> = ['def', 'xs', 'sm', 'md', 'lg', 'xl', 'sl'];
 export const FlexPropertyLabels = [
@@ -44,6 +45,7 @@ export abstract class FlexPropertyInputBase<T> {
 
     private readonly _disabledByCva = signal(false);
     private readonly _disabled = computed(() => this._disabledByInput() || this._disabledByCva());
+    private _partsValueChanges: Signal<Partial<FlexPropertyRecord<T | undefined>> | undefined>;
 
     get empty() { return !Object.values(this.parts.value).some(f => f !== this.getInitialValue()); }
     get shouldLabelFloat() { return true; }
@@ -62,6 +64,7 @@ export abstract class FlexPropertyInputBase<T> {
             return prev;
         }, {} as FlexPropertyRecord<FormControl<T>>);
         this.parts = new FormGroup(controls);
+        this._partsValueChanges = toSignal(this.parts.valueChanges);
 
         effect(() => {
             if (this._disabled()) {
@@ -71,19 +74,35 @@ export abstract class FlexPropertyInputBase<T> {
             }
         });
 
-        effect(() => {
-            const value = this._parse(this._value());
-            untracked(() => this.parts.setValue(value));
-        });
+        // effect(() => {
+
+        // });
 
         this.parts.statusChanges.pipe(takeUntilDestroyed()).subscribe(() => {
             this._mfc.changeState();
         });
 
-        this.parts.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-            this._value.set(this.getRawValue(this.parts.getRawValue()));
-            this._mfc.notifyChange(this.value);
+        effect(() => {
+            this._partsValueChanges();
+            const newValue = this.getRawValue(this.parts.getRawValue());
+            untracked(() => {
+                if (this._value() != newValue) {
+                    this._value.set(newValue);
+                    this._mfc.notifyChange(this.value);
+                }
+            });
         });
+
+        // this.parts.valueChanges.pipe(takeUntilDestroyed()).subscribe((e) => {
+        //     const hasChanges = this._value() == null
+        //         ? Object.values(this.parts.controls).some(c => c.getRawValue() && c.getRawValue() !== this.getInitialValue())
+        //         : this._parse(this._value()) !== e;
+        //     if (hasChanges) {
+        //         const newValue = this.getRawValue(this.parts.getRawValue());
+        //         untracked(() => this._value.set(newValue));
+        //         this._mfc.notifyChange(this.value);
+        //     }
+        // });
     }
 
     onFocusIn() {
@@ -101,7 +120,9 @@ export abstract class FlexPropertyInputBase<T> {
     }
 
     writeValue(flex: string | null): void {
-        this._value.set(flex);
+        this.parts.reset(this._parse(flex), { emitEvent: false });
+        const newValue = this.getRawValue(this.parts.getRawValue());
+        this._value.set(newValue);
     }
 
     setDisabledState(isDisabled: boolean): void {

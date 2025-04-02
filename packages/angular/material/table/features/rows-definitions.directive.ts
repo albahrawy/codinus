@@ -3,12 +3,14 @@ import { contentChildren, Directive, effect, input, SimpleChange } from "@angula
 import { booleanTrueAttribute } from "@ngx-codinus/core/shared";
 
 @Directive({
-    selector: `cdk-table, mat-table`,
+    selector: `cdk-table:not([cs-table])[auto-columns], mat-table:not([cs-table])[auto-columns]`,
 })
-export class CSTableDisplayedColumns_Expermental {
+export class CSTableDisplayedColumns {
+    
     private _contentHeaderRowDefs = contentChildren(CdkHeaderRowDef);
     private _contentFooterRowDefs = contentChildren(CdkFooterRowDef);
     private _contentRowDefs = contentChildren(CdkRowDef);
+
     constructor() {
         effect(() => {
             const columns = this.displayedColumns();

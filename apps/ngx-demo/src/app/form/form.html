@@ -1,7 +1,7 @@
 <cs-form class="example-form" (valueInitialized)="valueInitialized($event)" (valueChanged)="printValues($event)"
     (initialized)="onCreated($event)" [readOnly]="false">
 
-    <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100">
+    <!-- <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100">
         <input type="password" [required]="true" revealOn="click" revealButton="always" matInput buttonColor="primary"
             csFormControlName="password2" />
         <input matInput [required]="_required" csFormControlName="C2" [validators]="customValidate"
@@ -15,22 +15,22 @@
     <cs-form-section-array #input="csFormSectionArray" style="height: 500px;width: 1000px;"
         csFormControlName="arrayControl" displayMember="name_en">
         <ng-container *csformSectionArrayContent>
-            <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100">
-                <!-- <div role="group" class="cs-flex-property-container" [formGroup]="parts"> -->
-                    
-                <!-- </div> -->
-                <input matInput [required]="_required" csFormControlName="name_en" [validators]="customValidate"
+            <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100"> -->
+    <!-- <div role="group" class="cs-flex-property-container" [formGroup]="parts"> -->
+
+    <!-- </div> -->
+    <!-- <input matInput [required]="_required" csFormControlName="name_en" [validators]="customValidate"
                     [defaultValue]="_defaultValue">
                 <input matInput [required]="_required" csFormControlName="name_ar" [validators]="customValidate"
                     [defaultValue]="_defaultValue">
-                    <input inputType="numeric" class="cs-flex-property-element" xxformControlName="name_en"/>
+                <input inputType="numeric" class="cs-flex-property-element" xxformControlName="name_en" />
 
-            </cs-form-section>
-            <!-- <cs-localizable-input csFormControlName="MyTest2" [required]="['ar']"
+            </cs-form-section> -->
+    <!-- <cs-localizable-input csFormControlName="MyTest2" [required]="['ar']"
             layout-flex="row wrap" flex-limit layout-flex-align="start" flex-columns="2" flex-gap="1px,1px,1px,10px"
             appearance="none" prefix="name"></cs-localizable-input> -->
-        </ng-container>
-    </cs-form-section-array>
+    <!-- </ng-container>
+    </cs-form-section-array> -->
 
     <!-- <mat-form-field appearance="fill">
         <cs-form-section [csFormControlName]="'sectionName1'">
@@ -61,10 +61,9 @@
 
     <div (csfileDrop)="onDrop($event)" style="width:100px;height:200px;border:1px solid"></div> -->
     <!-- <input type="file" novaUpload csFormControlName="filetest" multiple="true" accept=".png"> -->
-    <!-- <cs-form-area borderAppearance="fill" style="width: 100%;" flex-columns="1" displayType="card"
-        [layout-flex]="'row wrap'" flex-gap="5px" cardWhensingle="true">
-        <cs-form-area-panel label="Test Panel" icon="home" [layout-flex]="'row wrap'" [flex-gap]="panelGap"
-            [hidden]="false" layout-flex-align="start">
+    <cs-form-area borderAppearance="fill" style="width: 100%;" flex-columns="1" displayType="stepper"
+        cardWhensingle="true">
+        <cs-form-area-panel label="Test Panel" icon="home" [hidden]="false" layout-flex-align="start">
             <cs-form-section [csFormControlName]="sectionName2" layout-flex-element flex-basis="50,100">
                 <input type="password" [required]="true" revealOn="click" revealButton="always" matInput
                     buttonColor="primary" csFormControlName="password2" />
@@ -86,14 +85,14 @@
                 <mat-label class="mat-form-field-main-label">Localize Input</mat-label>
                 <cs-localizable-input [csFormControlName]="controlNameX" (ngModelChange)="valueChanged($event)"
                     [required]="['ar']" layout-flex="row wrap" flex-gap="5px,1px,5px,5px" flex-limit
-                    layout-flex-align="start" flex-gap-md="10px" [flex-columns]="2" appearance="none"
+                    layout-flex-align="start" flex-gap-md="10px" appearance="none"
                     prefix="name2"></cs-localizable-input>
             </mat-form-field>
         </cs-form-area-panel>
         <cs-form-area-panel label="Test Panel3">
 
-        </cs-form-area-panel> -->
-    <!-- <cs-form-area-panel label="Test Table">
+        </cs-form-area-panel>
+        <!-- <cs-form-area-panel label="Test Table">
             <mat-form-field style="width:700px;height: 600px;">
                 <mat-label>Test Table</mat-label>
                 <cs-table-form-control csFormControlName="grid" [commitOnDestroy]="config.commitOnDestroy"
@@ -109,7 +108,7 @@
                     [columns]="config.columns" [selectable]="config.selectable"></cs-table-form-control>
             </mat-form-field>
         </cs-form-area-panel> -->
-    <!-- </cs-form-area> -->
+    </cs-form-area>
 
 
 

@@ -10,6 +10,8 @@ import { provideCSTableComponentFactory } from '@ngx-codinus/material/table-edit
 import { provideCodinusRuntimeForms } from '@ngx-codinus/material/forms';
 import { provideCSDialogService } from '@ngx-codinus/material/overlays';
 import { provideMonacoTsLibService } from '@ngx-codinus/monaco-editor';
+import { provideCSDataService } from '@ngx-codinus/cdk/data';
+import { provideCodinusErrorHandler } from '@ngx-codinus/cdk/observable-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +25,8 @@ export const appConfig: ApplicationConfig = {
     provideCSTableComponentFactory(),
     provideCodinusRuntimeForms(),
     provideCSDialogService(),
-    provideMonacoTsLibService()
+    provideMonacoTsLibService(),
+    provideCSDataService(),
+    provideCodinusErrorHandler(),
   ],
 };

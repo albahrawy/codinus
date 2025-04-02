@@ -11,16 +11,17 @@ import { ICSRunTimeFormFieldArea } from './_types';
 @Component({
     selector: 'cs-runtime-form-area',
     template: `
-        <cs-form-area [displayType]="config().displayType" [flex-grid-align]="config().flexAlign" 
+        <cs-form-area [displayType]="config().displayType" [flex-grid-align]="config().flexAlign" [areaName]="config().name"
             [flex-grid-gap]="config().flexGap" [flex-grid-columns]="config().flexColumns" 
             [cardWhensingle]="config().cardWhensingle" [tabsAnimationDuration]="config().tabsAnimationDuration"
             [tabsDynamicHeight]="config().tabsDynamicHeight" [tabsPosition]="config().tabsPosition"
             [tabsPreserveContent]="config().tabsPreserveContent" [tabsStretch]="config().tabsStretch"
             [accordionDisplayMode]="config().accordionDisplayMode"
             [accordionHideToggle]="config().accordionHideToggle" [accordionMulti]="config().accordionMulti"
-            [accordionTogglePosition]="config().accordionTogglePosition">
+            [accordionTogglePosition]="config().accordionTogglePosition" [stepperOrientation]="config().stepperOrientation"
+            [cardAppearance]="config().cardAppearance">
             @for (panel of config().panels; track panel;) {
-                <cs-form-area-panel [label]="(panel.label|csTranslate)()" [icon]="panel.labelIcon"
+                <cs-form-area-panel [label]="(panel.label|csTranslate)()" [icon]="panel.labelIcon" [panelName]="panel.name"
                     [flex-grid-align]="panel.flexAlign" [flex-grid-gap]="panel.flexGap" [flex-grid-columns]="panel.flexColumns" 
                     [labelClass]="panel.labelClass" [bodyClass]="panel.bodyClass"
                     [hidden]="panel.renderState?.hidden()" [invisible]="panel.renderState?.invisible()"

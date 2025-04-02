@@ -26,7 +26,7 @@ export class CsTreeBindingHandler<TNode> extends CsTreeBaseHandler<TNode> {
         });
     }
 
-    override add(row?: TNode | TNode[] | undefined, parent?: Nullable<TNode>, setCurrent?: boolean, autoScroll?: boolean): void {
+    override add(row?: TNode | TNode[] | undefined, parent?: Nullable<TNode>, setCurrent?: boolean, autoScroll?: boolean): TNode[] {
         const parentkeyValue = parent ? this.getNodeKeyValue(parent) : null;
         const rows = Array.isArray(row) ? row : [row || {} as TNode];
         if (rows.length == 0)
@@ -37,6 +37,7 @@ export class CsTreeBindingHandler<TNode> extends CsTreeBaseHandler<TNode> {
             rows.forEach(r => setValue(r, parentkey, parentkeyValue));
 
         this._csDataManager.add(row, setCurrent, autoScroll);
+        return rows;
     }
 
     override _dataRemoveHandler = (rows: TNode[]) => {

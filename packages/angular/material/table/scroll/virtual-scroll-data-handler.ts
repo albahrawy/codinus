@@ -10,18 +10,19 @@ import { Directive, inject, Input } from "@angular/core";
 import { CSDataSource, CSDataSourceObserver } from "@ngx-codinus/core/data";
 import { SMOOTH_SCHEDULER } from "@ngx-codinus/core/shared";
 import { auditTime, combineLatest, distinctUntilChanged, map, Observable, of, shareReplay, startWith, tap } from "rxjs";
+import { CODINUS_TABLE_RESPONSIVE_VIEW } from "../responsive/types";
 import { CODINUS_VIRTUAL_TABLE_DATA_HANDLER } from "./types";
 import { CSTableVirtualScrollDataHandlerBase } from "./virtual-scroll-data-handler-base";
-import { CSTableResponsiveView } from "../responsive";
 
 @Directive({
-    selector: 'cdk-table:not([dataSource])[virtual-scroll], mat-table:not([dataSource])[virtual-scroll]',
+    selector: `cdk-table:not([dataSource]):not([cs-table-tree])[virtual-scroll], 
+               mat-table:not([dataSource]):not([cs-table-tree])[virtual-scroll]`,
     providers: [{ provide: CODINUS_VIRTUAL_TABLE_DATA_HANDLER, useExisting: CSTableVirtualScrollDataHandler }],
 })
 export class CSTableVirtualScrollDataHandler<T> extends CSTableVirtualScrollDataHandlerBase<T> {
 
-    private _responsiveView = inject(CSTableResponsiveView, { optional: true });
-    private _dataSourceObserver = new CSDataSourceObserver<T>({ collectionViewer: this });
+    private _responsiveView = inject(CODINUS_TABLE_RESPONSIVE_VIEW, { optional: true });
+    protected _dataSourceObserver = new CSDataSourceObserver<T>({ collectionViewer: this });
 
     protected _data: readonly T[] | null = null;
 

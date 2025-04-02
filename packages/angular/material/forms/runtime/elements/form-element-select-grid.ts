@@ -37,7 +37,7 @@ export class CSFormElementSelectGrid extends CSFormElementBindingBase<ICSRuntime
     protected _selectionChange = this.signalFunctionOf<IAction<CSListChangeArgs<unknown, unknown>>>('SelectionChange');
     protected _valueChange = this.signalFunctionOf<IAction<ICSValueChangeArgs<unknown>>>('ValueChange');
     protected _selectionPredicate = this.signalFunctionOf<SelectPredicate<unknown, unknown>>('SelectionPredicate');
-    protected _dataSource = this.signalFunctionOf<DataSourceFunc<unknown>>("DataSource");
+    protected _dataSource = this.signalFromFunctionOrConfig("dataSource") as DataSourceFunc<unknown>;
     protected readonly valueMember = this.signalItemGetter<unknown>('valueMember');
 
 }

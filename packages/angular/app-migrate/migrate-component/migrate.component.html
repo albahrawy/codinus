@@ -1,0 +1,30 @@
+@if(novaPages.isLoading()){
+loading pages...
+<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}@else {
+<mat-selection-list class="cs-migrate-page-list" #list [disabled]="isBusy()">
+    <div mat-subheader class="cs-migrate-page-list-bar">
+        <span class="cs-migrate-page-list-title">Select the pages you want to convert</span>
+        <span class="cs-migrate-page-list-separator"></span>
+        @if(list.selectedOptions.selected.length > 0){
+        <button mat-raised-button color="primary" (click)="migrateSelected(list)">Migrate</button>
+        }
+        @if(!isBusy()){
+        <button mat-button (click)="selectAll(list)">{{selectAllText()}}</button>
+        }
+    </div>
+    @for (novaPage of novaPages.value(); track novaPage) {
+    <mat-list-option #option [value]="novaPage">
+        <div matListItemTitle class="cs-migrate-page-item">
+            <span class="cs-migrate-page-name-span">{{novaPage.page.pageName}}</span>
+            @if (option.selected && isBusy() && !novaPage.converting()) {
+            <span class="cs-migrate-item-converting">converting ...</span>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            }@else if (novaPage.converting()) {
+            <span [class]="`cs-migrate-item-result-${novaPage.converting()}`">{{novaPage.message()}}</span>
+            }
+        </div>
+    </mat-list-option>
+    }
+</mat-selection-list>
+}

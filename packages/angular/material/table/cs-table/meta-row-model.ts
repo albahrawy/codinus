@@ -1,13 +1,13 @@
-import { forceInputSet } from "@ngx-codinus/core/shared";
 import { untracked } from "@angular/core";
+import { forceInputSet } from "@ngx-codinus/core/shared";
 import { ICSTableApiMetaRowVisibility } from "../api";
-import { CSTableDirective } from "./cs-table.directive";
+import { CSTableDirectiveBase } from "./cs-table.directive";
 
 export class CSTableMetaRowModel<TRecord> implements ICSTableApiMetaRowVisibility {
     /**
      *
      */
-    constructor(private directive: CSTableDirective<TRecord>) { }
+    constructor(private directive: CSTableDirectiveBase<TRecord>) { }
 
     getVisibility(key: 'header' | 'filter' | 'footer') {
         const propKey = this.getPropKey(key);

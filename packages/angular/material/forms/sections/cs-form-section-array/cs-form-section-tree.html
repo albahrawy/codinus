@@ -4,7 +4,8 @@
         <mat-tree csTree class="cs-form-section-array-list-control" [csChildrenAccessor]="childrenAccessor()"
             [displayMember]="displayMember()" [showIcon]="showIcon()" [iconMember]="iconMember()"
             [isRemoveAllowed]="isRemoveAllowed()" (nodeRemoved)="_onNodeRemoved($event)"
-            [allowedChildTypes]="allowedChildTypes()" [readOnly]="readOnly()" [disabled]="disabled"
+            (nodeRemoving)="_onNodeRemoving($event)" (nodeAdded)="nodeAdded.emit($event)" [allowedChildTypes]="
+            allowedChildTypes()" [readOnly]="readOnly()" [disabled]="disabled"
             [activateFirstItem]="activateFirstItem()" [csDataSource]="value" [optionHeight]="optionHeight()"
             (currentChanged)="_onCurrentChanged($event)" (conextMenuOpening)="conextMenuOpening.emit($event)">
             @if(showSearch()){

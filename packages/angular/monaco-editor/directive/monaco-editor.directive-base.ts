@@ -5,7 +5,7 @@ import {
     ICSMonacoEditor,
     IEditorActionDescriptor, IEditorIExtraLibs, IEditorModel, IMonaco, IStandaloneCodeEditor
 } from '../core/monaco-interfaces';
-import { CODINUS_MONACO_LOADER_SERVICE, CSEditorLanguage, DEFAULT_MONACO_EDITOR_CONFIG } from '../core/types';
+import { CODINUS_MONACO_EDITOR_PARENT, CODINUS_MONACO_LOADER_SERVICE, CSEditorLanguage, DEFAULT_MONACO_EDITOR_CONFIG } from '../core/types';
 
 // type ContextMenuFn = { _getMenuActions: (...args: unknown[]) => { id: string }[] } | null;
 
@@ -13,6 +13,7 @@ import { CODINUS_MONACO_LOADER_SERVICE, CSEditorLanguage, DEFAULT_MONACO_EDITOR_
 export abstract class CSMonacoEditorDirectiveBase implements OnInit, OnDestroy {
 
     private _loader = inject(CODINUS_MONACO_LOADER_SERVICE);
+    private _parent = inject(CODINUS_MONACO_EDITOR_PARENT, { optional: true });
     private _elementRef = inject(ElementRef);
     private _ngZone = inject(NgZone);
 
@@ -59,16 +60,31 @@ export abstract class CSMonacoEditorDirectiveBase implements OnInit, OnDestroy {
         });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected setupEditor(monaco: IMonaco, editor: IStandaloneCodeEditor) {
-        // const contextmenu = editor.getContribution('editor.contrib.contextmenu') as unknown as ContextMenuFn;
-        // if (contextmenu) {
-        //     const origMethod = contextmenu._getMenuActions;
-        //     const csModel = this.csModel;
-        //     contextmenu._getMenuActions = function (...args: unknown[]) {
-        //         const items = origMethod.apply(contextmenu, args);
-        //         return csModel.filterActions(items);
-        //     }
-        // }
+        const parent = this._parent;
+        monaco.editor.registerEditorOpener({
+            openCodeEditor(source, resource) {
+                if (parent) {
+                    const model = monaco.editor.getModel(resource);
+                    return parent.handleOpener(model, resource);
+                }
+                //if (resource.path === "/lib.dom.d.ts") {
+                // simulate openening a new browser tab for our own type (open definition of alert)
+                // alternatively set model directly in the editor if you have your own tab/navigation implementation
+
+                //source.setModel(model);
+                // if (monaco.Range.isIRange(selectionOrPosition)) {
+                // 	editor.revealRangeInCenterIfOutsideViewport(selectionOrPosition);
+                // 	editor.setSelection(selectionOrPosition);
+                // } else {
+                // 	editor.revealPositionInCenterIfOutsideViewport(selectionOrPosition);
+                // 	editor.setPosition(selectionOrPosition);
+                // }
+
+                return false;
+            }
+        });
 
         this.formatAndFocus();
     }

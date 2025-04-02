@@ -1,9 +1,9 @@
 <mat-table class="table-area absolute-footer" recycleRows [virtual-scroll]="buttons.dataSource"
-  [rowHeight]="buttons.rowHeight"  [selectable]="'single'" keyboard-navigation="cell"
-  [editable]="true" attachFilter="true" [editWithF2]="true" [editWithEnter]="true" [reorderColumns]="true"
-  [sortable]="true" responsiveHeaderColumn="name" [displayedColumns]="buttons.displayedColumns" [showHeader]="true"
-  [showFooter]="true" [showFilter]="true" (initialized)="buttons.onCreated($event)" [events]="gridEvents" [resizable]="true"
-  (selectionChange)="onSelectChange($event)">
+  [rowHeight]="buttons.rowHeight" [selectable]="'single'" keyboard-navigation="cell" [editable]="true"
+  attachFilter="true" [editWithF2]="true" [editWithEnter]="true" [reorderColumns]="true" [sortable]="true"
+  responsiveHeaderColumn="name" [displayedColumns]="buttons.displayedColumns" [showHeader]="true" [showFooter]="true"
+  [showFilter]="true" (initialized)="buttons.onCreated($event)" [events]="gridEvents" 
+  [resizable]="true" (selectionChange)="onSelectChange($event)">
 
   <ng-container matColumnDef="position" csColumnDataDef [footerAggregation]="footerAggregation">
     <mat-header-cell *matHeaderCellDef [resizable]="buttons.isResizable" [reordable]="true"
@@ -50,7 +50,7 @@
   </ng-container>
 
   <ng-container matColumnDef="active" readOnly="false" editorType="checkbox">
-    <mat-header-cell *matHeaderCellDef> Active
+    <mat-header-cell *matHeaderCellDef [reordable]="false"> Active
     </mat-header-cell>
     <mat-filter-cell *matFilterCellDef>
     </mat-filter-cell>

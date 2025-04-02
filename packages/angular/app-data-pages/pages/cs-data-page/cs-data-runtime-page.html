@@ -1,0 +1,16 @@
+<mat-toolbar class="cs-page-setup-toolbar cs-mat-buttons-small">
+    <button mat-icon-button [disabled]="_disabled()"
+        (click)="_onAddingClick($event)"><mat-icon>forms_add_on</mat-icon></button>
+    @if(!_isValid()){
+    <mat-icon class="invalid-form-button">warning</mat-icon>
+    }@else{
+    <button mat-icon-button class="save-button" [disabled]="_canSave()"
+        (click)="save()"><mat-icon>save</mat-icon></button>
+    }
+
+    <span class="cs-page-setup-toolbar-spacer"></span>
+</mat-toolbar>
+<cs-splitter unit="percent" class="cs-page-setup-splitter">
+    <cs-splitter-pane [size]="20" class="cs-page-setup-list-area">
+    </cs-splitter-pane>
+</cs-splitter>

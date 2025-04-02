@@ -75,6 +75,9 @@ export class CSLocalizableInput extends CSFormSection<IStringRecord> implements 
     protected get id() { return this._mfc.id; }
 
     protected override verifyWriteValue(value: IStringRecord): IStringRecord | null {
+        if (typeof value === 'string')
+            return { [DEFAULT_LANGUAGE_EN.symbol]: value };
+        value = super.verifyWriteValue(value) ?? {};
         return arrayToObject(this._languages, l => [l.symbol, value[l.symbol] ?? null]);
     }
 

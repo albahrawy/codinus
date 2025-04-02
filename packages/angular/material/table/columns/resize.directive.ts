@@ -1,16 +1,12 @@
 import { Directionality } from "@angular/cdk/bidi";
 import { CdkColumnDef } from "@angular/cdk/table";
-import {
-    AfterViewInit, Directive, effect, ElementRef,
-    inject, input, NgZone, OnDestroy, OnInit, Renderer2, RendererStyleFlags2
-} from "@angular/core";
-import { addStyleSectionToDocument, findElementAttributeByPrefix, HTMLStyleElementScope } from "@codinus/dom";
+import { Directive, effect, ElementRef, inject, input, NgZone, OnDestroy, Renderer2 } from "@angular/core";
+import { addStyleSectionToDocument } from "@codinus/dom";
 import { Nullable } from "@codinus/types";
 
 import { createEventManager } from "@ngx-codinus/core/events";
 import { booleanTrueAttribute, SMOOTH_SCHEDULER } from "@ngx-codinus/core/shared";
 import { auditTime } from "rxjs";
-import { NG_CONTENT_PREFIX, NG_HOST_PREFIX } from "../shared/internal";
 import { CODINUS_TABLE_RESIZABLE } from "./types";
 
 @Directive({
@@ -20,26 +16,26 @@ import { CODINUS_TABLE_RESIZABLE } from "./types";
                cdk-header-cell[columnWidth]`,
     host: { '[class.cs-table-column-resizable]': 'resizable()' }
 })
-export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
+export class CSTableColumnResize implements OnDestroy {
 
     //#region fields
 
     private _csTableResizable = inject(CODINUS_TABLE_RESIZABLE, { optional: true });
-
-    private _cssWidthVariable!: string;
-    private _cssBorderVariable!: string;
-    private _cellWidthCssElement?: HTMLStyleElementScope;
-    private pressed = false;
-    private startX = 0;
-    private startWidth = 0;
-    private _tableElement?: HTMLElement;
-
     private readonly renderer = inject(Renderer2);
     private readonly columnDef = inject(CdkColumnDef);
     private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef, { self: true });
     private readonly _dir = inject(Directionality, { optional: true });
     private readonly ngZone = inject(NgZone);
+
+    private _tableElement?: HTMLElement = this._csTableResizable?.elementRef.nativeElement;
     private readonly eventManager = createEventManager();
+
+    private _removeHighlightBorderStyle?: () => void;
+    private _highlightBorderStyles?: string;
+
+    private pressed = false;
+    private startX = 0;
+    private startWidth = 0;
 
     //#endregion
 
@@ -47,83 +43,41 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
      *
      */
     constructor() {
-        effect(() => this.setWidth(this.columnWidth()));
-        effect(() => this.setupResizable(this.resizable()));
+        effect(() => this.setWidth(this.columnWidth() ?? this._csTableResizable?.getSize(this.columnDef.name)));
+        effect(() => this.setupResizable(this.resizable() && !!this._csTableResizable?.resizable()));
     }
 
     //#region inputs
 
     resizable = input(true, { transform: booleanTrueAttribute });
-    columnWidth = input<Nullable<string | number>>(this._csTableResizable?.getSize(this.columnDef.name));
-    resizbleBorderStyle = input('1px dashed blue');
+    columnWidth = input<Nullable<string | number>>();
 
     //#endregion
 
     //#region ng-hooks
 
-    ngOnInit(): void {
-        const headerRow = this.renderer.parentNode(this.elementRef.nativeElement);
-        const headerRowParent = this.renderer.parentNode(headerRow);
-        if (headerRow.tagName === 'TH')
-            this._tableElement = this.renderer.parentNode(headerRowParent);
-        else
-            this._tableElement = headerRowParent;
-        this.addCssToDocument();
-    }
-
-    ngAfterViewInit(): void {
-        const originalSize = this.elementRef.nativeElement.computedStyleMap().get('width');
-        console.log(this.columnDef.name);
-        // this.initialized = true;
-        // const cashedWidth = this._tableElement?.style.getPropertyValue(this._cssWidthVariable) ?? '';
-        // this.setWidth(cashedWidth.length > 0 ? cashedWidth : this.columnWidth());
-    }
-
     ngOnDestroy(): void {
-        this._cellWidthCssElement?.remove?.();
         this.eventManager.unRegisterAll();
+        this._removeHighlightBorderStyle?.();
     }
 
     //#endregion
 
     //#region private methods
 
-    private addCssToDocument() {
-        return;
-        const columnClass = this.columnDef._columnCssClassName.find(c => c == `cdk-column-${this.columnDef.cssClassFriendlyName}`);
-
-        const tableNgAttributes = findElementAttributeByPrefix(this._tableElement?.attributes, NG_HOST_PREFIX, NG_CONTENT_PREFIX);
-        const _hostCssId = tableNgAttributes[NG_HOST_PREFIX] ?? tableNgAttributes[NG_CONTENT_PREFIX] ?? '';
-        const _isolationId = _hostCssId ? `[${_hostCssId}]` : '';
-        this._cssWidthVariable = `--cs-${columnClass}-width`;
-        this._cssBorderVariable = `--cs-${columnClass}-border`;
-
-        const columnStyles = `
-        ${_isolationId} .${columnClass} {
-            min-width: var(${this._cssWidthVariable},unset); 
-            width: var(${this._cssWidthVariable},unset); 
-            max-width: var(${this._cssWidthVariable},unset);
-            transition: width 0.3s;
-          }
-          ${_isolationId}.cdk-table.cs-table-resizing .${columnClass}{
-            border-right: var(${this._cssBorderVariable},var(--cs-table-inner-vertical-border));
-            [dir='rtl'] & {
-                border-right: unset;
-                border-left: var(${this._cssBorderVariable},var(--cs-table-inner-vertical-border));
-            }
-          }
-        `;
-        this._cellWidthCssElement = addStyleSectionToDocument(`${columnClass}-style-size`, columnStyles);
-    }
-
     private handleResizerEvents(event: Event) {
         if (event.type === 'mousemove') {
-            if (this.resizbleBorderStyle())
-                this.renderer.setStyle(this._tableElement, this._cssBorderVariable, this.resizbleBorderStyle(), RendererStyleFlags2.DashCase);
             this.renderer.addClass(this._tableElement, "cs-table-resizing");
+            if (this._highlightBorderStyles && !this._removeHighlightBorderStyle) {
+                const borderStyleElement = addStyleSectionToDocument(`cdk-column-${this.columnDef.cssClassFriendlyName}-resize-border`, this._highlightBorderStyles);
+                this._removeHighlightBorderStyle = () => {
+                    this._removeHighlightBorderStyle = undefined;
+                    borderStyleElement?.remove();
+                };
+            }
         } else if (!this.pressed) {
             this.renderer.removeClass(this._tableElement, "cs-table-resizing");
-            this.renderer.removeStyle(this._tableElement, this._cssBorderVariable, RendererStyleFlags2.DashCase);
+            this._removeHighlightBorderStyle?.();
         }
     }
 
@@ -131,6 +85,12 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
         this.ngZone.runOutsideAngular(() => {
             const registered = this.eventManager.has('enable-resize');
             if (enabled && !registered) {
+                if (!this._highlightBorderStyles) {
+                    const columnClass = this.columnDef._columnCssClassName.find(c => c.startsWith(`cdk-column-`));
+                    if (columnClass)
+                        this._highlightBorderStyles = this._csTableResizable?.highlightCssTemplate(columnClass);
+                }
+
                 const resizer = this.renderer.createElement("span");
                 this.renderer.addClass(resizer, "resize-holder");
                 this.renderer.appendChild(this.elementRef.nativeElement, resizer);
@@ -152,12 +112,7 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
             value = this._constraintWidth(value);
             value = `${value}px`;
         }
-
         this._csTableResizable?.setColumnSize(this.columnDef.name, value);
-        // if (value)
-        //     this.renderer.setStyle(this._tableElement, this._cssWidthVariable, value, RendererStyleFlags2.DashCase);
-        // else
-        //     this.renderer.removeStyle(this._tableElement, this._cssWidthVariable, RendererStyleFlags2.DashCase);
     }
 
     private onMouseDown = (event: MouseEvent) => {
@@ -187,13 +142,11 @@ export class CSTableColumnResize implements OnDestroy, OnInit, AfterViewInit {
         event.stopPropagation();
         event.preventDefault();
         this.eventManager.unRegister('resizing');
-        //this._resizingUnsubscriber?.();
         if (this.pressed) {
             this.pressed = false;
             this.renderer.removeClass(this._tableElement, "cs-table-resizing");
-            this.renderer.removeStyle(this._tableElement, this._cssBorderVariable, RendererStyleFlags2.DashCase);
+            this._removeHighlightBorderStyle?.();
         }
     };
-
     //#endregion
 }

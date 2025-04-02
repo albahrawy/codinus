@@ -3,7 +3,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ValidationErrors } from "@angular/forms";
-import { copyObject, isEmpty, jsonForEach, setValue, toNumber } from "@codinus/js-extensions";
+import { copyObject, getValue, isEmpty, jsonForEach, setValue, toNumber } from "@codinus/js-extensions";
 import { IGenericRecord, IRecord, Nullable, ValueGetter } from '@codinus/types';
 import { CSFormGroupDirective, ICSFormValidator } from "@ngx-codinus/core/forms";
 import { CSOutletDirective } from "@ngx-codinus/core/outlet";
@@ -24,6 +24,7 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
     //private _csFormGroupDirective = new CSFormGroupDirective(null as unknown as ValidatorFn[], null as unknown as AsyncValidatorFn[]);
 
     private _disabled = false;
+    protected _listStructureChaning: 'adding' | 'removing' | 'none' = 'none';
     private _activeItem = signal<Nullable<TRow>>(null);
     protected _validationCache = new Map<TRow, ValidationErrors>();
     private _conditionalContentDef = signal<CSFormSectionArrayContent | undefined>(undefined);
@@ -55,7 +56,8 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
 
         effect(() => {
             this.formValueChanges();
-            const hasChanges = this._trackChanges();
+            const hasChanges = this._listStructureChaning ==='removing' || this._trackChanges();
+            this._listStructureChaning = 'none';
             this._mfc.notifyChange(this._value);
             if (hasChanges)
                 this.valueChanged.emit({ value: this._value, source: 'input' });
@@ -101,6 +103,7 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
         if (isEmpty(value))
             this._value = null;
         this._value = value;
+        this._validationCache.clear();
         this._mfc.notifyChange(this._value);
         this.valueChanged.emit({ value: this._value, source: 'value' });
     }
@@ -143,8 +146,12 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
         if (!activeItem || !this._form.dirty)
             return false;
         let needRefresh = false;
+        let hasChanges = false;
         const errors: IRecord<ValidationErrors> = {};
         jsonForEach(this._form.controls, (name, control) => {
+            if (getValue(activeItem, name) == control.value)
+                return;
+            hasChanges = true;
             setValue(activeItem, name, control.value, true);
             if (!control.valid && control.errors)
                 errors[name] = control.errors;
@@ -152,6 +159,9 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
             if (this.displayMember() === name || this.iconMember() === name)
                 needRefresh = true;
         }, (key, control) => !!key && (control.dirty || !control.valid));
+
+        if (!hasChanges)
+            return false;
 
         if (Object.keys(errors).length > 0)
             this._validationCache.set(activeItem, errors);
@@ -184,6 +194,7 @@ export abstract class CSFormSectionArrayBase<TRow extends IGenericRecord = IGene
             obj = copyObject(obj);
 
         this._value = obj as TRow[];
+        this._validationCache.clear();
     }
 
     setDisabledState(isDisabled: boolean): void {

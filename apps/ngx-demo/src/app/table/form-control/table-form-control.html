@@ -3,15 +3,15 @@
     <div cs-form-field-bar style="height: 200px; width: 100%;">
         Test Tool Bar
     </div>
-    <mat-table #input="csTableFormInput" csTableFormInput [formControl]="formControl"
+    <mat-table #input="csTableFormInput" csTableFormInput [formControl]="formControl" [resizable]="true"
         [commitOnDestroy]="config.commitOnDestroy" [editWithF2]="config.editWithF2"
         [editWithEnter]="config.editWithEnter" [attachFilter]="config.attachFilter"
         [reorderColumns]="config.reorderColumns" [sortable]="config.sortable" [showHeader]="config.showHeader"
         [showFilter]="config.showFilter" [showFooter]="config.showFooter" [stickyHeader]="config.stickyHeader"
         [stickyFilter]="config.stickyFilter" [stickyFooter]="config.stickyFooter" [noDataText]="'No Data Existing'"
         [selectColumn]="config.selectColumn" keyboard-navigation="cell-round" (created)="onGridCreated($event)"
-        [iconColumn]="config.iconColumn" [showIndex]="config.showIndex" [columns]="config.columns" (edited)="onEdited($event)"
-        [selectable]="config.selectable">
+        [iconColumn]="config.iconColumn" [showIndex]="config.showIndex" [columns]="config.columns"
+        (edited)="onEdited($event)" [selectable]="config.selectable">
     </mat-table>
 </mat-form-field>
 <button (click)="input.addNew()">Add New</button>

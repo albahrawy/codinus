@@ -25,8 +25,13 @@ class StringBuilder {
             this._importsMap.set(source, imports);
     }
 
-    getAllImports() {
-        return [...this._importsMap.values()].flat();
+    getAllImports(ignoredKeys?: string[]) {
+        if (!ignoredKeys?.length)
+            return [...this._importsMap.values()].flat();
+
+        return [...this._importsMap.entries()]
+            .filter(([key]) => !ignoredKeys.includes(key)) // Exclude specific keys
+            .flatMap(([, values]) => values); // Flatten the values
     }
 
     getImports() {
@@ -58,7 +63,7 @@ export function transpileTypeScript(typeScriptCode: string, options?: IOptions) 
     return { code: sb.toString(), imports: sb.getImports() };
 }
 
-export function transpileTypeScriptToCSScript(typeScriptCode: string, containerId: string, options?: IOptions) {
+export function transpileTypeScriptToCSScript(typeScriptCode: string, options?: IOptions) {
     const parser = new TypeScriptParser(options);
     const program = parser.parse(typeScriptCode);
     const printBuilder = new StringBuilder();
@@ -94,7 +99,7 @@ export function transpileTypeScriptToCSScript(typeScriptCode: string, containerI
         }
     });
 
-    const allImports = printBuilder.getAllImports();
+    const allImports = printBuilder.getAllImports(options?.ignoreImports);
     const finalBuilder = new StringBuilder();
     finalBuilder.writeln(`export const classes = [${classes.map(k => `'${k}'`).join(', ')}];`);
     finalBuilder.writeln(`export const functions = [${functions.map(k => `'${k}'`).join(', ')}];`);
@@ -112,66 +117,66 @@ export function transpileTypeScriptToCSScript(typeScriptCode: string, containerI
     return finalBuilder.toString();
 }
 
-export function transpileTypeScriptToCSScriptxx(typeScriptCode: string, containerId: string, options?: IOptions) {
-    const parser = new TypeScriptParser(options);
-    const program = parser.parse(typeScriptCode);
-    const printBuilder = new StringBuilder();
-    const membersBuilder = new StringBuilder();
-    const exports: string[] = [];
-    const classesBuilder = new StringBuilder();
-    const collectClass = (node: IClassDeclaration, index: number) =>
-        classesBuilder.writeln(`${node.id?.name ?? `Class${index}`} : ${printBuilder.toString()},`);
+// export function transpileTypeScriptToCSScriptxx(typeScriptCode: string, containerId: string, options?: IOptions) {
+//     const parser = new TypeScriptParser(options);
+//     const program = parser.parse(typeScriptCode);
+//     const printBuilder = new StringBuilder();
+//     const membersBuilder = new StringBuilder();
+//     const exports: string[] = [];
+//     const classesBuilder = new StringBuilder();
+//     const collectClass = (node: IClassDeclaration, index: number) =>
+//         classesBuilder.writeln(`${node.id?.name ?? `Class${index}`} : ${printBuilder.toString()},`);
 
-    const collectFunction = (node: IFunctionDeclaration, index: number) => {
-        const fnName = node.id?.name ?? `Function${index}`;
-        membersBuilder.writeln(`const ${fnName} = ${printBuilder.toString()};`);
-        exports.push(fnName);
-    };
+//     const collectFunction = (node: IFunctionDeclaration, index: number) => {
+//         const fnName = node.id?.name ?? `Function${index}`;
+//         membersBuilder.writeln(`const ${fnName} = ${printBuilder.toString()};`);
+//         exports.push(fnName);
+//     };
 
-    program.children.forEach((c, i) => {
-        printBuilder.clear();
-        printNodeCore(c, printBuilder);
-        switch (c.type) {
-            case 'ClassDeclaration':
-                collectClass(c, i);
-                break;
-            case 'FunctionDeclaration':
-                collectFunction(c, i);
-                break;
-            case 'ExportNamedDeclaration':
-                if (c.declaration?.type === 'ClassDeclaration')
-                    collectClass(c.declaration, i);
-                else if (c.declaration?.type === 'FunctionDeclaration')
-                    collectFunction(c.declaration, i);
-                break;
-            default:
-                membersBuilder.writeln(printBuilder.toString());
-        }
-    });
+//     program.children.forEach((c, i) => {
+//         printBuilder.clear();
+//         printNodeCore(c, printBuilder);
+//         switch (c.type) {
+//             case 'ClassDeclaration':
+//                 collectClass(c, i);
+//                 break;
+//             case 'FunctionDeclaration':
+//                 collectFunction(c, i);
+//                 break;
+//             case 'ExportNamedDeclaration':
+//                 if (c.declaration?.type === 'ClassDeclaration')
+//                     collectClass(c.declaration, i);
+//                 else if (c.declaration?.type === 'FunctionDeclaration')
+//                     collectFunction(c.declaration, i);
+//                 break;
+//             default:
+//                 membersBuilder.writeln(printBuilder.toString());
+//         }
+//     });
 
-    const allImports = printBuilder.getAllImports();
-    const finalBuilder = new StringBuilder();
-    finalBuilder.write(`export function ${containerId}Container() {`);
-    finalBuilder.writeln(`const dependencies = class Dependencies{};`);
-    if (allImports.length) {
-        finalBuilder.writeln(`let ${allImports.join(',')};`);
-        allImports.forEach(i => {
-            finalBuilder.writeln(`Object.defineProperty(dependencies, '${i}', {`);
-            finalBuilder.write(`set(value) {${i} = value;}});`);
-        });
-    }
-    finalBuilder.writeln(membersBuilder.toString());
-    finalBuilder.writeln('const classes = ()=> ({');
-    finalBuilder.write(classesBuilder.toString());
-    finalBuilder.write('});')
-    finalBuilder.writeln(`return {
-        imports:${JSON.stringify(printBuilder.getImports())},
-        exports:{${exports.join(',')}},
-        dependencies,classes
-        }`);
-    finalBuilder.writeln('}');
-    return finalBuilder.toString();
-}
+//     const allImports = printBuilder.getAllImports();
+//     const finalBuilder = new StringBuilder();
+//     finalBuilder.write(`export function ${containerId}Container() {`);
+//     finalBuilder.writeln(`const dependencies = class Dependencies{};`);
+//     if (allImports.length) {
+//         finalBuilder.writeln(`let ${allImports.join(',')};`);
+//         allImports.forEach(i => {
+//             finalBuilder.writeln(`Object.defineProperty(dependencies, '${i}', {`);
+//             finalBuilder.write(`set(value) {${i} = value;}});`);
+//         });
+//     }
+//     finalBuilder.writeln(membersBuilder.toString());
+//     finalBuilder.writeln('const classes = ()=> ({');
+//     finalBuilder.write(classesBuilder.toString());
+//     finalBuilder.write('});')
+//     finalBuilder.writeln(`return {
+//         imports:${JSON.stringify(printBuilder.getImports())},
+//         exports:{${exports.join(',')}},
+//         dependencies,classes
+//         }`);
+//     finalBuilder.writeln('}');
+//     return finalBuilder.toString();
+// }
 
 function printSemiColon(sb: StringBuilder): void {
     sb.write(';');

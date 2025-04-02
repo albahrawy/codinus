@@ -216,8 +216,8 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
     });
     _optionIconPosition = computed(() => this._optionTogglePosition() === 'after' ? 'before' : 'after');
 
-    protected _showIcon = computed(() => this._iconTemplate() != null);
-    _iconTemplate = computed(() => this._optTemplates().find(t => t.name() === this.iconType())?.template);
+    protected _showIcon = computed(() => this.iconMember() && this._iconTemplate() != null);
+    _iconTemplate = computed(() => this.iconMember() ? this._optTemplates().find(t => t.name() === this.iconType())?.template : undefined);
     _indexTemplate = computed(() =>
         this.showIndex()
             ? this._optTemplates().find(t => t.name() === 'index')?.template
@@ -287,11 +287,11 @@ export class CSSelectionListPanel<TRow, TValue = unknown>
             //     if (option.value == null)
             //         this._selectionModel.clear();
             // }
-            if (option.value() != null)
-                this._selectionModel.select(option.value());
+            //if (option.value() != null)
+            this._selectionModel.select(option.value());
         } else {
-            if (option.value() != null)
-                this._selectionModel.deselect(option.value());
+            //if (option.value() != null)
+            this._selectionModel.deselect(option.value());
         }
         untracked(() => this._coreValue.set(this._selectionModel.selected))
 

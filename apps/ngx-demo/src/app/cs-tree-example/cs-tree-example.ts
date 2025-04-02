@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDragMove, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { JsonPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -34,14 +34,19 @@ const TREE_DATA: FoodNode[] = [
 @Component({
     selector: 'cs-tree-example',
     templateUrl: './cs-tree-example.html',
-    imports: [CodinusTreeModule, JsonPipe, ReactiveFormsModule,  CdkDropList, CdkDrag]
+    imports: [CodinusTreeModule, JsonPipe, ReactiveFormsModule, CdkDropList, CdkDrag, CdkDragPlaceholder]
 })
 
 export class CSTreeExample {
 
-    handleDrag($event: CdkDragDrop<any, any, any>) {
-        console.log($event);
+    handleDrag(args: CdkDragDrop<any, any, any>) {
+        const dropItem = args.container.getSortedItems().find(e => getElementsUnderPoint(e.element.nativeElement, args.dropPoint.x, args.dropPoint.y));
+        // if (dropItem?.element.nativeElement.matches(".cs-tree-node::before")) {
+        //     console.log("Hovering on ::before");
+        // }
+        console.log(dropItem?.data, args.item.data);
     }
+
 
     addNewChild(csTree: CSTreeFeatures<{ iKey: number; name: string; pIkey?: number; }>) {
         csTree.add({ iKey: 20, name: 'New Child', pIkey: 7 })
@@ -112,4 +117,14 @@ export class CSTreeExample {
         console.log(handler);
         console.log(nodeData);
     }
+}
+
+function getElementsUnderPoint(element: HTMLElement, x: number, y: number) {
+    const rect = element.getBoundingClientRect();
+    return (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+    );
 }

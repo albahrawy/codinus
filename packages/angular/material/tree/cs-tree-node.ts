@@ -1,5 +1,5 @@
 import { CDK_TREE_NODE_OUTLET_NODE, CdkNestedTreeNode, CdkTree, CdkTreeNode, CdkTreeNodeOutlet } from '@angular/cdk/tree';
-import { AfterContentInit, Component, computed, Directive, effect, inject, input, IterableDiffer, signal, viewChild } from '@angular/core';
+import { AfterContentInit, Component, computed, Directive, effect, ElementRef, inject, input, IterableDiffer, signal, viewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNestedTreeNode } from '@angular/material/tree';
 import { preventEvent } from '@codinus/dom';
@@ -12,6 +12,7 @@ import { debouncedSignal } from '@ngx-codinus/core/shared';
 
 @Component({
     selector: `cs-tree-node`,
+    exportAs: 'csTreeNodeBody',
     template: `
     @let expanded = _isExpanded();
     <div class="cs-tree-node-body" [class.cs-tree-node-current]="_isCurrent()"
@@ -39,7 +40,7 @@ import { debouncedSignal } from '@ngx-codinus/core/shared';
         <div role="group" class="cs-tree-node-children-container" (transitionstart)="_inAnimation.set(true)" 
         (transitionend)="_inAnimation.set(false)" [class.cs-tree-node-isExpanded]="expanded">
         @if(!_isCollapsed()){
-            <ng-container cdkTreeNodeOutlet></ng-container>
+            <div><ng-container cdkTreeNodeOutlet></ng-container></div>
         }    
         </div>
     }
@@ -58,7 +59,7 @@ export class CSTreeNodeBody<T> extends CSCdkTreeNodeBodyBase<T> {
 
     indent = input(20, { transform: (v: Nullable<string | number>) => v ? toNumber(v) : 20 });
 
-    _outlet = viewChild(CdkTreeNodeOutlet);
+    private _outlet = viewChild(CdkTreeNodeOutlet);
 
     protected _toggle(event: Event): void {
         preventEvent(event);
@@ -66,7 +67,7 @@ export class CSTreeNodeBody<T> extends CSCdkTreeNodeBodyBase<T> {
     }
     protected _isExpanded = computed(() => this._csTreeNode._isExpandedSignal());
 
-    private _debouncedExpanded = debouncedSignal(this._isExpanded, 100);
+    private _debouncedExpanded = debouncedSignal(this._isExpanded, 10);
 
     protected _isCollapsed = computed(() => {
         return !this._inAnimation() && !this._debouncedExpanded();

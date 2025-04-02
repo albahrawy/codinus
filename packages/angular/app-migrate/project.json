@@ -1,7 +1,7 @@
 {
   "name": "app-migrate",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/angular/app-migrate/src",
+  "sourceRoot": "packages/angular/app-migrate",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],

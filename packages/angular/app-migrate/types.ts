@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { signal } from "@angular/core";
 import { AbstractControl, AsyncValidatorFn, FormGroup, ValidatorFn } from "@angular/forms";
 import { IGenericRecord, IRecord, IStringRecord } from "@codinus/types";
 import { DataHttpHandleOptions, ICSRequestAuditInfo } from "@ngx-codinus/cdk/data";
@@ -82,11 +83,11 @@ interface IPageServerDataSource extends IServerDatasource {
     mainTable?: string;
 }
 
-enum DataAccess { None = 0, New = 1, Edit = 2, Delete = 4, Save = 8, Print = 16 }
+export const enum DataAccess { None = 0, New = 1, Edit = 2, Delete = 4, Save = 8, Print = 16 }
 
-declare type GridPosition = 'grid-before' | 'grid-after' | 'grid-up' | 'grid-bottom' | '';
-declare type DataPageElements = 'form' | 'grid' | 'form-grid' | '';
-declare type SectionsDisplayType = 'tab' | 'panel' | 'border' | '';
+export declare type GridPosition = 'grid-before' | 'grid-after' | 'grid-up' | 'grid-bottom' | '';
+export declare type DataPageElements = 'form' | 'grid' | 'form-grid' | '';
+export declare type SectionsDisplayType = 'tab' | 'panel' | 'border' | '';
 declare type NovaFunction<T> = (...args: any) => T;
 declare interface IElementSize {
     width?: string;
@@ -98,8 +99,20 @@ declare interface IDataPageLayout {
     formAreaSize?: number;
 }
 
+export declare interface IGridTreeConfig {
+    enabled?: boolean;
+    keyField?: string;
+    parentField?: string;
+    pathKey?: string;
+    childrenKey?: string;
+    dataReady?: boolean;
+    displayField?: string;
+    treeContextMenu?: boolean;
+    treeAddSubNodeText?: string | IStringRecord;
+}
+
 declare interface IGridOptions {
-    //    tree?: IGridTreeConfig;
+    tree?: IGridTreeConfig;
     selectFirstRow?: boolean;
     autoSizeColumn?: boolean;
     conditionalSelection?: boolean; fixedFooter?: boolean;
@@ -119,7 +132,7 @@ declare type DataType = '' | 'string' | 'number' | 'date';
 declare type ControlRenderType = 'text' | 'date-picker' | 'select' | 'text-area' | 'radio' | 'check-box' | 'slide-toggle'
     | 'grid-picker' | 'code' | 'img64-upload' | 'img-selector' | 'grid-editor' | 'group' | 'group-array' | 'file-upload' | 'icon-chooser';
 
-declare type ControlType = ControlRenderType | 'color' | 'email' | 'password' | 'number' | 'localized-text';
+export declare type ControlType = ControlRenderType | 'color' | 'email' | 'password' | 'number' | 'localized-text';
 
 declare interface INovaIcon {
     type?: 'none' | 'material' | 'image';
@@ -190,10 +203,14 @@ declare interface IBasicFormField extends ILocalizedCaption, IHasRenderState {
 
     hints?: { left?: NovaFunction<string>, right?: NovaFunction<string> };
     events?: {
-        change?: NovaFunction<void>, buttonClick?: NovaFunction<void>;
-        rowSelected?: NovaFunction<void>, rowSelecting?: NovaFunction<void>;
-        addingNew?: NovaFunction<void>, demandData?: NovaFunction<void>;
-        valueNeeded?: NovaFunction<Observable<any>>, dialogShow?: NovaFunction<boolean>;
+        change?: NovaFunction<void>,
+        buttonClick?: NovaFunction<void>;
+        rowSelected?: NovaFunction<void>,
+        rowSelecting?: NovaFunction<void>;
+        addingNew?: NovaFunction<void>,
+        demandData?: NovaFunction<void>;
+        valueNeeded?: NovaFunction<Observable<any>>,
+        dialogShow?: NovaFunction<boolean>;
         editing?: NovaFunction<void>;
         valueSet?: NovaFunction<void>;
         getFormttedValue?: NovaFunction<any>;
@@ -360,7 +377,7 @@ declare interface IHasGrid {
 }
 
 
-type IFormField = IBasicFormField & IRadioFormField & IDateFormField & IImageSelectorField & IFormArrayField & IUploadField
+export type IFormField = IBasicFormField & IRadioFormField & IDateFormField & IImageSelectorField & IFormArrayField & IUploadField
     & IHasDataMembers & IGroupFormField & ISelectField & IHasGrid;
 
 declare interface IHasChildrenLayout {
@@ -378,19 +395,23 @@ declare interface ILocalizedCaption {
     readonly localCaption?: string;
 }
 
-
-export interface NovaAppPage {
+export interface INovaAppPage {
     dataManager?: IDataPageCrudManager;
-    defaultValues: any;
-    hasGrid: boolean;
-    hasForm: boolean;
+    dataHandler: IPageDataHandler;
+    validation: IFormValidation;
+
+    childrenLayout: IFormSectionLayout;
+
+    // defaultValues: any;
+    // hasGrid: boolean;
+    // hasForm: boolean;
 
     elements: DataPageElements;
-    childrenLayout: IFormSectionLayout;
-    validation: IFormValidation;
-    pageKey: number;
 
-    dataHandler: IPageDataHandler;
+
+    // pageKey: number;
+
+
     dataAccess: DataAccess;
 
     pageName: string;
@@ -421,10 +442,27 @@ export interface NovaAppPage {
 
 
     events: {
-        loading?: NovaFunction<void>, loaded?: NovaFunction<void>, dataSourceChanged?: NovaFunction<void>,
-        addingNew?: NovaFunction<void>, deleting?: NovaFunction<void>, saving?: NovaFunction<void>, editing?: NovaFunction<void>,
-        rowUpdated?: NovaFunction<void>, deleted?: NovaFunction<void>,
-        rowSelected?: NovaFunction<void>, rowSelecting?: NovaFunction<void>,
-        argsGenerated?: NovaFunction<void>, searchChanged?: NovaFunction<void>
+        loading?: NovaFunction<void>,
+        loaded?: NovaFunction<void>,
+        dataSourceChanged?: NovaFunction<void>,
+        addingNew?: NovaFunction<void>,
+        deleting?: NovaFunction<void>,
+        saving?: NovaFunction<void>,
+        editing?: NovaFunction<void>,
+        rowUpdated?: NovaFunction<void>,
+        deleted?: NovaFunction<void>,
+        rowSelected?: NovaFunction<void>,
+        rowSelecting?: NovaFunction<void>,
+        argsGenerated?: NovaFunction<void>,
+        searchChanged?: NovaFunction<void>
     };
+}
+
+export class NovaAppPage {
+    constructor(public page: INovaAppPage) {
+
+    }
+
+    converting = signal(0);
+    message = signal('');
 }

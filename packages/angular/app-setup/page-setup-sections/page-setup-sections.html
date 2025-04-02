@@ -2,7 +2,8 @@
     [iconMember]="sectionHandler().iconMember" [allowedChildTypes]="allowedChildTypes"
     [childrenAccessor]="sectionHandler().childAccessor" activateFirstItem="true" csContextMenu="true"
     [isRemoveAllowed]="isRemoveAllowed" [showIcon]="true" [value]="sectionSource()" [nodeIndent]="10"
-    (valueChanged)="_onValueChanged($event)" (focusedChanged)="_onFocusedChanged($event)">
+    (valueChanged)="_onValueChanged($event)" (nodeRemoved)="onNodeRemoved()"
+    (focusedChanged)="_onFocusedChanged($event)">
     <mat-slide-toggle tree-panel-header [checked]="_showRootArea()" (change)="_showRootArea.set($event.checked)">Show
         Root Area
     </mat-slide-toggle>
@@ -14,15 +15,18 @@
             @if(properties.standards!==false){
             <cs-form-area-panel label="Standard" [flex-grid-columns]="areaColumns" [flex-grid-gap]="flexGap"
                 flex-grid-align="start">
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-order="1" flex-grid-element
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Type</mat-label>
                     <input matInput csFormControlName="type" readonly="true" />
                 </mat-form-field>
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="2"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Name</mat-label>
                     <input [required]="true" matInput csFormControlName="name" />
                 </mat-form-field>
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="3"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Template</mat-label>
                     <mat-select csFormControlName="templateName" defaultValue="default">
                         @for (templateName of templateList(); track templateName) {
@@ -30,23 +34,27 @@
                         }
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="4"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Css Class</mat-label>
                     <input matInput csFormControlName="cssClass" />
                 </mat-form-field>
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="5"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Order</mat-label>
                     <input matInput inputType="numeric" csFormControlName="order" />
                 </mat-form-field>
                 @if(properties.standards.dataKey !== false){
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="6"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Data key</mat-label>
                     <input [required]="properties.standards.requiredDataKey!==false" matInput
                         csFormControlName="dataKey" />
                 </mat-form-field>
                 }
                 @if(properties.standards.label !== false){
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="7"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Label</mat-label>
                     <div class="cs-setup-page-label-input">
                         <cs-localizable-input class="--label-section" csFormControlName="label"
@@ -62,61 +70,77 @@
                 </mat-form-field>
                 }
                 @if(properties.standards.hints !== false){
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="8"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Left Hint</mat-label>
                     <cs-localizable-input csFormControlName="leftHint" [flex-grid-columns]="areaColumns"
                         [flex-grid-gap]="flexGap" flex-grid-align="start"></cs-localizable-input>
                 </mat-form-field>
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="9"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Right Hint</mat-label>
                     <cs-localizable-input csFormControlName="rightHint" [flex-grid-columns]="areaColumns"
                         [flex-grid-gap]="flexGap" flex-grid-align="start"></cs-localizable-input>
                 </mat-form-field>
                 }
                 @if(properties.standards.flexSpan !== false){
-                <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
+                <mat-form-field subscriptSizing="dynamic" flex-grid-element flex-grid-order="10"
+                    [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Flex Span</mat-label>
                     <cs-flex-column-input csFormControlName="flexSpan"></cs-flex-column-input>
                 </mat-form-field>
                 }
+                @if(properties.mergedChildren){
+                @for (element of properties.mergedChildren; track element) {
+                <ng-container *csFormTemplateOutlet="element; section: sectionArray.groupDirective;"></ng-container>
+                }
+                }
                 @if(properties.hasToggles){
-                <section class="cs-setup-page-toggle-container" flex-grid-element
+                <section class="cs-setup-page-toggle-container" flex-grid-element flex-grid-order="11"
                     [flex-grid-column-span]="normalFieldSpan">
                     @if(properties.standards.required !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="required">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="required" [style.order]="1">
                         Required
                     </mat-slide-toggle>
                     }
                     @if(properties.standards.disabled !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="disabled">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="disabled" [style.order]="2">
                         Disabled
                     </mat-slide-toggle>
                     }
                     @if(properties.standards.readOnly !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="readOnly">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="readOnly" [style.order]="3">
                         ReadOnly
                     </mat-slide-toggle>
                     }
                     @if(properties.standards.allowClear !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="allowClear">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="allowClear" [style.order]="4">
                         AllowClear
                     </mat-slide-toggle>
                     }
                     @if(properties.standards.hidden !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="hidden">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="hidden" [style.order]="5">
                         Hidden
                     </mat-slide-toggle>
                     }
                     @if(properties.standards.invisible !== false){
-                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="invisible">
+                    <mat-slide-toggle class="cs-setup-page-toggle" csFormControlName="invisible" [style.order]="6">
                         Invisible
                     </mat-slide-toggle>
+                    }
+                    @if(properties.toggleChildren?.length){
+                    @for (child of properties.toggleChildren; track child) {
+                    <mat-slide-toggle class="cs-setup-page-toggle" [csFormControlName]="child.dataKey"
+                        [style.order]="child.order">
+                        {{(child.label|csTranslate)()}}
+                    </mat-slide-toggle>
+                    }
                     }
                 </section>
                 }
             </cs-form-area-panel>
             }
-            @if(properties.children){
+            @if(properties.children?.length){
             <cs-form-area-panel label="Advanced" [flex-grid-columns]="properties.panelColumns" [flex-grid-gap]="flexGap"
                 flex-grid-align="start">
                 @for (element of properties.children; track element) {
@@ -124,13 +148,13 @@
                 @case ('flex-gap') {
                 <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Flex Gap</mat-label>
-                    <cs-flex-property-input csFormControlName="gap"></cs-flex-property-input>
+                    <cs-flex-property-input [csFormControlName]="element.name"></cs-flex-property-input>
                 </mat-form-field>
                 }
                 @case ('flex-columns') {
                 <mat-form-field subscriptSizing="dynamic" flex-grid-element [flex-grid-column-span]="normalFieldSpan">
                     <mat-label>Flex Columns</mat-label>
-                    <cs-flex-column-input csFormControlName="columns"></cs-flex-column-input>
+                    <cs-flex-column-input [csFormControlName]="element.name"></cs-flex-column-input>
                 </mat-form-field>
                 }@default {
                 <ng-container *csFormTemplateOutlet="element; section: sectionArray.groupDirective;"></ng-container>
